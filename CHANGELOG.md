@@ -88,3 +88,10 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ### Admin Dashboard Enhancements
 - **User Management List:** Implemented a new "Users" section in the admin dashboard. The administrator can now view a complete list of all registered contributors, including their names, emails, points, and join dates.
 - **Navigation Updates:** Added direct links to the User Management section in both the desktop and mobile navigation menus for admin users.
+
+## Version 1.4.0 - Sidebar Navigation
+
+### User Experience Improvements
+- **Sidebar Navigation Menu:** Added a stylish, semi-transparent sidebar to the left of the application. This provides a consistent and easily accessible way to navigate between the Dashboard, Chapters, Leaderboard, and Peter Trull pages.
+- **Contextual Links:** The sidebar dynamically updates based on the user's role, showing administrative links (Review Suggestions, Upload Chapters, User Management) only to authorized admins.
+- **Responsive Design:** The sidebar is optimized for larger screens and complements the existing top navigation bar, which remains available for mobile users.

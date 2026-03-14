@@ -18,19 +18,27 @@
         <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white/80 backdrop-blur-sm border-b border-amber-200/60 shadow-sm">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            <div class="flex flex-1">
+                @if(!isset($hideSidebar) || !$hideSidebar)
+                    @include('layouts.sidebar')
+                @endif
 
-            <!-- Page Content -->
-            <main class="flex-grow">
-                {{ $slot }}
-            </main>
+                <div class="flex-1 flex flex-col">
+                    <!-- Page Heading -->
+                    @isset($header)
+                        <header class="bg-white/80 backdrop-blur-sm border-b border-amber-200/60 shadow-sm">
+                            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                                {{ $header }}
+                            </div>
+                        </header>
+                    @endisset
+
+                    <!-- Page Content -->
+                    <main class="flex-grow">
+                        {{ $slot }}
+                    </main>
+                </div>
+            </div>
         </div>
 
         {{-- Auth modals for guests --}}
