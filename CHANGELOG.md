@@ -95,3 +95,10 @@ This document summarizes the key changes and enhancements made to the `novel-app
 - **Sidebar Navigation Menu:** Added a stylish, semi-transparent sidebar to the left of the application. This provides a consistent and easily accessible way to navigate between the Dashboard, Chapters, Leaderboard, and Peter Trull pages.
 - **Contextual Links:** The sidebar dynamically updates based on the user's role, showing administrative links (Review Suggestions, Upload Chapters, User Management) only to authorized admins.
 - **Responsive Design:** The sidebar is optimized for larger screens and complements the existing top navigation bar, which remains available for mobile users.
+
+## Version 1.4.1 - Sidebar Visibility Fix
+
+### Bug Fixes
+- **Sidebar Visibility:** Fixed an issue where the sidebar was hidden due to redundant navigation bars and incorrect responsive classes.
+- **Layout Cleanup:** Removed redundant top navigation bars from guest views (Chapters, Leaderboard, Peter Trull) to allow the sidebar to be the primary navigation method.
+- **Improved Responsiveness:** Adjusted sidebar visibility to appear on medium-sized screens and above, ensuring a better experience across different devices.

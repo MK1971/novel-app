@@ -16,14 +16,16 @@
     </head>
     <body class="min-h-screen antialiased" style="font-family: 'Nunito', sans-serif; background: #fff9f0; color: #2c2419;">
         <div class="min-h-screen flex flex-col">
-            <div class="flex flex-1">
-                @if(!isset($hideSidebar) || !$hideSidebar)
+            @if(!isset($hideSidebar) || !$hideSidebar)
+                <div class="flex flex-1">
                     @include('layouts.sidebar')
-                @endif
-                <div class="flex-1">
-                    {{ $slot }}
+                    <div class="flex-1">
+                        {{ $slot }}
+                    </div>
                 </div>
-            </div>
+            @else
+                {{ $slot }}
+            @endif
         </div>
 
         {{-- Auth modals for guests --}}
