@@ -15,11 +15,14 @@ class VoteController extends Controller
         $book = Book::where('name', 'Peter Trull Solitary Detective')->first();
         $chapters = collect();
 
-        $storyBook = Book::where('name', 'The Book With No Name')->first();
-        $canVote = $storyBook && Edit::where('user_id', $request->user()->id)
-            ->whereHas('chapter', fn ($q) => $q->where('book_id', $storyBook->id))
-            ->whereIn('status', ['pending', 'accepted_full', 'accepted_partial'])
-            ->exists();
+        $canVote = false;
+        if (auth()->check()) {
+            $storyBook = Book::where('name', 'The Book With No Name')->first();
+            $canVote = $storyBook && Edit::where('user_id', $request->user()->id)
+                ->whereHas('chapter', fn ($q) => $q->where('book_id', $storyBook->id))
+                ->whereIn('status', ['pending', 'accepted_full', 'accepted_partial'])
+                ->exists();
+        }
 
         if ($book) {
             $chapters = Chapter::where('book_id', $book->id)

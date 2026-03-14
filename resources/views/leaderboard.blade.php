@@ -1,30 +1,91 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Leaderboard</h2>
-    </x-slot>
+@php
+    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+@endphp
+
+<x-dynamic-component :component="$layout">
+    @auth
+        <x-slot name="header">
+            <h2 class="font-semibold text-xl text-amber-900 leading-tight">Leaderboard</h2>
+        </x-slot>
+    @else
+        <nav class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+            <div class="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                <a href="{{ url('/') }}" class="text-xl font-extrabold text-amber-800 hover:text-amber-600 transition-colors">
+                    What's My Book Name
+                </a>
+                <div class="flex items-center gap-6 md:gap-8">
+                    @if($topLeader)
+                        <div class="hidden sm:block text-amber-700 font-bold">
+                            🏆 Leader: {{ $topLeader->name }} ({{ $topLeader->points }} pts)
+                        </div>
+                    @endif
+                    <div class="flex gap-4">
+                        <button type="button" x-data @click="$dispatch('open-modal', 'login-modal')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">Sign In</button>
+                        <button type="button" x-data @click="$dispatch('open-modal', 'register-modal')" class="px-4 py-2 bg-amber-500 text-black font-semibold rounded-full hover:bg-amber-600 transition-colors shrink-0">
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="max-w-5xl mx-auto px-6 pt-12">
+            <h2 class="text-center text-4xl font-extrabold text-amber-900 mb-2">Leaderboard</h2>
+            <p class="text-center text-amber-800/70 text-xl font-medium mb-12">The top contributors shaping the narrative.</p>
+        </div>
+    @endauth
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-white border border-amber-100 shadow-sm rounded-3xl overflow-hidden">
+                <table class="min-w-full divide-y divide-amber-100">
+                    <thead class="bg-amber-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">#</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Points</th>
+                            <th class="px-8 py-4 text-left text-sm font-bold text-amber-900 uppercase tracking-wider">Rank</th>
+                            <th class="px-8 py-4 text-left text-sm font-bold text-amber-900 uppercase tracking-wider">Contributor</th>
+                            <th class="px-8 py-4 text-right text-sm font-bold text-amber-900 uppercase tracking-wider">Points</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="divide-y divide-amber-50">
                         @foreach($users as $index => $user)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4">{{ $index + 1 }}</td>
-                                <td class="px-6 py-4 font-medium">{{ $user->name }}</td>
-                                <td class="px-6 py-4">{{ $user->points }}</td>
+                            <tr class="hover:bg-amber-50/30 transition-colors">
+                                <td class="px-8 py-6">
+                                    <div class="flex items-center">
+                                        @if($index === 0)
+                                            <span class="text-2xl mr-2">🥇</span>
+                                        @elseif($index === 1)
+                                            <span class="text-2xl mr-2">🥈</span>
+                                        @elseif($index === 2)
+                                            <span class="text-2xl mr-2">🥉</span>
+                                        @else
+                                            <span class="text-lg font-bold text-amber-900/40 w-8">#{{ $index + 1 }}</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="px-8 py-6">
+                                    <div class="text-lg font-bold text-amber-900">{{ $user->name }}</div>
+                                    <div class="text-sm text-amber-800/50">Member since {{ $user->created_at->format('M Y') }}</div>
+                                </td>
+                                <td class="px-8 py-6 text-right">
+                                    <span class="inline-flex items-center px-4 py-1 bg-amber-100 text-amber-800 text-lg font-bold rounded-full">
+                                        {{ $user->points }} pts
+                                    </span>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+
+            <div class="mt-12 text-center">
+                <p class="text-amber-800/70 text-lg mb-8">Want to see your name here? Start contributing to the story!</p>
+                <a href="{{ route('chapters.index') }}" class="px-10 py-4 bg-amber-500 text-black text-lg font-bold rounded-full hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/25">
+                    Start Your Adventure
+                </a>
+            </div>
         </div>
     </div>
-</x-app-layout>
+
+    @guest
+        @include('auth.modals')
+    @endguest
+</x-dynamic-component>

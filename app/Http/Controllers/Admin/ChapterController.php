@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ChapterController extends Controller
 {
     public function index()
     {
+        Gate::authorize('admin');
         $storyBook = Book::where('name', 'The Book With No Name')->first();
         $peterTrull = Book::where('name', 'Peter Trull Solitary Detective')->first();
 
@@ -22,6 +24,7 @@ class ChapterController extends Controller
 
     public function storeStoryChapter(Request $request)
     {
+        Gate::authorize('admin');
         $request->validate([
             'title' => 'required|string|max:255',
             'number' => 'required|integer|min:1',
@@ -47,6 +50,7 @@ class ChapterController extends Controller
 
     public function storePeterTrullChapter(Request $request)
     {
+        Gate::authorize('admin');
         $request->validate([
             'title' => 'required|string|max:255',
             'number' => 'required|integer|min:1',
