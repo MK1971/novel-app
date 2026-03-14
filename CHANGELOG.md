@@ -102,3 +102,7 @@ This document summarizes the key changes and enhancements made to the `novel-app
 - **Sidebar Visibility:** Fixed an issue where the sidebar was hidden due to redundant navigation bars and incorrect responsive classes.
 - **Layout Cleanup:** Removed redundant top navigation bars from guest views (Chapters, Leaderboard, Peter Trull) to allow the sidebar to be the primary navigation method.
 - **Improved Responsiveness:** Adjusted sidebar visibility to appear on medium-sized screens and above, ensuring a better experience across different devices.
+
+## Version 1.4.2 - Landing Page and Sidebar Fixes
+
+This release addresses two critical display issues reported by the user. The landing page had a broken HTML `</head>` tag that could cause rendering inconsistencies across browsers. The sidebar navigation was rendering but appeared compressed due to missing flex-shrink constraints. Both issues have been resolved, and the frontend assets have been rebuilt to ensure all Tailwind CSS classes are properly compiled.

@@ -1,4 +1,4 @@
-<aside class="hidden md:flex flex-col w-64 bg-white/50 backdrop-blur-sm border-r border-amber-200/60 sticky top-0 h-screen overflow-y-auto">
+<aside class="hidden md:flex flex-col shrink-0 bg-white/50 backdrop-blur-sm border-r border-amber-200/60 sticky top-0 h-screen overflow-y-auto" style="width: 16rem; min-width: 16rem;">
     <div class="p-6 space-y-8">
         {{-- Main Navigation --}}
         <div>
