@@ -57,3 +57,12 @@ This document summarizes the key changes and enhancements made to the `novel-app
 - **Global Auth Modals:** Refactored the authentication modals to be included globally in the `guest` and `app` layouts. This ensures that sign-in and registration can be initiated from any page without redundant code.
 - **Persistent Page Redirection:** Enhanced the redirection logic to ensure that users stay on the exact page where they initiated the sign-in or registration process, providing a truly seamless experience across the entire site.
 - **Cleaned Up Views:** Removed redundant modal inclusions from individual views (Chapters, Leaderboard, Vote), resulting in cleaner and more maintainable Blade templates.
+
+## Version 1.2.0 - Security & Accessibility Enhancements
+
+### Authentication Improvements
+- **Case-Insensitive Email Handling:** Updated the login and registration logic to handle emails in a case-insensitive manner. All emails are now normalized to lowercase before being stored or used for authentication, preventing login issues caused by capitalization.
+
+### Security & Browser Compatibility
+- **Enhanced Session Security:** Updated the application's session and cookie configuration to use secure defaults. This includes enabling session encryption, enforcing secure cookies (HTTPS only), and setting `HttpOnly` and `SameSite` attributes to mitigate common web vulnerabilities and ensure a warning-free experience in modern browsers.
+- **Environment Configuration:** Refined the `.env` file with secure session settings to ensure consistency across different environments.
