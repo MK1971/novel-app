@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
 use App\Http\Controllers\Admin\EditApprovalController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\EditController;
 use App\Http\Controllers\PaymentController;
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/chapters', [AdminChapterController::class, 'index'])->name('chapters.index');
         Route::post('/chapters/story', [AdminChapterController::class, 'storeStoryChapter'])->name('chapters.store-story');
         Route::post('/chapters/peter-trull', [AdminChapterController::class, 'storePeterTrullChapter'])->name('chapters.store-peter-trull');
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     });
 });
 

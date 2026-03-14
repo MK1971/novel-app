@@ -36,6 +36,9 @@
                         <x-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                             Upload Chapters
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                            Users
+                        </x-nav-link>
                     @endcan
                 </div>
             </div>
@@ -107,6 +110,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold">
                     Upload Chapters
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold">
+                    Users
                 </x-responsive-nav-link>
             @endcan
         </div>

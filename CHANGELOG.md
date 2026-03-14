@@ -79,3 +79,12 @@ This document summarizes the key changes and enhancements made to the `novel-app
 
 ### User Experience Improvements
 - **Registration Failure Handling:** Fixed an issue where registration failures (e.g., email already taken) would incorrectly redirect the user to the login modal. The system now correctly identifies registration attempts and keeps the "Create account" modal open with the appropriate error messages, ensuring a smoother user experience.
+
+## Version 1.3.0 - Admin & UX Enhancements
+
+### User Experience Improvements
+- **Password Hint Popup:** Added a helpful password requirement hint to the registration form. Users can now hover over or click an information icon to see the suggested password criteria (length, casing, numbers, and special characters).
+
+### Admin Dashboard Enhancements
+- **User Management List:** Implemented a new "Users" section in the admin dashboard. The administrator can now view a complete list of all registered contributors, including their names, emails, points, and join dates.
+- **Navigation Updates:** Added direct links to the User Management section in both the desktop and mobile navigation menus for admin users.

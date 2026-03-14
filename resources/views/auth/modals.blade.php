@@ -70,9 +70,25 @@
                 <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs" />
             </div>
 
-            <div class="mt-3">
-                <x-input-label for="register-password" :value="__('Password')" class="text-sm" />
-                <x-text-input id="register-password" class="block mt-0.5 w-full text-sm py-1.5" type="password" name="password" required autocomplete="new-password" />
+            <div class="mt-3" x-data="{ showHint: false }">
+                <div class="flex items-center justify-between">
+                    <x-input-label for="register-password" :value="__('Password')" class="text-sm" />
+                    <button type="button" @mouseenter="showHint = true" @mouseleave="showHint = false" @click="showHint = !showHint" class="text-amber-600 hover:text-amber-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                </div>
+                <div class="relative">
+                    <x-text-input id="register-password" class="block mt-0.5 w-full text-sm py-1.5" type="password" name="password" required autocomplete="new-password" />
+                    <div x-show="showHint" x-transition class="absolute z-50 w-64 p-3 mt-2 text-xs bg-white border border-amber-200 rounded-xl shadow-xl text-amber-900 -left-2 sm:left-auto sm:right-0">
+                        <p class="font-bold mb-1">Password Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 text-amber-800/80">
+                            <li>At least 8 characters long</li>
+                            <li>Include uppercase & lowercase</li>
+                            <li>Include at least one number</li>
+                            <li>Include a special character</li>
+                        </ul>
+                    </div>
+                </div>
                 <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs" />
             </div>
 
