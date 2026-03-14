@@ -111,7 +111,4 @@
         </div>
     </div>
 
-    @guest
-        @include('auth.modals')
-    @endguest
 </x-dynamic-component>

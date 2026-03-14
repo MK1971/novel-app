@@ -52,3 +52,8 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ### Privacy & Leaderboard Updates
 - **Admin Privacy:** Updated the leaderboard and global leader display to exclude the administrator account (`admin@example.com`). This ensures that only regular contributors are featured in the rankings.
 - **Global Leader Logic:** Refined the `AppServiceProvider` to filter out the admin when calculating the top contributor for the navigation bar display.
+
+### Redirection & Layout Refinement
+- **Global Auth Modals:** Refactored the authentication modals to be included globally in the `guest` and `app` layouts. This ensures that sign-in and registration can be initiated from any page without redundant code.
+- **Persistent Page Redirection:** Enhanced the redirection logic to ensure that users stay on the exact page where they initiated the sign-in or registration process, providing a truly seamless experience across the entire site.
+- **Cleaned Up Views:** Removed redundant modal inclusions from individual views (Chapters, Leaderboard, Vote), resulting in cleaner and more maintainable Blade templates.

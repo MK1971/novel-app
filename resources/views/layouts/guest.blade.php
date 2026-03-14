@@ -18,5 +18,10 @@
         <div class="min-h-screen flex flex-col">
             {{ $slot }}
         </div>
+
+        {{-- Auth modals for guests --}}
+        @if (!auth()->check())
+            @include('auth.modals')
+        @endif
     </body>
 </html>

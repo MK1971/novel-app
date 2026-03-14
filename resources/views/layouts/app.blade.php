@@ -32,5 +32,10 @@
                 {{ $slot }}
             </main>
         </div>
+
+        {{-- Auth modals for guests --}}
+        @if (!auth()->check())
+            @include('auth.modals')
+        @endif
     </body>
 </html>
