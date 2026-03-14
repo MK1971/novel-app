@@ -4,9 +4,11 @@
         <div>
             <h3 class="text-xs font-bold text-amber-900/40 uppercase tracking-widest mb-4 px-4">Main Menu</h3>
             <nav class="space-y-1">
+                @auth
                 <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
                     Dashboard
                 </x-sidebar-link>
+                @endauth
                 <x-sidebar-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" icon="book">
                     Chapters
                 </x-sidebar-link>

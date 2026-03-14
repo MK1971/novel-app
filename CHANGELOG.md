@@ -106,3 +106,7 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ## Version 1.4.2 - Landing Page and Sidebar Fixes
 
 This release addresses two critical display issues reported by the user. The landing page had a broken HTML `</head>` tag that could cause rendering inconsistencies across browsers. The sidebar navigation was rendering but appeared compressed due to missing flex-shrink constraints. Both issues have been resolved, and the frontend assets have been rebuilt to ensure all Tailwind CSS classes are properly compiled.
+
+## Version 1.4.3 - Dashboard Link Visibility Fix
+
+The Dashboard link in the sidebar is now hidden for guest users. Previously, clicking the Dashboard link as a guest would redirect to the sign-in page, which was confusing. The link now only appears for authenticated users who have access to the dashboard. Guest users will see only the public navigation links: Chapters, Leaderboard, and Peter Trull.
