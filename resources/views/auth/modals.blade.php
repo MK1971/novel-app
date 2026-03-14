@@ -1,4 +1,4 @@
-<x-modal name="login-modal" :show="$errors->has('email') || $errors->has('password')" maxWidth="sm">
+<x-modal name="login-modal" :show="($errors->has('email') || $errors->has('password')) && !old('name')" maxWidth="sm">
     <div class="p-6">
         <h2 class="text-xl font-bold text-amber-900 mb-4">Sign in</h2>
         <x-auth-session-status class="mb-3 text-sm" :status="session('status')" />
@@ -50,7 +50,7 @@
 </x-modal>
 
 {{-- Register modal (same style as Sign in) --}}
-<x-modal name="register-modal" :show="$errors->has('name') || $errors->has('password_confirmation')" maxWidth="sm">
+<x-modal name="register-modal" :show="$errors->has('name') || $errors->has('password_confirmation') || (old('name') && ($errors->has('email') || $errors->has('password')))" maxWidth="sm">
     <div class="p-6">
         <h2 class="text-xl font-bold text-amber-900 mb-4">Create account</h2>
 

@@ -74,3 +74,8 @@ This document summarizes the key changes and enhancements made to the `novel-app
 
 ### Security & Proxy Configuration
 - **Trusted Proxy Configuration:** Configured the application to trust all proxies in `bootstrap/app.php`. This ensures that the application correctly identifies the secure (HTTPS) connection provided by the proxy, resolving browser warnings about "information submitted over an unsecured line."
+
+## Version 1.2.2 - Auth Modal UX Fix
+
+### User Experience Improvements
+- **Registration Failure Handling:** Fixed an issue where registration failures (e.g., email already taken) would incorrectly redirect the user to the login modal. The system now correctly identifies registration attempts and keeps the "Create account" modal open with the appropriate error messages, ensuring a smoother user experience.
