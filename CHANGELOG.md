@@ -66,3 +66,11 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ### Security & Browser Compatibility
 - **Enhanced Session Security:** Updated the application's session and cookie configuration to use secure defaults. This includes enabling session encryption, enforcing secure cookies (HTTPS only), and setting `HttpOnly` and `SameSite` attributes to mitigate common web vulnerabilities and ensure a warning-free experience in modern browsers.
 - **Environment Configuration:** Refined the `.env` file with secure session settings to ensure consistency across different environments.
+
+## Version 1.2.1 - Final Security & Validation Fixes
+
+### Authentication Fixes
+- **Removed Email Case Restriction:** Removed the `lowercase` validation rule from the registration process. Users can now enter their email in any case, and the system will handle it correctly by normalizing it to lowercase in the background.
+
+### Security & Proxy Configuration
+- **Trusted Proxy Configuration:** Configured the application to trust all proxies in `bootstrap/app.php`. This ensures that the application correctly identifies the secure (HTTPS) connection provided by the proxy, resolving browser warnings about "information submitted over an unsecured line."
