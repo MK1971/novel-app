@@ -43,3 +43,12 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ### Test User Management
 - **Admin User Creation:** Created an admin user with email `admin@example.com` and password `password123` for managing content and reviewing edits.
 - **Test Contributor Creation:** Created a test user with email `test@example.com` and password `password123` to simulate a regular contributor's experience, including suggesting edits and voting.
+
+## Version 1.1.0 - User Experience & Privacy Enhancements
+
+### Authentication Improvements
+- **Registration Redirection:** Completed the implementation of the registration redirect logic, ensuring users are returned to their previous page after creating an account.
+
+### Privacy & Leaderboard Updates
+- **Admin Privacy:** Updated the leaderboard and global leader display to exclude the administrator account (`admin@example.com`). This ensures that only regular contributors are featured in the rankings.
+- **Global Leader Logic:** Refined the `AppServiceProvider` to filter out the admin when calculating the top contributor for the navigation bar display.

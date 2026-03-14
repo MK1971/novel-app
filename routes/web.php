@@ -22,7 +22,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/leaderboard', function () {
-    $users = User::orderByDesc('points')->limit(20)->get();
+    $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
+    $users = User::where('email', '!=', $adminEmail)
+        ->orderByDesc('points')
+        ->limit(20)
+        ->get();
     return view('leaderboard', compact('users'));
 })->name('leaderboard');
 

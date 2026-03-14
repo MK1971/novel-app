@@ -23,7 +23,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('admin', fn ($user) => $user->email === env('ADMIN_EMAIL', 'admin@example.com'));
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
-            $topLeader = \App\Models\User::orderByDesc('points')->first();
+            $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
+            $topLeader = \App\Models\User::where('email', '!=', $adminEmail)
+                ->orderByDesc('points')
+                ->first();
             $view->with('topLeader', $topLeader);
         });
     }
