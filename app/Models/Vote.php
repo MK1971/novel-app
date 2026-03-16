@@ -10,7 +10,7 @@ class Vote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'chapter_id', 'version_chosen'];
+    protected $fillable = ['user_id', 'chapter_id', 'version_chosen', 'session_id', 'paid_at'];
 
     public function user(): BelongsTo
     {

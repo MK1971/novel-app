@@ -8,19 +8,29 @@ use App\Http\Controllers\EditController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VoteController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ChapterArchiveController;
+use App\Http\Controllers\InlineEditController;
+use App\Http\Controllers\ParagraphReactionController;
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\ActivityFeedController;
+use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\NotificationController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 Route::get('/chapters', [ChapterController::class, 'index'])->name('chapters.index');
 Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/leaderboard', function () {
     $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
@@ -32,19 +42,35 @@ Route::get('/leaderboard', function () {
 })->name('leaderboard');
 
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
+Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+Route::get('/activity-feed', [ActivityFeedController::class, 'index'])->name('activity-feed.index');
+Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
+
+Route::get('/archive/chapters', [ArchiveController::class, 'chapters'])->name('archive.chapters');
+Route::get('/archive/rounds', [ArchiveController::class, 'rounds'])->name('archive.rounds');
+
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 
     Route::post('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/chapters/{chapterId}/edit', [EditController::class, 'create'])->name('edits.create');
     Route::post('/edits', [EditController::class, 'store'])->name('edits.store');
     Route::post('/vote/{chapter}', [VoteController::class, 'store'])->name('vote.store');
+    Route::post('/chapters/{chapter}/inline-edit', [InlineEditController::class, 'store'])->name('inline-edit.store');
+    Route::post('/paragraphs/{chapter}/react', [ParagraphReactionController::class, 'store'])->name('paragraph-reaction.store');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 
     Route::middleware('can:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/edits', [EditApprovalController::class, 'index'])->name('edits.index');
@@ -54,6 +80,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/chapters/story', [AdminChapterController::class, 'storeStoryChapter'])->name('chapters.store-story');
         Route::post('/chapters/peter-trull', [AdminChapterController::class, 'storePeterTrullChapter'])->name('chapters.store-peter-trull');
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/feedback', [FeedbackController::class, 'adminIndex'])->name('feedback.index');
+        Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
+        Route::post('/moderation/{edit}/approve', [ModerationController::class, 'approve'])->name('moderation.approve');
+        Route::post('/moderation/{edit}/reject', [ModerationController::class, 'reject'])->name('moderation.reject');
     });
 });
 

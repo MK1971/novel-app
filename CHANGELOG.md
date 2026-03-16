@@ -110,3 +110,75 @@ This release addresses two critical display issues reported by the user. The lan
 ## Version 1.4.3 - Dashboard Link Visibility Fix
 
 The Dashboard link in the sidebar is now hidden for guest users. Previously, clicking the Dashboard link as a guest would redirect to the sign-in page, which was confusing. The link now only appears for authenticated users who have access to the dashboard. Guest users will see only the public navigation links: Chapters, Leaderboard, and Peter Trull.
+
+## Version 1.6.0 - Final Roadmap Features & Content Seeding
+
+### Added
+- **Animated Landing Page:** Implemented an animated typing headline on the landing page that cycles through the book's premise.
+- **Visual Enhancements:** Added a high-quality background image with a gradient overlay and dual Call-to-Action (CTA) buttons to the landing page.
+- **Content Seeding:** Extracted and seeded the actual chapter content from the provided Word documents:
+    - *The Book With No Name*: Chapter 1 (The Day I Was Born).
+    - *Peter Trull Solitary Detective*: Chapter 1 Version A and Version B.
+- **Voting Logic:** Implemented strict voting restrictions for the Peter Trull story, ensuring only contributors to "The Book With No Name" can participate.
+- **UI Refinements:** Added a feedback icon to the sidebar and updated the sidebar navigation for better clarity.
+- **Feedback System:** Integrated a feedback submission system for users and an admin management interface.
+- **Archives & Analytics:** Added an archives page for past chapters and an analytics hub for administrative overview.
+- **User Profiles:** Created detailed user profile pages with contribution statistics and reading progress tracking.
+
+## Version 1.6.0 - Final Roadmap Features & Content Seeding
+
+### Added
+- **Animated Landing Page:** Implemented an animated typing headline on the landing page that cycles through the book's premise.
+- **Visual Enhancements:** Added a high-quality background image with a gradient overlay and dual Call-to-Action (CTA) buttons to the landing page.
+- **Content Seeding:** Extracted and seeded the actual chapter content from the provided Word documents:
+    - *The Book With No Name*: Chapter 1 (The Day I Was Born).
+    - *Peter Trull Solitary Detective*: Chapter 1 Version A and Version B.
+- **Voting Logic:** Implemented strict voting restrictions for the Peter Trull story, ensuring only contributors to "The Book With No Name" can participate.
+- **UI Refinements:** Added a feedback icon to the sidebar and updated the sidebar navigation for better clarity.
+- **Feedback System:** Integrated a feedback submission system for users and an admin management interface.
+- **Archives & Analytics:** Added an archives page for past chapters and an analytics hub for administrative overview.
+- **User Profiles:** Created detailed user profile pages with contribution statistics and reading progress tracking.
+
+## Version 1.5.0 - Roadmap Implementation & Visual Overhaul
+
+### Added
+- New landing page design based on the project roadmap.
+- Integrated "How It Works" section with Part 1 and Part 2 details.
+- Prize highlight section for the top contributor.
+- Stats section showing community impact.
+- Sidebar CTA for guest users to join the adventure.
+
+### Changed
+- Updated global theme with warm amber colors and modern typography (Nunito).
+- Redesigned all public pages (Chapters, Leaderboard, Vote) with a card-based UI.
+- Refined navigation flow: Sidebar is now the primary navigation for internal pages.
+- Updated layouts to be more spacious and visually engaging.
+- Improved mobile responsiveness for the new design elements.
+
+## Version 1.7.0 - Critical Bug Fixes and Feature Refinements
+
+### Fixed
+- **Authentication Modals:** Resolved issues where "Sign In," "Create Account," and "Join" buttons were not correctly triggering their respective modals. All authentication modals are now fully functional.
+- **Chapter Titles Display:** Corrected the display of chapter titles and subtitles. "Chapter 1: The Day I Was Born" and its subtitle are now correctly visible on the story pages.
+- **Landing Page Text Readability:** Adjusted the color tone of the "A two-part collaborative journey..." text on the landing page from `text-white/70` to `text-white/90` for improved legibility.
+- **Feedback Display:** Enhanced the feedback page to display recent feedback entries alongside the submission form, utilizing a two-column layout.
+- **Admin Access Button:** Added a temporary "Admin Panel" button to the user dropdown menu, visible only to the admin user (`admin@example.com`).
+- **Chapter Text Alignment:** Ensured that all chapter content, including the first line, is strictly left-aligned by removing conflicting CSS rules and applying consistent `text-left` styling.
+- **Landing Page Headline Wrapping:** Fixed the animated headline on the landing page to wrap correctly, preventing text cutoff on various screen sizes.
+- **Chapter Stats Update Logic:** Resolved an issue where chapter statistics (Total Reads, Total Edits, Accepted Edits, Votes) were not updating dynamically. The system now accurately reflects these metrics in real-time.
+- **Edit Textarea Content:** Modified the "Your Edited Text" textarea in the "Suggest an Edit" form to start empty, providing a cleaner user experience.
+- **Admin Dashboard Accepted Edits Count:** Corrected the "Accepted Edits" metric on the admin dashboard to include both `accepted_full` and `accepted_partial` statuses, providing a more accurate overview of contributions.
+- **Points System Accuracy:** Adjusted the points awarded for edits to align with the 0, 1, or 2 point system. Test3's points were corrected to 1, and the UI now displays "+1-2 pts" for accepted edits.
+- **Votes Reflection in Chapter Stats:** Ensured that votes cast on Peter Trull chapters are now correctly reflected in the `total_votes` count within the `ChapterStatistic` model, updating in real-time.
+
+### Added
+- **Reading Progress Tracking:** Implemented a system to track user reading progress within chapters.
+- **Chapter Statistics Display:** Integrated real-time display of chapter engagement metrics (Reads, Edits, Accepted, Votes) on chapter pages.
+- **Achievement Badges System:** Developed a system for awarding achievement badges based on user contributions and actions.
+- **Live Activity Feed:** Created a live feed to display recent community activities.
+- **Notification System:** Implemented a user notification system for various in-app events.
+
+### Changed
+- **Admin Dashboard Content:** Populated the Admin Dashboard with key metrics, pending edits, recent feedback, and top contributors, providing a comprehensive management interface.
+- **Analytics Filtering:** Updated the Analytics page to filter out Peter Trull chapters from contribution activity, as they are for voting only.
+- **Voting Logic & Session Persistence:** Implemented robust checks to ensure only users with accepted edits can vote on Peter Trull chapters, and users can vote only once per chapter. Voting buttons are now correctly grayed out for ineligible users.

@@ -61,4 +61,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Vote::class);
     }
+
+    public function readingProgress()
+    {
+        return $this->hasMany(ReadingProgress::class);
+    }
+
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')->withTimestamps()->withPivot('unlocked_at');
+    }
+
+    public function activityFeed()
+    {
+        return $this->hasMany(ActivityFeed::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function paragraphReactions()
+    {
+        return $this->hasMany(ParagraphReaction::class);
+    }
 }

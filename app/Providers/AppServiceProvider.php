@@ -20,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\Blade::component('layouts.app', 'app-layout');
+        \Illuminate\Support\Facades\Blade::component('layouts.guest', 'guest-layout');
+
         Gate::define('admin', fn ($user) => $user->email === env('ADMIN_EMAIL', 'admin@example.com'));
 
         \Illuminate\Support\Facades\View::composer('*', function ($view) {

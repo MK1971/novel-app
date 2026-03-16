@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\ReadingProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,23 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
+    /**
+     * Display the user's profile.
+     */
+    public function show(Request $request): View
+    {
+        $user = $request->user();
+        $readingProgress = ReadingProgress::with('chapter')
+            ->where('user_id', $user->id)
+            ->orderBy('last_read_at', 'desc')
+            ->get();
+
+        return view('profile.show', [
+            'user' => $user,
+            'readingProgress' => $readingProgress,
+        ]);
+    }
+
     /**
      * Display the user's profile form.
      */
@@ -26,13 +44,14 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
