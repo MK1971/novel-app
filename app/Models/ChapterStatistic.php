@@ -12,6 +12,7 @@ class ChapterStatistic extends Model
         'total_reads',
         'total_edits',
         'accepted_edits',
+        'rejected_edits',
         'total_votes',
         'total_reactions',
         'average_rating',

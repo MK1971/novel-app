@@ -2,31 +2,29 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReadingProgress extends Model
 {
+    use HasFactory;
+
     protected $table = 'reading_progress';
 
     protected $fillable = [
         'user_id',
         'chapter_id',
+        'scroll_position',
         'completed',
         'last_read_at',
     ];
 
-    protected $casts = [
-        'completed' => 'boolean',
-        'last_read_at' => 'datetime',
-    ];
-
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function chapter(): BelongsTo
+    public function chapter()
     {
         return $this->belongsTo(Chapter::class);
     }

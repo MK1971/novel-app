@@ -1,166 +1,101 @@
-@php
-    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
-@endphp
+@extends('layouts.app')
 
-<x-dynamic-component :component="$layout">
-    <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-6">
-                <a href="{{ route('chapters.index') }}" class="w-12 h-12 bg-white border border-amber-200 rounded-2xl flex items-center justify-center text-amber-900 hover:bg-amber-50 transition-all shadow-sm">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                </a>
-                <div>
-                    <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                        Chapter {{ $chapter->number }}: {{ $chapter->title }}
-                    </h2>
-                    <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ $chapter->created_at->format('M d, Y') }}</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
-                    <span class="opacity-60 mr-1">Points for accepted edit:</span>
-                    <span class="text-amber-600">+1-2 pts</span>
-                </div>
-            </div>
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-amber-900 mb-2">{{ $chapter->title }}</h1>
+            <p class="text-amber-700">Chapter {{ $chapter->number }}</p>
         </div>
-    </x-slot>
 
-    <div class="py-12">
-        <div class="grid lg:grid-cols-3 gap-12">
-            {{-- Chapter Content --}}
-            <div class="lg:col-span-2">
-                <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
-                    {{-- Decorative background number --}}
-                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none">
-                        {{ $chapter->number }}
-                    </div>
-                    
-                    <div class="relative z-10">
-                        <div class="max-w-none text-amber-900/80 leading-[2.2] font-medium whitespace-pre-wrap text-left">
-                            {{ $chapter->content }}
-                        </div>
-                    </div>
+        <!-- Reading Progress Bar -->
+        <div class="fixed top-0 left-0 w-full h-1 bg-amber-100 z-50">
+            <div id="reading-progress" class="h-full bg-amber-600 transition-all duration-200" style="width: 0%"></div>
+        </div>
+
+        <div id="chapter-content" class="prose prose-lg max-w-none text-amber-900 leading-relaxed text-left">
+            {!! nl2br(e($chapter->content)) !!}
+        </div>
+
+        <!-- Chapter Stats -->
+        <div class="mt-12 p-6 bg-amber-50 rounded-xl border border-amber-100">
+            <h3 class="text-xl font-bold text-amber-900 mb-4">Chapter Statistics</h3>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div class="text-center">
+                    <p class="text-sm text-amber-600">Reads</p>
+                    <p class="text-2xl font-bold text-amber-900">{{ $chapter->statistics->total_reads ?? 0 }}</p>
                 </div>
-            </div>
-
-            {{-- Sidebar: Suggest Edit --}}
-            <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-8">
-                    @auth
-                        <div class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
-                            <div class="relative z-10">
-                                <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
-                                <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                    Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you'll earn 1-2 points and climb the leaderboard.
-                                </p>
-                                
-                                <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
-                                    @csrf
-                                    <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
-                                    
-                                    <div>
-                                        <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit Type</label>
-                                        <select name="type" class="w-full bg-white/10 border-white/20 rounded-2xl text-white focus:ring-amber-500 focus:border-amber-500 font-bold p-4 outline-none transition-all" required>
-                                            <option value="writing" class="bg-amber-900">Writing Edit</option>
-                                            <option value="phrase" class="bg-amber-900">Phrase Edit</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="edited_text" class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Your Edited Text</label>
-                                        <textarea 
-                                            name="edited_text" 
-                                            id="edited_text" 
-                                            rows="10" 
-                                            class="w-full bg-white/10 border-white/20 rounded-2xl text-white placeholder-white/30 focus:ring-amber-500 focus:border-amber-500 font-bold p-4"
-                                            placeholder="Enter your suggested edit..."
-                                            required
-                                        >{{ old('edited_text', '') }}</textarea>
-                                        @error('edited_text')
-                                            <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                        Submit & Pay $2
-                                    </button>
-                                </form>
-                            </div>
-                            {{-- Decorative circles --}}
-                            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-                        </div>
-                    @else
-                        <div class="bg-amber-500 rounded-[3rem] p-10 text-black shadow-2xl shadow-amber-500/20 relative overflow-hidden">
-                            <div class="relative z-10">
-                                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8">
-                                    <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                </div>
-                                <h3 class="text-2xl font-extrabold mb-6">Want to suggest an edit?</h3>
-                                <p class="text-black/60 text-lg font-bold mb-10 leading-relaxed">
-                                    Join our community of contributors to shape the story and earn your place on the leaderboard.
-                                </p>
-                                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-5 bg-black text-white text-lg font-extrabold rounded-2xl hover:bg-amber-900 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
-                                    Create Account
-                                </button>
-                                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="w-full mt-4 py-4 bg-transparent border-2 border-black/10 text-black text-lg font-extrabold rounded-2xl hover:bg-black/5 transition-all">
-                                    Sign In
-                                </button>
-                            </div>
-                        </div>
-                    @endauth
-
-                    <div class="p-8 bg-white border border-amber-100 rounded-[2.5rem] shadow-sm">
-                        <h4 class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-6">Chapter Stats</h4>
-                        <div class="space-y-6">
-                            <div class="flex items-center justify-between">
-                                <span class="text-amber-900/60 font-bold">📖 Total Reads</span>
-                                <span class="text-amber-900 font-black">{{ $stats->total_reads ?? 0 }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-amber-900/60 font-bold">✏️ Total Edits</span>
-                                <span class="text-amber-900 font-black">{{ $stats->total_edits ?? 0 }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-amber-900/60 font-bold">✅ Accepted</span>
-                                <span class="text-amber-900 font-black">{{ $stats->accepted_edits ?? 0 }}</span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-amber-900/60 font-bold">🗳️ Votes</span>
-                                <span class="text-amber-900 font-black">{{ $stats->total_votes ?? 0 }}</span>
-                            </div>
-                            <div class="pt-6 border-t border-amber-50">
-                                <p class="text-xs text-amber-800/40 font-bold leading-relaxed">Accepted edits are permanently integrated into the final version of the novel.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Feedback Form --}}
-                    <div class="p-8 bg-amber-50 border border-amber-100 rounded-[2.5rem] shadow-sm">
-                        <h4 class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-6">Chapter Feedback</h4>
-                        <p class="text-sm text-amber-900/60 font-bold mb-6">Have thoughts on this chapter? Share them with us!</p>
-                        
-                        <form action="{{ route('feedback.store') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
-                            <input type="hidden" name="type" value="chapter">
-                            
-                            @guest
-                                <div>
-                                    <input type="email" name="email" placeholder="Your email (optional)" class="w-full bg-white border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-900 focus:ring-2 focus:ring-amber-500 outline-none transition-all">
-                                </div>
-                            @endguest
-                            
-                            <div>
-                                <textarea name="content" rows="4" placeholder="Your feedback..." class="w-full bg-white border border-amber-200 rounded-xl px-4 py-2 text-sm text-amber-900 focus:ring-2 focus:ring-amber-500 outline-none transition-all" required></textarea>
-                            </div>
-                            
-                            <button type="submit" class="w-full py-3 bg-amber-900 text-white text-sm font-black rounded-xl hover:bg-black transition-all shadow-lg shadow-amber-900/10">
-                                Send Feedback
-                            </button>
-                        </form>
-                    </div>
+                <div class="text-center">
+                    <p class="text-sm text-amber-600">Edits</p>
+                    <p class="text-2xl font-bold text-amber-900">{{ $chapter->statistics->total_edits ?? 0 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-amber-600">Accepted</p>
+                    <p class="text-2xl font-bold text-amber-900">{{ $chapter->statistics->accepted_edits ?? 0 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-amber-600">Rejected</p>
+                    <p class="text-2xl font-bold text-amber-900">{{ $chapter->statistics->rejected_edits ?? 0 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-amber-600">Votes</p>
+                    <p class="text-2xl font-bold text-amber-900">{{ $chapter->statistics->total_votes ?? 0 }}</p>
                 </div>
             </div>
         </div>
     </div>
-</x-dynamic-component>
+</div>
+
+@auth
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBar = document.getElementById('reading-progress');
+        const chapterId = {{ $chapter->id }};
+        let lastScrollTop = 0;
+        let ticking = false;
+
+        // Restore scroll position
+        const savedProgress = {{ $progress }};
+        if (savedProgress > 0) {
+            window.scrollTo(0, savedProgress);
+        }
+
+        window.addEventListener('scroll', function() {
+            lastScrollTop = window.scrollY;
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    updateProgress(lastScrollTop);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        function updateProgress(scrollTop) {
+            const height = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / height) * 100;
+            progressBar.style.width = progress + '%';
+
+            // Save progress every 5% or when reaching bottom
+            if (Math.abs(progress - lastSavedProgress) >= 5 || progress >= 99) {
+                saveProgress(scrollTop);
+                lastSavedProgress = progress;
+            }
+        }
+
+        let lastSavedProgress = (savedProgress / (document.documentElement.scrollHeight - window.innerHeight)) * 100 || 0;
+
+        function saveProgress(scrollTop) {
+            fetch(`/chapters/${chapterId}/track-progress`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ scroll_position: scrollTop })
+            });
+        }
+    });
+</script>
+@endauth
+@endsection

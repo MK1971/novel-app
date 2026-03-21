@@ -12,20 +12,39 @@ class PaymentController extends Controller
     {
         $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
-            'type' => 'required|in:writing,phrase',
-            'edited_text' => 'required|string',
+            'type' => 'required|in:writing,phrase,inline_edit',
         ]);
+        
+        // If it's not an inline edit, edited_text is required
+        if ($request->type !== 'inline_edit') {
+            $request->validate([
+                'edited_text' => 'required|string',
+            ]);
+        }
 
         $chapter = \App\Models\Chapter::findOrFail($request->chapter_id);
 
-        $edit = \App\Models\Edit::create([
-            'user_id' => $request->user()->id,
-            'chapter_id' => $chapter->id,
-            'type' => $request->type,
-            'original_text' => $chapter->content,
-            'edited_text' => $request->edited_text,
-            'status' => 'pending_payment',
-        ]);
+        // Handle inline edit vs regular edit
+        if ($request->type === 'inline_edit') {
+            // For inline edits, create a placeholder Edit record
+            $edit = \App\Models\Edit::create([
+                'user_id' => $request->user()->id,
+                'chapter_id' => $chapter->id,
+                'type' => 'inline_edit',
+                'original_text' => '',
+                'edited_text' => 'Inline edit pending',
+                'status' => 'pending_payment',
+            ]);
+        } else {
+            $edit = \App\Models\Edit::create([
+                'user_id' => $request->user()->id,
+                'chapter_id' => $chapter->id,
+                'type' => $request->type,
+                'original_text' => $chapter->content,
+                'edited_text' => $request->edited_text,
+                'status' => 'pending_payment',
+            ]);
+        }
 
         $chapterId = $chapter->id;
         $editId = $edit->id;
@@ -53,6 +72,8 @@ class PaymentController extends Controller
             ]);
 
             if (isset($response['id']) && $response['status'] === 'CREATED') {
+                // Store edit type in session for success callback
+                session(['edit_type' => $request->type]);
                 foreach ($response['links'] as $link) {
                     if ($link['rel'] === 'approve') {
                         return redirect()->away($link['href']);
@@ -98,6 +119,24 @@ class PaymentController extends Controller
                 'status' => 'completed',
                 'edit_id' => $editId,
             ]);
+
+            // If this is an inline edit, create the InlineEdit record
+            if ($edit->type === 'inline_edit') {
+                $inlineEditData = session('inlineEditData');
+                if ($inlineEditData) {
+                    $inlineEditArray = json_decode($inlineEditData, true);
+                    \App\Models\InlineEdit::create([
+                        'user_id' => $request->user()->id,
+                        'chapter_id' => $chapterId,
+                        'paragraph_number' => $inlineEditArray['paragraph_number'] ?? 0,
+                        'original_text' => $inlineEditArray['original_text'] ?? '',
+                        'suggested_text' => $inlineEditArray['suggested_text'] ?? '',
+                        'reason' => $inlineEditArray['reason'] ?? '',
+                        'status' => 'pending',
+                    ]);
+                    session()->forget('inlineEditData');
+                }
+            }
 
             $edit->update(['status' => 'pending']);
 

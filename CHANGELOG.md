@@ -182,3 +182,14 @@ The Dashboard link in the sidebar is now hidden for guest users. Previously, cli
 - **Admin Dashboard Content:** Populated the Admin Dashboard with key metrics, pending edits, recent feedback, and top contributors, providing a comprehensive management interface.
 - **Analytics Filtering:** Updated the Analytics page to filter out Peter Trull chapters from contribution activity, as they are for voting only.
 - **Voting Logic & Session Persistence:** Implemented robust checks to ensure only users with accepted edits can vote on Peter Trull chapters, and users can vote only once per chapter. Voting buttons are now correctly grayed out for ineligible users.
+
+## [2026-03-21] - Critical Fixes
+### Fixed
+- **Reading Progress Persistence**: Scroll position is now saved to the database and restored upon returning to a chapter.
+- **Direct Navigation**: Logged-in users are now automatically redirected to their last read chapter when visiting the chapter list.
+- **Rejected Edits Display**: Fixed issue where rejected edits were not showing in the user dashboard and admin statistics.
+- **Explore Section Auth**: Removed "Sign In" prompts for already authenticated users in the landing page explore section.
+- **Voting Rights**: Restored voting eligibility for users who have submitted accepted edits.
+- **Admin Redirect**: Admin users are now correctly redirected to the moderation queue after login.
+- **Admin User Management**: Fixed broken user editing functionality in the admin panel and added a dedicated user management interface.
+- **Text Alignment**: Standardized chapter content to be left-aligned for better readability.

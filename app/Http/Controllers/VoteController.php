@@ -2,98 +2,69 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
 use App\Models\Chapter;
-use App\Models\ChapterStatistic;
-use App\Models\Edit;
 use App\Models\Vote;
+use App\Models\Edit;
+use App\Models\ChapterStatistic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class VoteController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $book = Book::where('name', 'Peter Trull Solitary Detective')->first();
-        $chapters = collect();
-
-        $canVote = false;
-        $hasVoted = [];
+        $book = \App\Models\Book::where('name', 'Peter Trull Solitary Detective')->first();
+        $chapters = $book?->chapters()->orderBy('number')->get() ?? collect();
         
-        if (auth()->check()) {
-            $storyBook = Book::where('name', 'The Book With No Name')->first();
-            // Check if user has ANY accepted edit (not just pending)
-            $canVote = $storyBook && Edit::where('user_id', $request->user()->id)
-                ->whereHas('chapter', fn ($q) => $q->where('book_id', $storyBook->id))
-                ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
-                ->exists();
-            
-            // Get chapters user has already voted on
-            $hasVoted = Vote::where('user_id', $request->user()->id)
+        $userVotes = [];
+        if (Auth::check()) {
+            $userVotes = Vote::where('user_id', Auth::id())
                 ->pluck('chapter_id')
                 ->toArray();
         }
-
-        if ($book) {
-            $chapters = Chapter::where('book_id', $book->id)
-                ->whereIn('version', ['A', 'B'])
-                ->orderBy('number')
-                ->orderBy('version')
-                ->get()
-                ->groupBy('number');
-        }
-
-        return view('vote.index', compact('chapters', 'book', 'canVote', 'hasVoted'));
+        
+        return view('vote.index', compact('chapters', 'userVotes'));
     }
 
     public function store(Request $request, Chapter $chapter)
     {
-        $storyBook = Book::where('name', 'The Book With No Name')->first();
-        // Check if user has ANY accepted edit (not just pending)
-        $canVote = $storyBook && Edit::where('user_id', $request->user()->id)
-            ->whereHas('chapter', fn ($q) => $q->where('book_id', $storyBook->id))
-            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+        if (!Auth::check()) {
+            return response()->json(['error' => 'You must be logged in to vote'], 401);
+        }
+
+        // Check if user has at least one accepted edit
+        $hasAcceptedEdit = Edit::where('user_id', Auth::id())
+            ->whereIn('status', ['accepted_full', 'accepted_partial'])
             ->exists();
 
-        if (!$canVote) {
-            return back()->with('error', 'Only users who have suggested an accepted edit in The Book With No Name can vote on Peter Trull chapters.');
+        if (!$hasAcceptedEdit) {
+            return response()->json(['error' => 'You must have at least one accepted edit to vote'], 403);
         }
 
         // Check if user has already voted on this chapter
-        $existingVote = Vote::where('user_id', $request->user()->id)
+        $existingVote = Vote::where('user_id', Auth::id())
             ->where('chapter_id', $chapter->id)
             ->first();
 
         if ($existingVote) {
-            return back()->with('error', 'You have already voted on this chapter. Each user can vote only once per chapter.');
+            return response()->json(['error' => 'You have already voted on this chapter'], 400);
         }
 
-        $request->validate(['version_chosen' => 'required|in:A,B']);
-        
-        Vote::create([
-            'user_id' => $request->user()->id,
+        // Create the vote
+        $vote = Vote::create([
+            'user_id' => Auth::id(),
             'chapter_id' => $chapter->id,
-            'version_chosen' => $request->version_chosen,
+            'version' => $request->input('version', 'A'),
             'session_id' => session()->getId(),
             'paid_at' => now(),
         ]);
-        
+
         // Update chapter statistics
-        $stats = ChapterStatistic::firstOrCreate(
-            ['chapter_id' => $chapter->id],
-            [
-                'total_reads' => 0,
-                'total_edits' => 0,
-                'accepted_edits' => 0,
-                'total_votes' => 0,
-                'total_reactions' => 0,
-                'average_rating' => 0,
-            ]
-        );
-        
-        $stats->update([
-            'total_votes' => $chapter->votes()->count(),
-        ]);
-        
-        return back()->with('success', 'Vote recorded!');
+        $stats = ChapterStatistic::where('chapter_id', $chapter->id)->first();
+        if ($stats) {
+            $stats->increment('total_votes');
+        }
+
+        return response()->json(['success' => true, 'vote_id' => $vote->id]);
     }
 }

@@ -37,6 +37,11 @@
                 <x-sidebar-link :href="route('feedback.index')" :active="request()->routeIs('feedback.index')" icon="feedback">
                     Feedback
                 </x-sidebar-link>
+                @auth
+                <x-sidebar-link :href="route('achievements.show')" :active="request()->routeIs('achievements.show')" icon="trophy">
+                    Achievements
+                </x-sidebar-link>
+                @endauth
             </nav>
         </div>
 
@@ -56,6 +61,9 @@
                     </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.feedback.index')" :active="request()->routeIs('admin.feedback.*')" icon="feedback">
                         Review Feedback
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" icon="edit">
+                        Inline Edit Suggestions
                     </x-sidebar-link>
                 </nav>
             </div>

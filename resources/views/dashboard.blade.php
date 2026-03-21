@@ -1,192 +1,76 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-extrabold text-3xl text-amber-900">
-                {{ auth()->user()->email === env('ADMIN_EMAIL', 'admin@example.com') ? '⚙️ Admin Dashboard' : '📊 Dashboard' }}
-            </h2>
-            <p class="text-amber-800/60 font-bold">Welcome, {{ auth()->user()->name }}!</p>
-        </div>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            @if(auth()->user()->email === env('ADMIN_EMAIL', 'admin@example.com'))
-                {{-- ADMIN DASHBOARD --}}
-                
-                {{-- Key Metrics --}}
-                <div class="grid md:grid-cols-4 gap-6 mb-12">
-                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ \App\Models\User::count() - 1 }}</div>
-                        <p class="text-amber-800/60 font-bold">Total Users</p>
-                        <p class="text-xs text-amber-800/40 font-bold mt-2">(excluding admin)</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ \App\Models\Edit::where('status', 'pending')->count() }}</div>
-                        <p class="text-blue-800/60 font-bold">Pending Edits</p>
-                        <p class="text-xs text-blue-800/40 font-bold mt-2">Awaiting review</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ \App\Models\Edit::where('status', 'accepted_full')->orWhere('status', 'accepted_partial')->count() }}</div>
-                        <p class="text-green-800/60 font-bold">Accepted Edits</p>
-                        <p class="text-xs text-green-800/40 font-bold mt-2">Integrated into novel</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ \App\Models\Chapter::count() }}</div>
-                        <p class="text-purple-800/60 font-bold">Total Chapters</p>
-                        <p class="text-xs text-purple-800/40 font-bold mt-2">Across all books</p>
-                    </div>
-                </div>
-
-                {{-- Pending Edits for Review --}}
-                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 mb-12">
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📝 Pending Edits for Review</h3>
-                    
-                    @php
-                        $pendingEdits = \App\Models\Edit::where('status', 'pending')
-                            ->with('user', 'chapter')
-                            ->orderByDesc('created_at')
-                            ->limit(10)
-                            ->get();
-                    @endphp
-                    
-                    @if($pendingEdits->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($pendingEdits as $edit)
-                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2 mb-2">
-                                                <span class="font-extrabold text-amber-900">{{ $edit->user->name }}</span>
-                                                <span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded">{{ ucfirst($edit->type) }}</span>
-                                            </div>
-                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->title }}</p>
-                                            <p class="text-xs text-amber-800/60 font-bold">{{ $edit->created_at->diffForHumans() }}</p>
-                                        </div>
-                                        <a href="{{ route('admin.edits.show', $edit) }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">
-                                            Review
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
-                            <p class="text-amber-800/60 font-bold">No pending edits to review</p>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Recent Feedback --}}
-                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 mb-12">
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">💬 Recent Feedback</h3>
-                    
-                    @php
-                        $recentFeedback = \App\Models\Feedback::orderByDesc('created_at')->limit(5)->get();
-                    @endphp
-                    
-                    @if($recentFeedback->count() > 0)
-                        <div class="space-y-4">
-                            @foreach($recentFeedback as $feedback)
-                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
-                                    <div class="flex items-start justify-between gap-4 mb-2">
-                                        <span class="font-extrabold text-amber-900">{{ $feedback->sender_name ?? 'Anonymous' }}</span>
-                                        <p class="text-xs text-amber-800/60 font-bold">{{ $feedback->created_at->diffForHumans() }}</p>
-                                    </div>
-                                    <p class="text-sm text-amber-900/80 font-bold">{{ Str::limit($feedback->message, 150) }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
-                            <p class="text-amber-800/60 font-bold">No feedback received yet</p>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Top Contributors --}}
-                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">🏆 Top Contributors</h3>
-                    
-                    @php
-                        $topContributors = \App\Models\User::where('email', '!=', env('ADMIN_EMAIL', 'admin@example.com'))
-                            ->orderByDesc('points')
-                            ->limit(5)
-                            ->get();
-                    @endphp
-                    
-                    @if($topContributors->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($topContributors as $index => $contributor)
-                                <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-2xl font-extrabold text-amber-600">{{ $index + 1 }}</span>
-                                        <div>
-                                            <p class="font-extrabold text-amber-900">{{ $contributor->name }}</p>
-                                            <p class="text-xs text-amber-800/60 font-bold">{{ $contributor->email }}</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-2xl font-extrabold text-amber-600">{{ $contributor->points }}</p>
-                                        <p class="text-xs text-amber-800/60 font-bold">points</p>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
-                            <p class="text-amber-800/60 font-bold">No contributors yet</p>
-                        </div>
-                    @endif
-                </div>
-
-            @else
-                {{-- USER DASHBOARD --}}
-                
-                <div class="grid md:grid-cols-3 gap-6 mb-12">
-                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
-                        <p class="text-amber-800/60 font-bold">Your Points</p>
-                        <p class="text-xs text-amber-800/40 font-bold mt-2">Earn more by contributing</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->edits()->count() }}</div>
-                        <p class="text-blue-800/60 font-bold">Your Edits</p>
-                        <p class="text-xs text-blue-800/40 font-bold mt-2">Suggestions submitted</p>
-                    </div>
-                    
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->edits()->where('status', 'accepted')->count() }}</div>
-                        <p class="text-green-800/60 font-bold">Accepted</p>
-                        <p class="text-xs text-green-800/40 font-bold mt-2">Edits in the novel</p>
-                    </div>
-                </div>
-
-                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📚 Quick Links</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <a href="{{ route('chapters.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
-                        </a>
-                        <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>
-                            <p class="text-sm text-amber-800/60 font-bold">See top contributors</p>
-                        </a>
-                        <a href="{{ route('achievements.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🎖️ Achievements</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Unlock badges</p>
-                        </a>
-                        <a href="{{ route('activity-feed.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🔥 Activity Feed</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Community updates</p>
-                        </a>
-                    </div>
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-amber-900">Welcome, {{ Auth::user()->name }}</h1>
+            @if(Auth::user()->is_admin)
+                <div class="flex gap-4">
+                    <a href="{{ route('admin.inline-edits.index') }}" class="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700">Admin Moderation</a>
+                    <a href="{{ route('admin.users.index') }}" class="bg-amber-100 text-amber-900 px-4 py-2 rounded-lg hover:bg-amber-200">User Management</a>
                 </div>
             @endif
         </div>
+
+        <div class="grid md:grid-cols-4 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
+                <p class="text-amber-600 text-sm font-medium mb-1">Total Edits</p>
+                <p class="text-3xl font-bold text-amber-900">{{ Auth::user()->edits()->count() }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
+                <p class="text-amber-600 text-sm font-medium mb-1">Accepted Edits</p>
+                <p class="text-3xl font-bold text-green-600">{{ Auth::user()->edits()->whereIn('status', ['accepted_full', 'accepted_partial'])->count() }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
+                <p class="text-amber-600 text-sm font-medium mb-1">Rejected Edits</p>
+                <p class="text-3xl font-bold text-red-600">{{ Auth::user()->edits()->where('status', 'rejected')->count() }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-amber-100">
+                <p class="text-amber-600 text-sm font-medium mb-1">Total Votes</p>
+                <p class="text-3xl font-bold text-amber-900">{{ Auth::user()->votes()->count() }}</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Recent Activity -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-amber-100">
+                <h2 class="text-xl font-bold text-amber-900 mb-6">Recent Activity</h2>
+                <div class="space-y-4">
+                    @forelse(Auth::user()->activityFeed()->latest()->take(5)->get() as $activity)
+                        <div class="flex items-start gap-4 pb-4 border-b border-amber-50 last:border-0">
+                            <div class="w-2 h-2 mt-2 rounded-full bg-amber-400"></div>
+                            <div>
+                                <p class="text-amber-900">{{ $activity->description }}</p>
+                                <p class="text-sm text-amber-500">{{ $activity->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-amber-600 italic">No recent activity found.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-amber-100">
+                <h2 class="text-xl font-bold text-amber-900 mb-6">Your Achievements</h2>
+                <div class="grid grid-cols-3 gap-4">
+                    @forelse(Auth::user()->achievements as $achievement)
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto mb-2 bg-amber-100 rounded-full flex items-center justify-center text-2xl">
+                                {{ $achievement->icon ?? '🏆' }}
+                            </div>
+                            <p class="text-xs font-bold text-amber-900">{{ $achievement->name }}</p>
+                        </div>
+                    @empty
+                        <div class="col-span-3 text-center py-8">
+                            <p class="text-amber-600 italic">Start contributing to earn badges!</p>
+                            <a href="{{ route('chapters.index') }}" class="text-amber-600 font-bold hover:underline mt-2 inline-block">Browse Chapters</a>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
     </div>
-</x-app-layout>
+</div>
+@endsection
