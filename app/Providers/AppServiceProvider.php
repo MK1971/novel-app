@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\View;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,14 +23,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Blade::component('layouts.app', 'app-layout');
-        \Illuminate\Support\Facades\Blade::component('layouts.guest', 'guest-layout');
+        Blade::component('layouts.app', 'app-layout');
+        Blade::component('layouts.guest', 'guest-layout');
 
-        Gate::define('admin', fn ($user) => $user->email === env('ADMIN_EMAIL', 'admin@example.com'));
+        Gate::define('admin', function (User $user) {
+            return $user->is_admin === true || $user->email === env('ADMIN_EMAIL', 'admin@example.com');
+        });
 
-        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+        View::composer('*', function ($view) {
             $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-            $topLeader = \App\Models\User::where('email', '!=', $adminEmail)
+            $topLeader = User::where('email', '!=', $adminEmail)
                 ->orderByDesc('points')
                 ->first();
             $view->with('topLeader', $topLeader);

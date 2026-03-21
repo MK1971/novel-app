@@ -1,7 +1,6 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
 @endphp
-
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -19,7 +18,6 @@
             </div>
         </div>
     </x-slot>
-
     <div class="py-12">
         @if (session('success'))
             <div class="mb-8 p-4 bg-green-100 text-green-700 rounded-2xl border border-green-200 shadow-sm font-bold">{{ session('success') }}</div>
@@ -27,7 +25,6 @@
         @if (session('error'))
             <div class="mb-8 p-4 bg-red-100 text-red-700 rounded-2xl border border-red-200 shadow-sm font-bold">{{ session('error') }}</div>
         @endif
-
         <div class="grid gap-10">
             @forelse($chapters ?? [] as $chapter)
                 <div class="bg-white border border-amber-100 shadow-sm rounded-[2.5rem] p-10 hover:shadow-xl transition-all group relative overflow-hidden">
@@ -35,7 +32,6 @@
                     <div class="absolute -top-10 -right-10 text-[12rem] font-black text-amber-500/5 select-none group-hover:text-amber-500/10 transition-colors">
                         {{ $chapter->number }}
                     </div>
-
                     <div class="relative z-10">
                         <div class="flex flex-wrap items-center gap-4 mb-6">
                             <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">Chapter {{ $chapter->number }}</span>

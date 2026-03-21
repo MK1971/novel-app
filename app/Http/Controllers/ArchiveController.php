@@ -13,17 +13,15 @@ class ArchiveController extends Controller
         $archivedChapters = Chapter::where('is_archived', true)
             ->orderBy('round_number', 'desc')
             ->get();
-
         return view('archive.chapters', compact('archivedChapters'));
     }
 
     public function rounds()
     {
-        $rounds = Vote::select('round_number')
+        $rounds = Vote::select('chapter_id as round_number')
             ->distinct()
-            ->orderBy('round_number', 'desc')
+            ->orderBy('chapter_id', 'desc')
             ->get();
-
         return view('archive.rounds', compact('rounds'));
     }
 }

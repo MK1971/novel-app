@@ -1,14 +1,23 @@
-<aside class="hidden md:flex flex-col shrink-0 bg-white/50 backdrop-blur-sm border-r border-amber-200/60 sticky top-0 h-screen overflow-y-auto" style="width: 18rem; min-width: 18rem;">
-    <div class="p-8 space-y-10">
+<aside class="w-80 bg-white border-r border-amber-100 min-h-screen p-10 hidden lg:block">
+    <div class="space-y-12">
+        {{-- Logo Section --}}
+        <div class="flex items-center gap-4 mb-12">
+            <div class="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center text-black font-black text-2xl shadow-lg shadow-amber-500/20">
+                M
+            </div>
+            <div>
+                <h2 class="text-xl font-black text-amber-900 tracking-tighter">MWBN<span class="text-amber-500">.</span></h2>
+                <p class="text-[10px] font-black text-amber-900/30 uppercase tracking-[0.2em]">Collaborative Story</p>
+            </div>
+        </div>
+
         {{-- Main Navigation --}}
         <div>
             <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Main Menu</h3>
             <nav class="space-y-2">
-                @auth
-                <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
+                <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="home">
                     Dashboard
                 </x-sidebar-link>
-                @endauth
                 <x-sidebar-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" icon="book">
                     The Story
                 </x-sidebar-link>
@@ -31,14 +40,11 @@
                 <x-sidebar-link :href="route('analytics.index')" :active="request()->routeIs('analytics.*')" icon="analytics">
                     Analytics
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('about')" :active="request()->routeIs('about')" icon="info">
-                    About The Story
-                </x-sidebar-link>
                 <x-sidebar-link :href="route('feedback.index')" :active="request()->routeIs('feedback.index')" icon="feedback">
                     Feedback
                 </x-sidebar-link>
                 @auth
-                <x-sidebar-link :href="route('achievements.show')" :active="request()->routeIs('achievements.show')" icon="trophy">
+                <x-sidebar-link :href="route('achievements.index')" :active="request()->routeIs('achievements.*')" icon="trophy">
                     Achievements
                 </x-sidebar-link>
                 @endauth
@@ -50,20 +56,11 @@
             <div>
                 <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Administration</h3>
                 <nav class="space-y-2">
-                    <x-sidebar-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" icon="review">
-                        Review Suggestions
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" icon="upload">
-                        Upload Chapters
+                    <x-sidebar-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" icon="edit">
+                        Moderation
                     </x-sidebar-link>
                     <x-sidebar-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" icon="users">
                         User Management
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.feedback.index')" :active="request()->routeIs('admin.feedback.*')" icon="feedback">
-                        Review Feedback
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" icon="edit">
-                        Inline Edit Suggestions
                     </x-sidebar-link>
                 </nav>
             </div>
@@ -76,6 +73,9 @@
                 <nav class="space-y-2">
                     <x-sidebar-link :href="route('profile.show')" :active="request()->routeIs('profile.show')" icon="user">
                         My Profile
+                    </x-sidebar-link>
+                    <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.edit')" icon="settings">
+                        Settings
                     </x-sidebar-link>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -92,9 +92,9 @@
         @guest
             <div class="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/20">
                 <p class="text-sm font-bold text-amber-900 mb-4">Ready to shape the story?</p>
-                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-3 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
+                <a href="{{ route('register') }}" class="w-full block text-center py-3 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
                     Join Now
-                </button>
+                </a>
             </div>
         @endguest
     </div>

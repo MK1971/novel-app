@@ -1,4 +1,8 @@
-<x-guest-layout>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-amber-900 leading-tight">Community Feedback</h2>
+    </x-slot>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl sm:rounded-2xl border border-amber-100">
@@ -13,10 +17,8 @@
                                     {{ session('success') }}
                                 </div>
                             @endif
-
                             @include('feedback.form')
                         </div>
-
                         {{-- Feedback List --}}
                         <div>
                             <h2 class="text-2xl font-bold text-amber-900 mb-6">Recent Feedback</h2>
@@ -49,4 +51,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-app-layout>

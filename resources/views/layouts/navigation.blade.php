@@ -1,42 +1,34 @@
-<nav x-data="{ open: false }" class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+<nav x-data="{ open: false }" class="bg-white border-b border-amber-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-20">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="text-xl font-extrabold text-amber-800 hover:text-amber-600 transition-colors">
-                        What's My Book Name
+                    <a href="{{ route('home') }}" class="text-2xl font-black text-amber-900 tracking-tighter">
+                        MWBN<span class="text-amber-500">.</span>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @if($topLeader)
-                        <div class="inline-flex items-center px-1 pt-1 text-sm font-bold text-amber-700">
-                            🏆 Leader: {{ $topLeader->name }} ({{ $topLeader->points }} pts)
-                        </div>
-                    @endif
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-amber-900 font-bold">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                    <x-nav-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" class="text-amber-900 font-bold">
                         Chapters
                     </x-nav-link>
-                    <x-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                    <x-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-bold">
                         Leaderboard
                     </x-nav-link>
-                    <x-nav-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                    <x-nav-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" class="text-amber-900 font-bold">
                         Vote
                     </x-nav-link>
                     @can('admin')
-                        <x-nav-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
-                            Review Suggestions
+                        <x-nav-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" class="text-amber-900 font-bold">
+                            Moderation
                         </x-nav-link>
-                        <x-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
-                            Upload Chapters
-                        </x-nav-link>
-                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-bold">
                             Users
                         </x-nav-link>
                     @endcan
@@ -46,33 +38,34 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-bold rounded-full text-amber-900 bg-amber-100 hover:bg-amber-200 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 hover:bg-amber-50">
+                        <x-dropdown-link :href="route('profile.show')" class="text-amber-900 hover:bg-amber-50">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 hover:bg-amber-50">
+                            {{ __('Settings') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();" class="text-amber-900 hover:bg-amber-50">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
+                    </x-slot>
+
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-black rounded-xl text-amber-900 bg-amber-50 hover:bg-amber-100 focus:outline-none transition ease-in-out duration-150">
+                            <div>{{ Auth::user()->name }}</div>
+                            <div class="ms-1">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
                     </x-slot>
                 </x-dropdown>
             </div>
@@ -105,11 +98,8 @@
                 Vote
             </x-responsive-nav-link>
             @can('admin')
-                <x-responsive-nav-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" class="text-amber-900 font-semibold">
-                    Review Suggestions
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold">
-                    Upload Chapters
+                <x-responsive-nav-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" class="text-amber-900 font-semibold">
+                    Moderation
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold">
                     Users
@@ -125,14 +115,16 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="text-amber-900">
+                <x-responsive-nav-link :href="route('profile.show')" class="text-amber-900">
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.edit')" class="text-amber-900">
+                    {{ __('Settings') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();" class="text-amber-900">

@@ -13,11 +13,9 @@ class AchievementController extends Controller
     {
         $achievements = Achievement::all();
         $userAchievements = [];
-
         if (Auth::check()) {
-            $userAchievements = Auth::user()->achievements()->pluck('id')->toArray();
+            $userAchievements = Auth::user()->achievements()->pluck('achievement_id')->toArray();
         }
-
         return view('achievements.index', compact('achievements', 'userAchievements'));
     }
 
@@ -36,24 +34,20 @@ class AchievementController extends Controller
             }
 
             $hasAchievement = false;
-
             switch ($achievement->requirement_type) {
                 case 'edits_accepted':
-                    $acceptedEdits = $user->edits()->where('status', 'accepted')->count();
+                    $acceptedEdits = $user->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count();
                     $hasAchievement = $acceptedEdits >= $achievement->requirement_value;
                     break;
-
                 case 'votes_cast':
                     $votesCast = $user->votes()->count();
                     $hasAchievement = $votesCast >= $achievement->requirement_value;
                     break;
-
                 case 'points_earned':
                     $hasAchievement = $user->points >= $achievement->requirement_value;
                     break;
-
                 case 'chapters_read':
-                    $chaptersRead = $user->readingProgress()->where('completed', true)->count();
+                    $chaptersRead = $user->readingProgress()->count();
                     $hasAchievement = $chaptersRead >= $achievement->requirement_value;
                     break;
             }

@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class ChapterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        if (Auth::check()) {
+        // Only redirect if explicitly requested (e.g., "Start Reading" button)
+        if ($request->has('resume') && Auth::check()) {
             $lastProgress = ReadingProgress::where('user_id', Auth::id())
                 ->orderBy('updated_at', 'desc')
                 ->first();
@@ -21,7 +22,10 @@ class ChapterController extends Controller
             }
         }
 
-        $chapters = Chapter::orderBy('number')->get();
+        $chapters = Chapter::where('book_id', function($query) {
+            $query->select('id')->from('books')->where('name', 'The Book With No Name');
+        })->orderBy('number')->get();
+
         return view('chapters.index', compact('chapters'));
     }
 
@@ -29,13 +33,11 @@ class ChapterController extends Controller
     {
         $progress = 0;
         if (Auth::check()) {
-            $readingProgress = ReadingProgress::firstOrCreate([
-                'user_id' => Auth::id(),
-                'chapter_id' => $chapter->id,
-            ]);
+            $readingProgress = ReadingProgress::firstOrCreate(
+                ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
+            );
             $progress = $readingProgress->scroll_position;
         }
-
         return view('chapters.show', compact('chapter', 'progress'));
     }
 
