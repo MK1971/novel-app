@@ -1,6 +1,7 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
 @endphp
+
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -17,6 +18,7 @@
             </div>
         </div>
     </x-slot>
+
     <div class="py-12">
         <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
             <table class="min-w-full divide-y divide-amber-100">
@@ -57,6 +59,7 @@
                 </tbody>
             </table>
         </div>
+
         <div class="mt-20 text-center max-w-2xl mx-auto">
             <div class="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
                 <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>

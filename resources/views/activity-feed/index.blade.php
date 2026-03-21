@@ -1,10 +1,15 @@
-<x-app-layout>
+@if(auth()->check())
+    <x-app-layout>
+@else
+    <x-guest-layout>
+@endif
     <x-slot name="header">
-        <div class="flex flex-col">
+        <div class="flex items-center justify-between">
             <h2 class="font-extrabold text-3xl text-amber-900">🔥 Live Activity Feed</h2>
             <p class="text-amber-800/60 font-bold">See what the community is doing</p>
         </div>
     </x-slot>
+
     <div class="py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="space-y-6">
@@ -57,4 +62,8 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+@if(auth()->check())
+    </x-app-layout>
+@else
+    </x-guest-layout>
+@endif

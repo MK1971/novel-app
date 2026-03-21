@@ -39,41 +39,6 @@
                     </div>
                     
                     <div class="flex items-center gap-4">
-                        {{-- Notification Bell --}}
-                        <div class="relative">
-                            <button id="notification-bell" class="relative p-2 text-amber-900 hover:bg-amber-50 rounded-full transition-all">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                                </svg>
-                                @php
-                                    $unreadCount = auth()->user()->notifications()->where('read', false)->count();
-                                @endphp
-                                @if($unreadCount > 0)
-                                    <span class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">{{ $unreadCount }}</span>
-                                @endif
-                            </button>
-                            
-                            {{-- Notification Dropdown --}}
-                            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-amber-100 z-50 max-h-96 overflow-y-auto">
-                                <div class="p-4 border-b border-amber-100">
-                                    <h3 class="font-bold text-amber-900">Notifications</h3>
-                                </div>
-                                <div id="notification-list" class="divide-y divide-amber-100">
-                                    @forelse(auth()->user()->notifications()->latest()->limit(10)->get() as $notification)
-                                        <div class="p-4 hover:bg-amber-50 transition-all {{ !$notification->read ? 'bg-amber-50' : '' }}">
-                                            <p class="text-sm font-bold text-amber-900">{{ $notification->title }}</p>
-                                            <p class="text-xs text-amber-600 mt-1">{{ $notification->message }}</p>
-                                            <p class="text-xs text-amber-400 mt-2">{{ $notification->created_at->diffForHumans() }}</p>
-                                        </div>
-                                    @empty
-                                        <div class="p-8 text-center">
-                                            <p class="text-sm text-amber-600 font-bold">No notifications yet</p>
-                                        </div>
-                                    @endforelse
-                                </div>
-                            </div>
-                        </div>
-
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button class="inline-flex items-center px-4 py-2 border border-amber-200 text-sm font-bold rounded-full text-amber-900 bg-white hover:bg-amber-50 focus:outline-none transition-all shadow-sm">
@@ -91,11 +56,14 @@
                                 <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 font-bold hover:bg-amber-50">
                                     {{ __('Profile') }}
                                 </x-dropdown-link>
-                                @if(Auth::user()->email === 'admin@example.com')
-                                    <x-dropdown-link href="#" onclick="alert('Admin panel coming soon!')" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __('Admin Panel') }}
+                                @can('admin')
+                                    <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __('Moderation') }}
                                     </x-dropdown-link>
-                                @endif
+                                    <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __('User Management') }}
+                                    </x-dropdown-link>
+                                @endcan
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 font-bold hover:bg-red-50">
@@ -141,22 +109,5 @@
         @if (!auth()->check())
             @include('auth.modals')
         @endif
-
-        <script>
-            // Notification Bell Toggle
-            document.getElementById('notification-bell')?.addEventListener('click', function() {
-                const dropdown = document.getElementById('notification-dropdown');
-                dropdown.classList.toggle('hidden');
-            });
-
-            // Close notification dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                const bell = document.getElementById('notification-bell');
-                const dropdown = document.getElementById('notification-dropdown');
-                if (bell && dropdown && !bell.contains(event.target) && !dropdown.contains(event.target)) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-        </script>
     </body>
 </html>

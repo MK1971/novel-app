@@ -1,119 +1,198 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                    Welcome back, {{ Auth::user()->name }}!
-                </h2>
-                <p class="text-amber-800/60 font-bold mt-1">Your personal writing dashboard</p>
-            </div>
-            <div class="flex items-center gap-4">
-                <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="px-8 py-4 bg-amber-900 text-white text-sm font-black rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5 uppercase tracking-widest">
-                    Continue Reading
-                </a>
-            </div>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-3xl text-amber-900">
+                @can('admin') ⚙️ Admin Dashboard @else 📊 Dashboard @endcan
+            </h2>
+            <p class="text-amber-800/60 font-bold">Welcome, {{ auth()->user()->name }}!</p>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {{-- Stats Overview --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                <div class="bg-white rounded-[2.5rem] p-8 border border-amber-100 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            @can('admin')
+                {{-- ADMIN DASHBOARD --}}
+                
+                {{-- Key Metrics --}}
+                <div class="grid md:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ \App\Models\User::count() - 1 }}</div>
+                        <p class="text-amber-800/60 font-bold">Total Users</p>
+                        <p class="text-xs text-amber-800/40 font-bold mt-2">(excluding admin)</p>
                     </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-1">Total Edits</p>
-                    <p class="text-4xl font-black text-amber-900">{{ number_format(Auth::user()->edits()->count() + Auth::user()->inlineEdits()->count()) }}</p>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ \App\Models\Edit::where('status', 'pending')->count() }}</div>
+                        <p class="text-blue-800/60 font-bold">Pending Edits</p>
+                        <p class="text-xs text-blue-800/40 font-bold mt-2">Awaiting review</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ \App\Models\Edit::whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() }}</div>
+                        <p class="text-green-800/60 font-bold">Accepted Edits</p>
+                        <p class="text-xs text-green-800/40 font-bold mt-2">Integrated into novel</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ \App\Models\Chapter::count() }}</div>
+                        <p class="text-purple-800/60 font-bold">Total Chapters</p>
+                        <p class="text-xs text-purple-800/40 font-bold mt-2">Across all books</p>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-[2.5rem] p-8 border border-amber-100 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-1">Accepted</p>
-                    <p class="text-4xl font-black text-green-600">
-                        {{ number_format(
-                            Auth::user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() + 
-                            Auth::user()->inlineEdits()->where('status', 'approved')->count()
-                        ) }}
-                    </p>
-                </div>
-
-                <div class="bg-white rounded-[2.5rem] p-8 border border-amber-100 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-1">Rejected</p>
-                    <p class="text-4xl font-black text-red-600">
-                        {{ number_format(
-                            Auth::user()->edits()->where('status', 'rejected')->count() + 
-                            Auth::user()->inlineEdits()->where('status', 'rejected')->count()
-                        ) }}
-                    </p>
-                </div>
-
-                <div class="bg-white rounded-[2.5rem] p-8 border border-amber-100 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-1">Total Points</p>
-                    <p class="text-4xl font-black text-amber-900">{{ number_format(Auth::user()->points) }}</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {{-- Recent Activity --}}
-                <div class="lg:col-span-2 bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
-                    <div class="p-10 border-b border-amber-50 flex items-center justify-between">
-                        <h3 class="text-2xl font-extrabold text-amber-900">Recent Activity</h3>
-                        <a href="{{ route('activity-feed.index') }}" class="text-sm font-black text-amber-500 hover:text-amber-600 uppercase tracking-widest">View All</a>
-                    </div>
-                    <div class="p-10 space-y-8">
-                        @forelse(Auth::user()->activityFeed()->latest()->take(5)->get() as $activity)
-                            <div class="flex items-start gap-6 group">
-                                <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
-                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {{-- Pending Edits for Review --}}
+                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 mb-12">
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📝 Pending Edits for Review</h3>
+                    
+                    @php
+                        $pendingEdits = \App\Models\Edit::where('status', 'pending')
+                            ->with('user', 'chapter')
+                            ->orderByDesc('created_at')
+                            ->limit(10)
+                            ->get();
+                    @endphp
+                    
+                    @if($pendingEdits->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($pendingEdits as $edit)
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <span class="font-extrabold text-amber-900">{{ $edit->user->name }}</span>
+                                                <span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded">{{ ucfirst($edit->type) }}</span>
+                                            </div>
+                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->title }}</p>
+                                            <p class="text-xs text-amber-800/60 font-bold">{{ $edit->created_at->diffForHumans() }}</p>
+                                        </div>
+                                        <a href="{{ route('admin.edits.show', $edit) }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">
+                                            Review
+                                        </a>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="text-amber-900 font-bold leading-tight mb-1">{{ $activity->description }}</p>
-                                    <p class="text-xs text-amber-800/40 font-black uppercase tracking-widest">{{ $activity->created_at->diffForHumans() }}</p>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
+                            <p class="text-amber-800/60 font-bold">No pending edits to review</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Recent Feedback --}}
+                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 mb-12">
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">💬 Recent Feedback</h3>
+                    
+                    @php
+                        $recentFeedback = \App\Models\Feedback::orderByDesc('created_at')->limit(5)->get();
+                    @endphp
+                    
+                    @if($recentFeedback->count() > 0)
+                        <div class="space-y-4">
+                            @foreach($recentFeedback as $feedback)
+                                <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                                    <div class="flex items-start justify-between gap-4 mb-2">
+                                        <span class="font-extrabold text-amber-900">{{ $feedback->sender_name ?? 'Anonymous' }}</span>
+                                        <p class="text-xs text-amber-800/60 font-bold">{{ $feedback->created_at->diffForHumans() }}</p>
+                                    </div>
+                                    <p class="text-sm text-amber-900/80 font-bold">{{ Str::limit($feedback->message, 150) }}</p>
                                 </div>
-                            </div>
-                        @empty
-                            <div class="text-center py-12">
-                                <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <svg class="w-10 h-10 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
+                            <p class="text-amber-800/60 font-bold">No feedback received yet</p>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Top Contributors --}}
+                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">🏆 Top Contributors</h3>
+                    
+                    @php
+                        $topContributors = \App\Models\User::where('is_admin', false)
+                            ->orderByDesc('points')
+                            ->limit(5)
+                            ->get();
+                    @endphp
+                    
+                    @if($topContributors->count() > 0)
+                        <div class="space-y-3">
+                            @foreach($topContributors as $index => $contributor)
+                                <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-2xl font-extrabold text-amber-600">{{ $index + 1 }}</span>
+                                        <div>
+                                            <p class="font-extrabold text-amber-900">{{ $contributor->name }}</p>
+                                            <p class="text-xs text-amber-800/60 font-bold">{{ $contributor->email }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-2xl font-extrabold text-amber-600">{{ $contributor->points }}</p>
+                                        <p class="text-xs text-amber-800/60 font-bold">points</p>
+                                    </div>
                                 </div>
-                                <p class="text-amber-900/40 font-bold">No activity yet. Start by reading a chapter!</p>
-                            </div>
-                        @endforelse
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
+                            <p class="text-amber-800/60 font-bold">No contributors yet</p>
+                        </div>
+                    @endif
+                </div>
+
+            @else
+                {{-- USER DASHBOARD --}}
+                
+                <div class="grid md:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
+                        <p class="text-amber-800/60 font-bold">Your Points</p>
+                        <p class="text-xs text-amber-800/40 font-bold mt-2">Earn more by contributing</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->edits()->count() }}</div>
+                        <p class="text-blue-800/60 font-bold">Your Edits</p>
+                        <p class="text-xs text-blue-800/40 font-bold mt-2">Suggestions submitted</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() }}</div>
+                        <p class="text-green-800/60 font-bold">Accepted</p>
+                        <p class="text-xs text-green-800/40 font-bold mt-2">Edits in the novel</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-[2rem] p-8">
+                        <div class="text-4xl font-extrabold text-red-600 mb-2">{{ auth()->user()->edits()->where('status', 'rejected')->count() }}</div>
+                        <p class="text-red-800/60 font-bold">Rejected</p>
+                        <p class="text-xs text-red-800/40 font-bold mt-2">Suggestions declined</p>
                     </div>
                 </div>
 
-                {{-- Achievements --}}
-                <div class="bg-amber-900 rounded-[3rem] p-10 text-amber-50 shadow-xl shadow-amber-900/20">
-                    <div class="flex items-center justify-between mb-10">
-                        <h3 class="text-2xl font-extrabold">Badges</h3>
-                        <a href="{{ route('achievements.index') }}" class="text-xs font-black text-amber-400 hover:text-amber-300 uppercase tracking-widest">View All</a>
-                    </div>
-                    <div class="grid grid-cols-2 gap-6">
-                        @forelse(Auth::user()->achievements()->take(4)->get() as $achievement)
-                            <div class="bg-white/5 rounded-3xl p-6 text-center hover:bg-white/10 transition-all group">
-                                <div class="text-4xl mb-4 group-hover:scale-110 transition-transform">{{ $achievement->icon ?? '🏆' }}</div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-amber-400">{{ $achievement->name }}</p>
-                            </div>
-                        @empty
-                            <div class="col-span-2 text-center py-12">
-                                <p class="text-amber-50/40 font-bold mb-6">No badges earned yet.</p>
-                                <a href="{{ route('chapters.index') }}" class="inline-block px-6 py-3 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-400 transition-all uppercase tracking-widest">
-                                    Start Reading
-                                </a>
-                            </div>
-                        @endforelse
+                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📚 Quick Links</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                            <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
+                            <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
+                        </a>
+                        <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                            <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>
+                            <p class="text-sm text-amber-800/60 font-bold">See top contributors</p>
+                        </a>
+                        <a href="{{ route('achievements.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                            <p class="font-extrabold text-amber-900 mb-1">🎖️ Achievements</p>
+                            <p class="text-sm text-amber-800/60 font-bold">Unlock badges</p>
+                        </a>
+                        <a href="{{ route('activity-feed.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                            <p class="font-extrabold text-amber-900 mb-1">🔥 Activity Feed</p>
+                            <p class="text-sm text-amber-800/60 font-bold">Community updates</p>
+                        </a>
                     </div>
                 </div>
-            </div>
+            @endcan
         </div>
     </div>
 </x-app-layout>

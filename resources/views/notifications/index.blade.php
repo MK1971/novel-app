@@ -1,10 +1,15 @@
-<x-app-layout>
+@if(auth()->check())
+    <x-app-layout>
+@else
+    <x-guest-layout>
+@endif
     <x-slot name="header">
-        <div class="flex flex-col">
+        <div class="flex items-center justify-between">
             <h2 class="font-extrabold text-3xl text-amber-900">🔔 Notifications</h2>
-            <p class="text-amber-800/60 font-bold">Stay updated with your contributions</p>
+            <span class="bg-amber-500 text-white font-extrabold px-4 py-2 rounded-full text-sm">{{ $unreadCount }} Unread</span>
         </div>
     </x-slot>
+
     <div class="py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="space-y-4">
@@ -54,6 +59,7 @@
                     </div>
                 @endforelse
             </div>
+
             @if($notifications->count() > 0)
                 <div class="mt-8 text-center">
                     <p class="text-amber-800/60 font-bold text-sm">Showing {{ $notifications->count() }} notifications</p>
@@ -61,4 +67,8 @@
             @endif
         </div>
     </div>
-</x-app-layout>
+@if(auth()->check())
+    </x-app-layout>
+@else
+    </x-guest-layout>
+@endif
