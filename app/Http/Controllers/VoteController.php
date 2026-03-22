@@ -17,11 +17,11 @@ class VoteController extends Controller
         $book = \App\Models\Book::where('name', 'Peter Trull Solitary Detective')->first();
         $chapters = $book?->chapters()->orderBy('number')->get() ?? collect();
         
-        $userVotes = [];
+        $hasVoted = [];
         $canVote = false;
         
         if (Auth::check()) {
-            $userVotes = Vote::where('user_id', Auth::id())
+            $hasVoted = Vote::where('user_id', Auth::id())
                 ->pluck('chapter_id')
                 ->toArray();
                 
@@ -37,13 +37,21 @@ class VoteController extends Controller
             $canVote = $hasAcceptedEdit || $hasAcceptedInlineEdit;
         }
         
-        return view('vote.index', compact('chapters', 'userVotes', 'canVote'));
+        // Group chapters by number for the view
+        $chapters = $chapters->groupBy('number');
+        
+        return view('vote.index', compact('chapters', 'hasVoted', 'canVote'));
     }
 
     public function store(Request $request, Chapter $chapter)
     {
         if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'You must be logged in to vote');
+        }
+
+        // Check if chapter is locked
+        if ($chapter->is_locked) {
+            return back()->with('error', 'Voting is closed for this chapter.');
         }
 
         // Check eligibility
@@ -59,20 +67,24 @@ class VoteController extends Controller
             return back()->with('error', 'You must have at least one accepted edit to vote');
         }
 
-        // Check if user has already voted on this chapter
+        // Check if user has already voted on this chapter pair (same number)
         $existingVote = Vote::where('user_id', Auth::id())
-            ->where('chapter_id', $chapter->id)
+            ->whereIn('chapter_id', function($query) use ($chapter) {
+                $query->select('id')->from('chapters')
+                    ->where('book_id', $chapter->book_id)
+                    ->where('number', $chapter->number);
+            })
             ->first();
 
         if ($existingVote) {
-            return back()->with('error', 'You have already voted on this chapter');
+            return back()->with('error', 'You have already voted on this chapter pair.');
         }
 
         // Create the vote
         Vote::create([
             'user_id' => Auth::id(),
             'chapter_id' => $chapter->id,
-            'version_chosen' => $request->input('version', 'A'),
+            'version_chosen' => $chapter->version,
             'session_id' => session()->getId(),
             'paid_at' => now(),
         ]);

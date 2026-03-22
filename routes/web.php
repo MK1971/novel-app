@@ -54,7 +54,9 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $achievements = \App\Models\Achievement::all();
+        $userAchievements = auth()->user()->achievements()->pluck('achievement_id')->toArray();
+        return view('dashboard', compact('achievements', 'userAchievements'));
     })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -82,6 +84,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/chapters', [AdminChapterController::class, 'index'])->name('chapters.index');
         Route::post('/chapters/story', [AdminChapterController::class, 'storeStoryChapter'])->name('chapters.store-story');
         Route::post('/chapters/peter-trull', [AdminChapterController::class, 'storePeterTrullChapter'])->name('chapters.store-peter-trull');
+        Route::delete('/chapters/{chapter}', [AdminChapterController::class, 'destroy'])->name('chapters.destroy');
+        Route::post('/chapters/{chapter}/toggle-lock', [AdminChapterController::class, 'toggleLock'])->name('chapters.toggle-lock');
 
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');

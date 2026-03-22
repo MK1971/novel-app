@@ -1,8 +1,4 @@
-@if(auth()->check())
-    <x-app-layout>
-@else
-    <x-guest-layout>
-@endif
+<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-extrabold text-3xl text-amber-900">🔥 Live Activity Feed</h2>
@@ -62,8 +58,4 @@
             </div>
         </div>
     </div>
-@if(auth()->check())
-    </x-app-layout>
-@else
-    </x-guest-layout>
-@endif
+</x-app-layout>

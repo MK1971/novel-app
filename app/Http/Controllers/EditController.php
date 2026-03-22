@@ -52,6 +52,16 @@ class EditController extends Controller
 
         $hasPaid->update(['edit_id' => $edit->id]);
 
+        $stats = \App\Models\ChapterStatistic::firstOrCreate(['chapter_id' => $chapter->id]);
+        $stats->increment('total_edits');
+
+        \App\Models\ActivityFeed::create([
+            'user_id' => $user->id,
+            'chapter_id' => $chapter->id,
+            'activity_type' => 'edit_submitted',
+            'description' => "{$user->name} submitted a new edit for Chapter {$chapter->number}.",
+        ]);
+
         return redirect()->route('chapters.index')->with('success', 'Edit submitted! We will review it.');
     }
 }

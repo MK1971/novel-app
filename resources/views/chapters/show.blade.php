@@ -1,4 +1,8 @@
 @php
+    if ($chapter->is_locked) {
+        header("Location: " . route('chapters.index'));
+        exit;
+    }
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
 @endphp
 
@@ -17,10 +21,23 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
-                    <span class="opacity-60 mr-1">Points for accepted edit:</span>
-                    <span class="text-amber-600">+1-2 pts</span>
-                </div>
+                @if($chapter->is_locked)
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest bg-white/50 px-4 py-2 rounded-xl border border-amber-100">
+                            <span class="text-green-600">{{ $stats->accepted_edits ?? 0 }} Accepted</span>
+                            <span class="text-amber-600">{{ $stats->total_edits ?? 0 }} Total</span>
+                            <span class="text-red-600">{{ $stats->rejected_edits ?? 0 }} Rejected</span>
+                        </div>
+                        <div class="px-6 py-2 bg-red-100 rounded-2xl border border-red-200 text-red-700 text-sm font-black uppercase tracking-widest">
+                            🔒 Locked
+                        </div>
+                    </div>
+                @else
+                    <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
+                        <span class="opacity-60 mr-1">Points for accepted edit:</span>
+                        <span class="text-amber-600">+1-2 pts</span>
+                    </div>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -50,13 +67,15 @@
                                     <p class="mb-6 relative group">
                                         {{ $paragraph }}
                                         @auth
-                                            <button 
-                                                onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
-                                                class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
-                                                title="Suggest edit for this paragraph"
-                                            >
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                            </button>
+                                            @if(!$chapter->is_locked)
+                                                <button 
+                                                    onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
+                                                    class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
+                                                    title="Suggest edit for this paragraph"
+                                                >
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                </button>
+                                            @endif
                                         @endauth
                                     </p>
                                 @endif
@@ -69,68 +88,85 @@
             {{-- Sidebar: Suggest Edit --}}
             <div class="lg:col-span-1">
                 <div class="sticky top-24 space-y-8">
-                    @auth
-                        <div class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
+                    @if($chapter->is_locked)
+                        <div class="bg-amber-50 border-2 border-amber-100 rounded-[3rem] p-10 text-amber-900 shadow-sm relative overflow-hidden">
                             <div class="relative z-10">
-                                <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
-                                <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                    Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you'll earn 1-2 points and climb the leaderboard.
+                                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-8">
+                                    <span class="text-3xl">🔒</span>
+                                </div>
+                                <h3 class="text-2xl font-extrabold mb-6">Chapter Locked</h3>
+                                <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">
+                                    This chapter is now part of the permanent record. Suggestions are closed, but you can still read and enjoy the community-shaped narrative.
                                 </p>
-                                
-                                <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
-                                    @csrf
-                                    <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
-                                    
-                                    <div>
-                                        <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit Type</label>
-                                        <select name="type" class="w-full bg-white/10 border-white/20 rounded-2xl text-white focus:ring-amber-500 focus:border-amber-500 font-bold p-4 outline-none transition-all" required>
-                                            <option value="writing" class="bg-amber-900">Writing Edit</option>
-                                            <option value="phrase" class="bg-amber-900">Phrase Edit</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label for="edited_text" class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Your Edited Text</label>
-                                        <textarea 
-                                            name="edited_text" 
-                                            id="edited_text" 
-                                            rows="10" 
-                                            class="w-full bg-white/10 border-white/20 rounded-2xl text-white placeholder-white/30 focus:ring-amber-500 focus:border-amber-500 font-bold p-4"
-                                            placeholder="Enter your suggested edit..."
-                                            required
-                                        >{{ old('edited_text', '') }}</textarea>
-                                        @error('edited_text')
-                                            <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    
-                                    <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                        Submit & Pay $2
-                                    </button>
-                                </form>
+                                <a href="{{ route('chapters.index') }}" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
+                                    Read Next Chapter
+                                </a>
                             </div>
-                            {{-- Decorative circles --}}
-                            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
                         </div>
                     @else
-                        <div class="bg-amber-500 rounded-[3rem] p-10 text-black shadow-2xl shadow-amber-500/20 relative overflow-hidden">
-                            <div class="relative z-10">
-                                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8">
-                                    <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        @auth
+                            <div class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
+                                <div class="relative z-10">
+                                    <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
+                                    <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
+                                        Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you'll earn 1-2 points and climb the leaderboard.
+                                    </p>
+                                    
+                                    <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
+                                        @csrf
+                                        <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
+                                        
+                                        <div>
+                                            <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit Type</label>
+                                            <select name="type" class="w-full bg-white/10 border-white/20 rounded-2xl text-white focus:ring-amber-500 focus:border-amber-500 font-bold p-4 outline-none transition-all" required>
+                                                <option value="writing" class="bg-amber-900">Writing Edit</option>
+                                                <option value="phrase" class="bg-amber-900">Phrase Edit</option>
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <label for="edited_text" class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Your Edited Text</label>
+                                            <textarea 
+                                                name="edited_text" 
+                                                id="edited_text" 
+                                                rows="10" 
+                                                class="w-full bg-white/10 border-white/20 rounded-2xl text-white placeholder-white/30 focus:ring-amber-500 focus:border-amber-500 font-bold p-4"
+                                                placeholder="Enter your suggested edit..."
+                                                required
+                                            >{{ old('edited_text', '') }}</textarea>
+                                            @error('edited_text')
+                                                <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
+                                            @enderror
+                                        </div>
+                                        
+                                        <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                                            Submit & Pay $2
+                                        </button>
+                                    </form>
                                 </div>
-                                <h3 class="text-2xl font-extrabold mb-6">Want to suggest an edit?</h3>
-                                <p class="text-black/60 text-lg font-bold mb-10 leading-relaxed">
-                                    Join our community of contributors to shape the story and earn your place on the leaderboard.
-                                </p>
-                                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-5 bg-black text-white text-lg font-extrabold rounded-2xl hover:bg-amber-900 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
-                                    Create Account
-                                </button>
-                                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="w-full mt-4 py-4 bg-transparent border-2 border-black/10 text-black text-lg font-extrabold rounded-2xl hover:bg-black/5 transition-all">
-                                    Sign In
-                                </button>
+                                {{-- Decorative circles --}}
+                                <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
                             </div>
-                        </div>
-                    @endauth
+                        @else
+                            <div class="bg-amber-500 rounded-[3rem] p-10 text-black shadow-2xl shadow-amber-500/20 relative overflow-hidden">
+                                <div class="relative z-10">
+                                    <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8">
+                                        <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </div>
+                                    <h3 class="text-2xl font-extrabold mb-6">Want to suggest an edit?</h3>
+                                    <p class="text-black/60 text-lg font-bold mb-10 leading-relaxed">
+                                        Join our community of contributors to shape the story and earn your place on the leaderboard.
+                                    </p>
+                                    <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-5 bg-black text-white text-lg font-extrabold rounded-2xl hover:bg-amber-900 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
+                                        Create Account
+                                    </button>
+                                    <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="w-full mt-4 py-4 bg-transparent border-2 border-black/10 text-black text-lg font-extrabold rounded-2xl hover:bg-black/5 transition-all">
+                                        Sign In
+                                    </button>
+                                </div>
+                            </div>
+                        @endauth
+                    @endif
 
                     <div class="p-8 bg-white border border-amber-100 rounded-[2.5rem] shadow-sm">
                         <h4 class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-6">Chapter Stats</h4>
@@ -145,14 +181,24 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-amber-900/60 font-bold">✅ Accepted</span>
-                                <span class="text-amber-900 font-black">{{ $stats->accepted_edits ?? 0 }}</span>
+                                <span class="text-amber-900 font-black text-green-600">{{ $stats->accepted_edits ?? 0 }}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-amber-900/60 font-bold">❌ Rejected</span>
+                                <span class="text-amber-900 font-black text-red-600">{{ $stats->rejected_edits ?? 0 }}</span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-amber-900/60 font-bold">🗳️ Votes</span>
                                 <span class="text-amber-900 font-black">{{ $stats->total_votes ?? 0 }}</span>
                             </div>
                             <div class="pt-6 border-t border-amber-50">
-                                <p class="text-xs text-amber-800/40 font-bold leading-relaxed">Accepted edits are permanently integrated into the final version of the novel.</p>
+                                <p class="text-xs text-amber-800/40 font-bold leading-relaxed">
+                                    @if($chapter->is_locked)
+                                        This chapter is locked. Final stats are preserved above.
+                                    @else
+                                        Accepted edits are permanently integrated into the final version of the novel.
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>

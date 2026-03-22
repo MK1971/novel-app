@@ -11,10 +11,9 @@ class ChapterController extends Controller
 {
     public function index(Request $request)
     {
-        // Only redirect if explicitly requested (e.g., "Start Reading" button)
         if ($request->has('resume') && Auth::check()) {
             $lastProgress = ReadingProgress::where('user_id', Auth::id())
-                ->orderBy('updated_at', 'desc')
+                ->orderByDesc('updated_at')
                 ->first();
             
             if ($lastProgress) {
@@ -22,9 +21,29 @@ class ChapterController extends Controller
             }
         }
 
-        $chapters = Chapter::where('book_id', function($query) {
-            $query->select('id')->from('books')->where('name', 'The Book With No Name');
-        })->orderBy('number')->get();
+        // Automatic locking logic: Lock all chapters except the latest one for each book
+        // We identify "latest" by the highest ID for each book to handle duplicate numbers
+        $latestChapterIds = Chapter::selectRaw('book_id, MAX(id) as max_id')
+            ->groupBy('book_id')
+            ->pluck('max_id');
+
+        // Lock all chapters that are NOT the latest for their respective books
+        Chapter::whereNotIn('id', $latestChapterIds)
+            ->where('is_locked', false)
+            ->update(['is_locked' => true]);
+            
+        // Ensure the latest chapters are UNLOCKED (unless manually locked by admin)
+        // For now, we follow the rule: only the latest is editable.
+        Chapter::whereIn('id', $latestChapterIds)
+            ->update(['is_locked' => false]);
+
+        $chapters = Chapter::with('statistics')
+            ->whereHas('book', function($query) {
+                $query->where('name', 'The Book With No Name');
+            })
+            ->orderBy('number')
+            ->orderBy('id')
+            ->get();
 
         return view('chapters.index', compact('chapters'));
     }
@@ -38,7 +57,10 @@ class ChapterController extends Controller
             );
             $progress = $readingProgress->scroll_position;
         }
-        return view('chapters.show', compact('chapter', 'progress'));
+        
+        $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
+        
+        return view('chapters.show', compact('chapter', 'progress', 'stats'));
     }
 
     public function trackProgress(Request $request, Chapter $chapter)

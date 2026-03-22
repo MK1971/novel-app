@@ -13,11 +13,23 @@ class AnalyticsController extends Controller
 {
     public function index()
     {
+        // Get vote stats for Peter Trull chapters
         $voteStats = Vote::select('chapter_id', 'version_chosen', DB::raw('count(*) as total'))
+            ->whereIn('chapter_id', function($query) {
+                $query->select('id')->from('chapters')->where('book_id', function($q) {
+                    $q->select('id')->from('books')->where('name', 'Peter Trull Solitary Detective');
+                });
+            })
             ->groupBy('chapter_id', 'version_chosen')
-            ->get();
+            ->get()
+            ->map(function($stat) {
+                $chapter = Chapter::find($stat->chapter_id);
+                $stat->chapter_number = $chapter->number;
+                $stat->chapter_title = $chapter->title;
+                return $stat;
+            });
 
-        // Only show chapters from "The Book With No Name" (exclude Peter Trull)
+        // Get chapter stats for "The Book With No Name"
         $chapterStats = Chapter::where('book_id', function($query) {
             $query->select('id')->from('books')->where('name', 'The Book With No Name');
         })

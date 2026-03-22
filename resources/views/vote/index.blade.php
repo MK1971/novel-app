@@ -56,35 +56,45 @@
                 @php
                     $versionA = $versions->firstWhere('version', 'A');
                     $versionB = $versions->firstWhere('version', 'B');
+                    $isLocked = $versionA->is_locked || $versionB->is_locked;
                     $userHasVoted = in_array($versionA->id, $hasVoted ?? []) || in_array($versionB->id, $hasVoted ?? []);
+                    
+                    $votesA = \App\Models\Vote::where('chapter_id', $versionA->id)->count();
+                    $votesB = \App\Models\Vote::where('chapter_id', $versionB->id)->count();
+                    $totalVotes = $votesA + $votesB;
                 @endphp
                 @if($versionA && $versionB)
                     <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
                         <div class="bg-amber-50/50 px-10 py-6 border-b border-amber-100 flex items-center justify-between">
                             <h3 class="text-2xl font-extrabold text-amber-900">Chapter {{ $chapterNum }}: {{ $versionA->title }}</h3>
-                            <div class="flex items-center gap-2">
-                                @if($userHasVoted)
-                                    <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                                    <span class="text-xs font-black text-green-700 uppercase tracking-widest">✓ Voted</span>
+                            <div class="flex items-center gap-4">
+                                @if($isLocked)
+                                    <span class="px-4 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase tracking-widest">🔒 Locked</span>
+                                @elseif($userHasVoted)
+                                    <span class="px-4 py-1 bg-green-100 text-green-700 text-xs font-black rounded-full uppercase tracking-widest">✓ Voted</span>
                                 @else
-                                    <span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span>
-                                    <span class="text-xs font-black text-amber-900/40 uppercase tracking-widest">Voting Active</span>
+                                    <span class="px-4 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full uppercase tracking-widest animate-pulse">Voting Active</span>
                                 @endif
+                                <div class="text-sm font-bold text-amber-900/40">
+                                    Total Votes: <span class="text-amber-900">{{ $totalVotes }}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="grid md:grid-cols-2 divide-x divide-amber-50">
                             <div class="p-10 flex flex-col">
                                 <div class="flex items-center justify-between mb-8">
                                     <h4 class="text-xl font-extrabold text-amber-900">Version A</h4>
-                                    <span class="px-4 py-1 bg-amber-100 text-amber-800 text-xs font-black rounded-full uppercase tracking-widest">Option 1</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg font-black text-amber-900">{{ $votesA }} votes</span>
+                                        <span class="px-4 py-1 bg-amber-100 text-amber-800 text-xs font-black rounded-full uppercase tracking-widest">Option 1</span>
+                                    </div>
                                 </div>
                                 <p class="text-amber-900/70 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionA->content }}</p>
                                 @if($canVote ?? false)
                                     <form action="{{ route('vote.store', $versionA) }}" method="POST">
                                         @csrf
-                                        <input type="hidden" name="version_chosen" value="A">
-                                        <button type="submit" class="w-full px-8 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900 disabled:hover:translate-y-0" {{ $userHasVoted ? 'disabled' : '' }}>
-                                            {{ $userHasVoted ? '✓ Already Voted' : 'Vote for Version A' }}
+                                        <button type="submit" class="w-full px-8 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900 disabled:hover:translate-y-0" {{ ($userHasVoted || $isLocked) ? 'disabled' : '' }}>
+                                            @if($isLocked) 🔒 Voting Closed @elseif($userHasVoted) ✓ Already Voted @else Vote for Version A @endif
                                         </button>
                                     </form>
                                 @endif
@@ -92,15 +102,17 @@
                             <div class="p-10 flex flex-col bg-amber-50/20">
                                 <div class="flex items-center justify-between mb-8">
                                     <h4 class="text-xl font-extrabold text-amber-900">Version B</h4>
-                                    <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">Option 2</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg font-black text-amber-900">{{ $votesB }} votes</span>
+                                        <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">Option 2</span>
+                                    </div>
                                 </div>
                                 <p class="text-amber-900/70 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionB->content }}</p>
                                 @if($canVote ?? false)
                                     <form action="{{ route('vote.store', $versionB) }}" method="POST">
                                         @csrf
-                                        <input type="hidden" name="version_chosen" value="B">
-                                        <button type="submit" class="w-full px-8 py-4 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-500 disabled:hover:translate-y-0" {{ $userHasVoted ? 'disabled' : '' }}>
-                                            {{ $userHasVoted ? '✓ Already Voted' : 'Vote for Version B' }}
+                                        <button type="submit" class="w-full px-8 py-4 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-500 disabled:hover:translate-y-0" {{ ($userHasVoted || $isLocked) ? 'disabled' : '' }}>
+                                            @if($isLocked) 🔒 Voting Closed @elseif($userHasVoted) ✓ Already Voted @else Vote for Version B @endif
                                         </button>
                                     </form>
                                 @endif

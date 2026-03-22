@@ -70,7 +70,13 @@
 
                     <div class="flex items-center gap-4">
                         @auth
-                            <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">Dashboard</a>
+                            <div class="flex items-center gap-6">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-xs font-black uppercase tracking-widest text-amber-400/60">Member</span>
+                                    <span class="text-sm font-black text-white">{{ Auth::user()->name }}</span>
+                                </div>
+                                <a href="{{ route('dashboard') }}" class="px-6 py-2.5 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">Dashboard</a>
+                            </div>
                         @else
                             <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="text-sm font-bold text-white/60 hover:text-white transition-colors">Sign In</button>
                             <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="px-6 py-2.5 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">Join Now</button>

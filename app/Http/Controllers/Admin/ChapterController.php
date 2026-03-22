@@ -36,6 +36,9 @@ class ChapterController extends Controller
             ['status' => 'in_progress']
         );
 
+        // Lock all previous chapters of this book
+        Chapter::where('book_id', $book->id)->update(['is_locked' => true]);
+
         Chapter::create([
             'book_id' => $book->id,
             'title' => $request->title,
@@ -43,9 +46,10 @@ class ChapterController extends Controller
             'content' => $request->content,
             'version' => 'A',
             'status' => 'published',
+            'is_locked' => false,
         ]);
 
-        return back()->with('success', 'Chapter added to The Book With No Name.');
+        return back()->with('success', 'Chapter added and previous chapters locked.');
     }
 
     public function storePeterTrullChapter(Request $request)
@@ -63,6 +67,9 @@ class ChapterController extends Controller
             ['status' => 'finished']
         );
 
+        // Lock all previous chapters of this book
+        Chapter::where('book_id', $book->id)->update(['is_locked' => true]);
+
         Chapter::create([
             'book_id' => $book->id,
             'title' => $request->title,
@@ -70,6 +77,7 @@ class ChapterController extends Controller
             'content' => $request->content_a,
             'version' => 'A',
             'status' => 'published',
+            'is_locked' => false,
         ]);
         Chapter::create([
             'book_id' => $book->id,
@@ -78,8 +86,24 @@ class ChapterController extends Controller
             'content' => $request->content_b,
             'version' => 'B',
             'status' => 'published',
+            'is_locked' => false,
         ]);
 
-        return back()->with('success', 'Chapter pair added to Peter Trull Solitary Detective.');
+        return back()->with('success', 'Chapter pair added and previous chapters locked.');
+    }
+
+    public function destroy(Chapter $chapter)
+    {
+        Gate::authorize('admin');
+        $chapter->delete();
+        return back()->with('success', 'Chapter deleted successfully.');
+    }
+
+    public function toggleLock(Chapter $chapter)
+    {
+        Gate::authorize('admin');
+        $chapter->is_locked = !$chapter->is_locked;
+        $chapter->save();
+        return back()->with('success', 'Chapter lock status updated.');
     }
 }

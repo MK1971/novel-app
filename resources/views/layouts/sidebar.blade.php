@@ -9,7 +9,7 @@
                     Dashboard
                 </x-sidebar-link>
                 @endauth
-                <x-sidebar-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" icon="book">
+                <x-sidebar-link :href="route('chapters.index', ['resume' => 1])" :active="request()->routeIs('chapters.*')" icon="book">
                     The Story
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" icon="vote">

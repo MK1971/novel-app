@@ -65,7 +65,7 @@
                                             <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->title }}</p>
                                             <p class="text-xs text-amber-800/60 font-bold">{{ $edit->created_at->diffForHumans() }}</p>
                                         </div>
-                                        <a href="{{ route('admin.edits.show', $edit) }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">
+                                        <a href="{{ route('admin.edits.index') }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">
                                             Review
                                         </a>
                                     </div>
@@ -153,43 +153,56 @@
                     </div>
                     
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->edits()->count() }}</div>
+                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->edits()->count() + auth()->user()->inlineEdits()->count() }}</div>
                         <p class="text-blue-800/60 font-bold">Your Edits</p>
                         <p class="text-xs text-blue-800/40 font-bold mt-2">Suggestions submitted</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() }}</div>
+                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() + auth()->user()->inlineEdits()->where('status', 'approved')->count() }}</div>
                         <p class="text-green-800/60 font-bold">Accepted</p>
                         <p class="text-xs text-green-800/40 font-bold mt-2">Edits in the novel</p>
                     </div>
 
                     <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-red-600 mb-2">{{ auth()->user()->edits()->where('status', 'rejected')->count() }}</div>
+                        <div class="text-4xl font-extrabold text-red-600 mb-2">{{ auth()->user()->edits()->where('status', 'rejected')->count() + auth()->user()->inlineEdits()->where('status', 'rejected')->count() }}</div>
                         <p class="text-red-800/60 font-bold">Rejected</p>
                         <p class="text-xs text-red-800/40 font-bold mt-2">Suggestions declined</p>
                     </div>
                 </div>
 
-                <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📚 Quick Links</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
-                        </a>
-                        <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>
-                            <p class="text-sm text-amber-800/60 font-bold">See top contributors</p>
-                        </a>
-                        <a href="{{ route('achievements.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🎖️ Achievements</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Unlock badges</p>
-                        </a>
-                        <a href="{{ route('activity-feed.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                            <p class="font-extrabold text-amber-900 mb-1">🔥 Activity Feed</p>
-                            <p class="text-sm text-amber-800/60 font-bold">Community updates</p>
-                        </a>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
+                        <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📚 Quick Links</h3>
+                        <div class="grid gap-4">
+                            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                                <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
+                                <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
+                            </a>
+                            <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                                <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>
+                                <p class="text-sm text-amber-800/60 font-bold">See top contributors</p>
+                            </a>
+                            <a href="{{ route('activity-feed.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                                <p class="font-extrabold text-amber-900 mb-1">🔥 Activity Feed</p>
+                                <p class="text-sm text-amber-800/60 font-bold">Community updates</p>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
+                        <h3 class="text-2xl font-extrabold text-amber-900 mb-6">🎖️ Your Achievements</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            @foreach($achievements as $achievement)
+                                @php
+                                    $isUnlocked = in_array($achievement->id, $userAchievements);
+                                @endphp
+                                <div class="flex flex-col items-center text-center p-4 rounded-2xl border {{ $isUnlocked ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-40' }}">
+                                    <div class="text-3xl mb-2">{{ $achievement->icon }}</div>
+                                    <p class="text-xs font-extrabold text-amber-900 leading-tight">{{ $achievement->name }}</p>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             @endcan

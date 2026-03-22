@@ -33,7 +33,6 @@ class ModerationController extends Controller
         
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
         $stats->increment('accepted_edits');
-        $stats->increment('total_edits');
         
         return back()->with('success', 'Edit approved.');
     }
@@ -45,7 +44,6 @@ class ModerationController extends Controller
         
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
         $stats->increment('rejected_edits');
-        $stats->increment('total_edits');
         
         return back()->with('success', 'Edit rejected.');
     }
@@ -67,7 +65,6 @@ class ModerationController extends Controller
         
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('accepted_edits');
-        $stats->increment('total_edits');
         
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);
@@ -82,7 +79,6 @@ class ModerationController extends Controller
         
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('rejected_edits');
-        $stats->increment('total_edits');
         
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);

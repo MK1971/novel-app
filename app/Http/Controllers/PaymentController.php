@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
+use App\Models\Chapter;
+use App\Models\Edit;
+use App\Models\InlineEdit;
+use App\Models\ChapterStatistic;
 use Illuminate\Http\Request;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
@@ -22,12 +26,12 @@ class PaymentController extends Controller
             ]);
         }
 
-        $chapter = \App\Models\Chapter::findOrFail($request->chapter_id);
+        $chapter = Chapter::findOrFail($request->chapter_id);
 
         // Handle inline edit vs regular edit
         if ($request->type === 'inline_edit') {
             // For inline edits, create a placeholder Edit record
-            $edit = \App\Models\Edit::create([
+            $edit = Edit::create([
                 'user_id' => $request->user()->id,
                 'chapter_id' => $chapter->id,
                 'type' => 'inline_edit',
@@ -36,7 +40,7 @@ class PaymentController extends Controller
                 'status' => 'pending_payment',
             ]);
         } else {
-            $edit = \App\Models\Edit::create([
+            $edit = Edit::create([
                 'user_id' => $request->user()->id,
                 'chapter_id' => $chapter->id,
                 'type' => $request->type,
@@ -101,7 +105,7 @@ class PaymentController extends Controller
             return redirect()->route('chapters.index')->with('error', 'Invalid payment session.');
         }
 
-        $edit = \App\Models\Edit::find($editId);
+        $edit = Edit::find($editId);
         if (!$edit || $edit->status !== 'pending_payment' || $edit->user_id !== $request->user()->id) {
             return redirect()->route('chapters.index')->with('error', 'Invalid edit session.');
         }
@@ -125,7 +129,7 @@ class PaymentController extends Controller
                 $inlineEditData = session('inlineEditData');
                 if ($inlineEditData) {
                     $inlineEditArray = json_decode($inlineEditData, true);
-                    \App\Models\InlineEdit::create([
+                    InlineEdit::create([
                         'user_id' => $request->user()->id,
                         'chapter_id' => $chapterId,
                         'paragraph_number' => $inlineEditArray['paragraph_number'] ?? 0,
@@ -139,6 +143,10 @@ class PaymentController extends Controller
             }
 
             $edit->update(['status' => 'pending']);
+
+            // Update chapter statistics immediately
+            $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapterId]);
+            $stats->increment('total_edits');
 
             return redirect()->route('chapters.show', $chapterId)
                 ->with('success', 'Thank you for your submission! We will review your edit.');
