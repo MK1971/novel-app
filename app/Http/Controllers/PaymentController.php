@@ -148,10 +148,10 @@ class PaymentController extends Controller
             $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapterId]);
             $stats->increment('total_edits');
 
-            return redirect()->route('chapters.show', $chapterId)
-                ->with('success', 'Thank you for your submission! We will review your edit.');
+            return redirect()->route('chapters.show', $chapterId) . '#edit-submission-box'
+                ->with('success', 'Thank you for your submission! Your payment was accepted and your edit has been submitted for review.');
         }
 
-        return redirect()->route('chapters.show', $chapterId)->with('error', 'Payment could not be completed.');
+        return redirect()->route('chapters.show', $chapterId)->with('error', 'Payment could not be completed. Please try again.');
     }
 }

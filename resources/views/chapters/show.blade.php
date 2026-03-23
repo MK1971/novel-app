@@ -1,5 +1,5 @@
 @php
-    if ($chapter->is_locked) {
+    if ($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective') {
         header("Location: " . route('chapters.index'));
         exit;
     }
@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                @if($chapter->is_locked)
+                @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest bg-white/50 px-4 py-2 rounded-xl border border-amber-100">
                             <span class="text-green-600">{{ $stats->accepted_edits ?? 0 }} Accepted</span>
@@ -88,13 +88,13 @@
             {{-- Sidebar: Suggest Edit --}}
             <div class="lg:col-span-1">
                 <div class="sticky top-24 space-y-8">
-                    @if($chapter->is_locked)
+                    @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
                         <div class="bg-amber-50 border-2 border-amber-100 rounded-[3rem] p-10 text-amber-900 shadow-sm relative overflow-hidden">
                             <div class="relative z-10">
                                 <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-8">
                                     <span class="text-3xl">🔒</span>
                                 </div>
-                                <h3 class="text-2xl font-extrabold mb-6">Chapter Locked</h3>
+                                    <h3 class="text-2xl font-extrabold mb-6">Chapter Locked for Edits</h3>
                                 <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">
                                     This chapter is now part of the permanent record. Suggestions are closed, but you can still read and enjoy the community-shaped narrative.
                                 </p>
@@ -105,7 +105,7 @@
                         </div>
                     @else
                         @auth
-                            <div class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
+                            <div id="edit-submission-box" class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
@@ -193,7 +193,7 @@
                             </div>
                             <div class="pt-6 border-t border-amber-50">
                                 <p class="text-xs text-amber-800/40 font-bold leading-relaxed">
-                                    @if($chapter->is_locked)
+                                    @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
                                         This chapter is locked. Final stats are preserved above.
                                     @else
                                         Accepted edits are permanently integrated into the final version of the novel.
