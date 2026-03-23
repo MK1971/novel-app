@@ -66,3 +66,12 @@ This document summarizes the key changes and enhancements made to the `novel-app
 ### Fixed
 - Resolved various issues related to activity feed, chapter stats, and user name display.
 - Addressed multiple iterations of chapter locking and consolidation issues.
+
+## Version 1.8.0 - UI/UX Enhancements and Bug Fixes
+### Fixed
+- **Navigation Menu**: Made the main navigation menu sticky at the top of the screen, ensuring it remains visible on scroll.
+- **Peter Trull Chapter Locking**: Resolved a bug where Peter Trull chapters remained locked for editing after payment, allowing users to submit edits as intended.
+
+### Changed
+- **Payment Feedback**: Enhanced payment success and failure messages for clarity and user guidance.
+- **Post-Payment Scroll**: Implemented auto-scrolling to the edit submission box after a successful payment for improved user experience.
