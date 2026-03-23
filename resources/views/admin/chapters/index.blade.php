@@ -64,11 +64,17 @@
                                                 @if($ch->is_locked) 🔓 @else 🔒 @endif
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.chapters.destroy', $ch) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this chapter?')">
+                                        <form action="{{ route("admin.chapters.destroy", $ch) }}" method="POST" onsubmit="return confirm("Are you sure you want to delete this chapter?")">
                                             @csrf
-                                            @method('DELETE')
+                                            @method("DELETE")
                                             <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
                                                 🗑️
+                                            </button>
+                                        </form>
+                                        <form action="{{ route("admin.chapters.archive", $ch) }}" method="POST" onsubmit="return confirm("Are you sure you want to archive this chapter?")">
+                                            @csrf
+                                            <button type="submit" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Archive">
+                                                📦
                                             </button>
                                         </form>
                                     </div>

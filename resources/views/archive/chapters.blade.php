@@ -1,4 +1,8 @@
-<x-guest-layout>
+@php
+    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+@endphp
+
+<x-dynamic-component :component="$layout">
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl sm:rounded-2xl border border-amber-100">
@@ -44,4 +48,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-dynamic-component>

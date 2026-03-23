@@ -45,7 +45,29 @@ class ChapterController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('chapters.index', compact('chapters'));
+        // Ensure statistics exist for all chapters
+        foreach ($chapters as $chapter) {
+            if (!$chapter->statistics) {
+                $chapter->statistics()->create([
+                    'total_reads' => 0,
+                    'total_edits' => 0,
+                    'accepted_edits' => 0,
+                    'rejected_edits' => 0,
+                    'total_votes' => 0,
+                ]);
+            }
+        }
+
+        $progress = [];
+        if (Auth::check()) {
+            $progress = ReadingProgress::where('user_id', Auth::id())
+                ->whereIn('chapter_id', $chapters->pluck('id'))
+                ->get()
+                ->pluck('scroll_position', 'chapter_id')
+                ->toArray();
+        }
+
+        return view('chapters.index', compact('chapters', 'progress'));
     }
 
     public function show(Chapter $chapter)
@@ -59,6 +81,7 @@ class ChapterController extends Controller
         }
         
         $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
+        $stats->increment('total_reads');
         
         return view('chapters.show', compact('chapter', 'progress', 'stats'));
     }
@@ -66,10 +89,16 @@ class ChapterController extends Controller
     public function trackProgress(Request $request, Chapter $chapter)
     {
         if (Auth::check()) {
-            ReadingProgress::updateOrCreate(
+            $progress = ReadingProgress::updateOrCreate(
                 ['user_id' => Auth::id(), 'chapter_id' => $chapter->id],
                 ['scroll_position' => $request->input('scroll_position', 0)]
             );
+
+            // Only increment total_reads if this is a new progress record (first time reading)
+            if ($progress->wasRecentlyCreated) {
+                $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
+                $stats->increment('total_reads');
+            }
         }
         return response()->json(['success' => true]);
     }
