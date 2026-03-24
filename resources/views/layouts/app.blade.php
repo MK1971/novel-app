@@ -19,7 +19,7 @@
         </style>
     </head>
     <body class="min-h-screen antialiased bg-[#fff9f0] text-[#2c2419]" style="font-family: 'Nunito', sans-serif;">
-        <div class="min-h-screen flex flex-col">
+        <div class="min-h-screen flex flex-col overflow-hidden">
             {{-- Top Navigation --}}
             <nav class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
                 <div class="max-w-full mx-auto px-6 py-4 flex items-center justify-between">
@@ -76,7 +76,7 @@
                 </div>
             </nav>
 
-            <div class="flex flex-1 overflow-hidden">
+            <div class="flex flex-1 h-screen">
                 {{-- Sidebar --}}
                 @if(!isset($hideSidebar) || !$hideSidebar)
                     @include('layouts.sidebar')
