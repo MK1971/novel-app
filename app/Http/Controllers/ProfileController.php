@@ -19,8 +19,9 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $readingProgress = ReadingProgress::with('chapter')
-            ->where('user_id', $user->id)
-            ->orderBy('last_read_at', 'desc')
+            ->where("user_id", $user->id)
+            ->whereHas("chapter") // Ensure only reading progress with existing chapters are fetched
+            ->orderBy("last_read_at", "desc")
             ->get();
 
         return view('profile.show', [
