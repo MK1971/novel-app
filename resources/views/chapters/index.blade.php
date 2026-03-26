@@ -70,11 +70,21 @@
                             @endif
                         </div>
 
-                        <h3 class="text-4xl font-extrabold text-amber-900 mb-8">{{ $chapter->title }}</h3>
+                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-4' : 'mb-8' }}">{{ $chapter->title }}</h3>
                         
-                        <div class="max-w-none text-amber-900/80 leading-[2.2] font-medium text-left mb-12">
-                            {!! nl2br(e($chapter->content)) !!}
-                        </div>
+                        @if(!$chapter->is_locked)
+                            <div class="max-w-none text-amber-900/80 leading-[2.2] font-medium text-left mb-12">
+                                {!! nl2br(e($chapter->content)) !!}
+                            </div>
+                        @else
+                            <div class="bg-amber-50/30 rounded-[2rem] p-10 border-2 border-dashed border-amber-200/50 mb-12 text-center group-hover:border-amber-300/50 transition-all">
+                                <div class="w-16 h-16 bg-amber-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                    <span class="text-2xl">🔒</span>
+                                </div>
+                                <p class="text-amber-900/40 font-extrabold text-lg mb-2 uppercase tracking-widest">Chapter Locked</p>
+                                <p class="text-amber-800/30 font-bold italic">This chapter is now part of the permanent record. Click below to read the final version.</p>
+                            </div>
+                        @endif
 
                         <div class="flex items-center justify-between pt-8 border-t border-amber-100">
                             <div class="text-amber-800/40 text-sm font-bold">
@@ -87,9 +97,10 @@
                                     <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </a>
                             @else
-                                <div class="text-amber-800/40 font-black uppercase tracking-widest text-xs">
-                                    Final Version
-                                </div>
+                                <a href="{{ route('chapters.show', $chapter) }}" class="inline-flex items-center px-10 py-5 bg-amber-100 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all border border-amber-200 shadow-sm transform hover:-translate-y-1">
+                                    View Final Version
+                                    <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </a>
                             @endif
                         </div>
                     </div>

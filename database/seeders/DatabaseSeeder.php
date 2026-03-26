@@ -79,5 +79,18 @@ class DatabaseSeeder extends Seeder
                 'is_locked' => false,
             ]
         );
+
+        Chapter::updateOrCreate(
+            ['id' => 3],
+            [
+                'book_id' => 2,
+                'number' => 1,
+                'title' => 'Peter Trull - Case 1',
+                'content' => "The rain drummed against the window of Peter Trull's office. He was a man of few words and even fewer friends, a solitary detective in a city that had forgotten the meaning of justice.",
+                'version' => 'B',
+                'status' => 'published',
+                'is_locked' => false,
+            ]
+        );
     }
 }

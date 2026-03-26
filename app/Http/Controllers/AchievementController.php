@@ -57,4 +57,9 @@ class AchievementController extends Controller
             }
         }
     }
+
+    public function show(Achievement $achievement)
+    {
+        return view('achievements.show', compact('achievement'));
+    }
 }
