@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace("_", "-", app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'What\'s My Book Name') }}</title>
+        <title>{{ config("app.name", "What's My Book Name") }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=nunito:400,600,700,800" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(["resources/css/app.css", "resources/js/app.js"])
         
         <style>
             [x-cloak] { display: none !important; }
@@ -24,7 +24,7 @@
             <nav class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
                 <div class="max-w-full mx-auto px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-8">
-                        <a href="{{ url('/') }}" class="text-2xl font-extrabold text-amber-800 tracking-tight">
+                        <a href="{{ url("/") }}" class="text-2xl font-extrabold text-amber-800 tracking-tight">
                             What's My Book Name
                         </a>
                         @if($topLeader)
@@ -53,21 +53,21 @@
                             </x-slot>
 
                             <x-slot name="content">
-                                <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 font-bold hover:bg-amber-50">
-                                    {{ __('Profile') }}
+                                <x-dropdown-link :href="route("profile.edit")" class="text-amber-900 font-bold hover:bg-amber-50">
+                                    {{ __("Profile") }}
                                 </x-dropdown-link>
-                                @can('admin')
-                                    <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __('Moderation') }}
+                                @can("admin")
+                                    <x-dropdown-link :href="route("admin.inline-edits.index")" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __("Moderation") }}
                                     </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __('User Management') }}
+                                    <x-dropdown-link :href="route("admin.users.index")" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __("User Management") }}
                                     </x-dropdown-link>
                                 @endcan
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route("logout") }}">
                                     @csrf
-                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 font-bold hover:bg-red-50">
-                                        {{ __('Log Out') }}
+                                    <x-dropdown-link :href="route("logout")" onclick="event.preventDefault(); this.closest("form").submit();" class="text-red-600 font-bold hover:bg-red-50">
+                                        {{ __("Log Out") }}
                                     </x-dropdown-link>
                                 </form>
                             </x-slot>
@@ -76,10 +76,10 @@
                 </div>
             </nav>
 
-            <div class="flex flex-1 overflow-hidden">
+            <div class="flex flex-1">
                 {{-- Sidebar --}}
                 @if(!isset($hideSidebar) || !$hideSidebar)
-                    @include('layouts.sidebar')
+                    @include("layouts.sidebar")
                 @endif
 
                 {{-- Main Content Area --}}
@@ -99,7 +99,7 @@
                     </main>
                     
                     <footer class="py-8 px-8 border-t border-amber-100 text-center">
-                        <p class="text-amber-900/30 text-sm font-bold">© {{ date('Y') }} What's My Book Name. All rights reserved.</p>
+                        <p class="text-amber-900/30 text-sm font-bold">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
                     </footer>
                 </div>
             </div>
@@ -107,7 +107,7 @@
 
         {{-- Auth modals for guests --}}
         @if (!auth()->check())
-            @include('auth.modals')
+            @include("auth.modals")
         @endif
     </body>
 </html>
