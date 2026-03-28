@@ -53,21 +53,21 @@
                             </x-slot>
 
                             <x-slot name="content">
-                                <x-dropdown-link :href="route("profile.edit")" class="text-amber-900 font-bold hover:bg-amber-50">
-                                    {{ __("Profile") }}
+                                <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 font-bold hover:bg-amber-50">
+                                    {{ __('Profile') }}
                                 </x-dropdown-link>
-                                @can("admin")
-                                    <x-dropdown-link :href="route("admin.inline-edits.index")" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __("Moderation") }}
+                                @can('admin')
+                                    <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __('Moderation') }}
                                     </x-dropdown-link>
-                                    <x-dropdown-link :href="route("admin.users.index")" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __("User Management") }}
+                                    <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                                        {{ __('User Management') }}
                                     </x-dropdown-link>
                                 @endcan
-                                <form method="POST" action="{{ route("logout") }}">
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
-                                    <x-dropdown-link :href="route("logout")" onclick="event.preventDefault(); this.closest("form").submit();" class="text-red-600 font-bold hover:bg-red-50">
-                                        {{ __("Log Out") }}
+                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 font-bold hover:bg-red-50">
+                                        {{ __('Log Out') }}
                                     </x-dropdown-link>
                                 </form>
                             </x-slot>
