@@ -72,6 +72,11 @@ class ChapterController extends Controller
 
     public function show(Chapter $chapter)
     {
+        $chapter->loadMissing('book');
+        if ($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective') {
+            return redirect()->route('chapters.index');
+        }
+
         $progress = 0;
         if (Auth::check()) {
             $readingProgress = ReadingProgress::firstOrCreate(
