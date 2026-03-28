@@ -1,8 +1,4 @@
 @php
-    if ($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective') {
-        header("Location: " . route('chapters.index'));
-        exit;
-    }
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
 @endphp
 
@@ -58,7 +54,12 @@
                     </div>
                     
                     <div class="relative z-10">
-                        <div id="chapter-content" class="max-w-none text-amber-900/80 leading-[2.2] font-medium text-left">
+                        @if($chapter->is_locked)
+                            <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.04] select-none overflow-hidden">
+                                <div class="text-[20rem] font-black rotate-[-35deg] whitespace-nowrap">LOCKED</div>
+                            </div>
+                        @endif
+                        <div id="chapter-content" class="max-w-none text-amber-900/80 leading-[2.2] font-medium text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
                             @php
                                 $paragraphs = explode("\n", $chapter->content);
                             @endphp

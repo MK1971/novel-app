@@ -11,6 +11,8 @@
 /.phpunit.cache
 /.vscode
 /.zed
+/.revert-snapshots
+/_local_backups
 /auth.json
 /node_modules
 /public/build

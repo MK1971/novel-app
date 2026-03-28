@@ -1,0 +1,71 @@
+Landing page UX / UI suggestions (checklist)
+============================================
+
+Baseline copy (items 1–15 + mobile menu refinements): _local_backups/welcome-original.blade.php
+Restore live page: cp _local_backups/welcome-original.blade.php resources/views/welcome.blade.php
+
+Status key: [done] [ ] = not started
+
+
+ACCESSIBILITY & SEMANTICS
+-------------------------
+[done] 1. Skip link — “Skip to main content” (button for Safari default Tab)
+[done] 2. Landmarks — <main id="main-content"> around hero + journey + stats; nav/footer outside
+[done] 3. Focus visibility — rings on keyboard focus (nav, hero, sections, footer)
+[done] 4. Heading hierarchy — single logical h1; section h2; card h3 (verify after refactors)
+[done] 5. prefers-reduced-motion — tone down or disable typewriter / ping for reduced-motion users
+[done] 6. Contrast — spot-check white/60 and amber-on-cream for WCAG AA
+
+
+MOBILE & NAVIGATION
+-------------------
+[done] 7. Mobile nav — hamburger or sheet for Chapters / Leaderboard / Peter Trull / About (hidden until md)
+[done] 8. Touch targets — keep nav / hero controls ~44×44px minimum on small screens
+[done] 9. Brand clickability — logo + “WhatsMyBookName” as one link to /
+
+
+HERO & FIRST IMPRESSION
+-----------------------
+[done] 10. Hero legibility — slightly stronger overlay or text shadow if photo competes with type
+[done] 11. Typewriter UX — shorten or go static on small widths so wrapping doesn’t fight the caret
+[done] 12. Primary CTA clarity — optional subline under “Start Your Adventure” if users are confused
+[done] 13. background-attachment: fixed — often janky on iOS; consider fixed only from md+ or static on touch
+
+
+TRUST & CONTENT
+---------------
+[done] 14. Community stats — replace placeholders with real counts or label as illustrative
+[done] 15. Social proof — optional quotes / “as featured” row if you have assets
+[ ] 16. Footer legal — real routes for Privacy / Terms or remove until pages exist
+
+
+JOURNEY SECTION
+---------------
+[ ] 17. Scannability — short “how it works in 3 steps” above the two cards
+[ ] 18. Peter Trull card — inline note + link if voting is gated (e.g. after paid edit)
+
+
+PERFORMANCE & RESILIENCE
+------------------------
+[ ] 19. Hero image — srcset / self-host; consider fetchpriority if moving to <img> overlay
+[ ] 20. Alpine — single source (Vite OR CDN), not both, to avoid double-init bugs
+[ ] 21. csrf-token meta — if any JS on the landing page will POST without form @csrf
+
+
+MICRO-INTERACTIONS & POLISH
+----------------------------
+[ ] 22. Consistent hover/focus — same duration / easing on nav links and card CTAs
+[ ] 23. Stats strip — light band (e.g. bg cream) + border so it separates from white sections
+[ ] 24. Copyright — use © {{ date('Y') }} instead of hard-coded year
+
+
+MODALS (LANDING)
+----------------
+[ ] 25. Query string — e.g. ?register=1 opens register modal for shared links
+[ ] 26. Focus trap + ESC — confirm modal component behavior on marketing page
+
+
+Notes
+-----
+- Safari: default Tab skips links; Advanced → “Press Tab to highlight each item on a webpage” to tab all links, or Option+Tab.
+- Next batch: pick numbers (e.g. “do 4–6”) before editing; snapshot welcome before changes per project rules.

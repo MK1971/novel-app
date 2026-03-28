@@ -197,10 +197,10 @@
                                 @php
                                     $isUnlocked = in_array($achievement->id, $userAchievements);
                                 @endphp
-                                <div class="flex flex-col items-center text-center p-4 rounded-2xl border {{ $isUnlocked ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-40' }}">
+                                <a href="{{ route('achievements.show', $achievement) }}" class="flex flex-col items-center text-center p-4 rounded-2xl border {{ $isUnlocked ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-40' }} hover:shadow-md transition-all">
                                     <div class="text-3xl mb-2">{{ $achievement->icon }}</div>
                                     <p class="text-xs font-extrabold text-amber-900 leading-tight">{{ $achievement->name }}</p>
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     </div>

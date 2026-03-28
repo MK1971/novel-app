@@ -1,0 +1,24 @@
+---
+description: Backup files before editing; revert via .revert-snapshots
+alwaysApply: true
+---
+
+# Revert snapshots (before any edit)
+
+**Landing baseline:** after each batch you accept, the canonical copy lives at `_local_backups/welcome-original.blade.php` (copy over `resources/views/welcome.blade.php` to restore). Latest baseline includes landing UX items 1–15 plus mobile menu refinements (compact panel, anchored under the menu button).
+
+Before **changing** a project file (not `vendor/`, `node_modules/`, or generated build output):
+
+1. **Create a timestamped snapshot** mirroring the repo path under:
+   `.revert-snapshots/YYYYMMDD-HHMMSS/<same-relative-path-as-original>`
+   Example: editing `resources/views/welcome.blade.php` → copy to  
+   `.revert-snapshots/20260326-153045/resources/views/welcome.blade.php`  
+   Use **one folder per change batch** (same timestamp for all files touched in that step).
+
+2. **Then** apply the edit with search_replace / write.
+
+3. **Revert** if needed: copy the snapshot file back over the working file (or ask to restore from that path).
+
+4. **After you confirm the change is good**, optionally delete that snapshot folder to avoid clutter; the repo file is then the source of truth.
+
+Do **not** commit `.revert-snapshots/` (it is gitignored).
