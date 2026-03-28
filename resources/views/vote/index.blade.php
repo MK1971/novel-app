@@ -56,14 +56,15 @@
                 @php
                     $versionA = $versions->firstWhere('version', 'A');
                     $versionB = $versions->firstWhere('version', 'B');
-                    $isLocked = $versionA->is_locked || $versionB->is_locked;
-                    $userHasVoted = in_array($versionA->id, $hasVoted ?? []) || in_array($versionB->id, $hasVoted ?? []);
-                    
-                    $votesA = \App\Models\Vote::where('chapter_id', $versionA->id)->count();
-                    $votesB = \App\Models\Vote::where('chapter_id', $versionB->id)->count();
-                    $totalVotes = $votesA + $votesB;
                 @endphp
                 @if($versionA && $versionB)
+                    @php
+                        $isLocked = $versionA->is_locked || $versionB->is_locked;
+                        $userHasVoted = in_array($versionA->id, $hasVoted ?? []) || in_array($versionB->id, $hasVoted ?? []);
+                        $votesA = \App\Models\Vote::where('chapter_id', $versionA->id)->count();
+                        $votesB = \App\Models\Vote::where('chapter_id', $versionB->id)->count();
+                        $totalVotes = $votesA + $votesB;
+                    @endphp
                     <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
                         <div class="bg-amber-50/50 px-10 py-6 border-b border-amber-100 flex items-center justify-between">
                             <h3 class="text-2xl font-extrabold text-amber-900">Chapter {{ $chapterNum }}: {{ $versionA->title }}</h3>

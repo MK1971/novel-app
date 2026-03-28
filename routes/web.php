@@ -1,28 +1,73 @@
 <?php
 
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\ActivityFeedController;
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\EditController;
+use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\InlineEditController;
+use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ParagraphReactionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VoteController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\ArchiveController;
-use App\Http\Controllers\AnalyticsController;
-use App\Http\Controllers\ChapterArchiveController;
-use App\Http\Controllers\InlineEditController;
-use App\Http\Controllers\ParagraphReactionController;
-use App\Http\Controllers\AchievementController;
-use App\Http\Controllers\ActivityFeedController;
-use App\Http\Controllers\ModerationController;
-use App\Http\Controllers\NotificationController;
+use App\Models\Chapter;
+use App\Models\Edit;
+use App\Models\InlineEdit;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $acceptedEditStatuses = ['accepted', 'accepted_full', 'accepted_partial'];
+
+    $abbrevInt = static function (int $value): string {
+        if ($value < 1000) {
+            return (string) $value;
+        }
+        if ($value < 1_000_000) {
+            $k = $value / 1000;
+            $rounded = $value >= 10_000 ? (string) (int) round($k) : (string) round($k, 1);
+
+            return rtrim(rtrim($rounded, '0'), '.').'k';
+        }
+
+        return rtrim(rtrim((string) round($value / 1_000_000, 1), '0'), '.').'M';
+    };
+
+    $contributorsCount = User::query()
+        ->where(function ($q) use ($acceptedEditStatuses) {
+            $q->whereHas('edits', fn ($e) => $e->whereIn('status', $acceptedEditStatuses))
+                ->orWhereHas('inlineEdits', fn ($ie) => $ie->where('status', 'approved'));
+        })
+        ->count();
+
+    $editsAcceptedCount = Edit::whereIn('status', $acceptedEditStatuses)->count()
+        + InlineEdit::where('status', 'approved')->count();
+
+    $chaptersLiveCount = Chapter::where('status', 'published')->count();
+
+    $landingStats = [
+        'contributors' => $abbrevInt($contributorsCount),
+        'edits_accepted' => $abbrevInt($editsAcceptedCount),
+        'chapters_live' => (string) $chaptersLiveCount,
+        'prize_pool' => config('marketing.landing_prize_pool_display'),
+    ];
+
+    return view('welcome', ['landingStats' => $landingStats]);
 })->name('home');
+
+Route::get('/dev/landing-ux-suggestions', function () {
+    abort_unless(app()->isLocal(), 404);
+    $path = base_path('docs/landing-ux-suggestions.txt');
+    $content = is_readable($path) ? file_get_contents($path) : "Missing file: docs/landing-ux-suggestions.txt\n";
+
+    return view('dev.landing-ux-suggestions', ['content' => $content]);
+})->name('dev.landing-ux-suggestions');
 
 Route::get('/about', function () {
     return view('about');
@@ -39,6 +84,7 @@ Route::get('/leaderboard', function () {
         ->orderByDesc('points')
         ->limit(20)
         ->get();
+
     return view('leaderboard', compact('users'));
 })->name('leaderboard');
 
@@ -56,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $achievements = \App\Models\Achievement::all();
         $userAchievements = auth()->user()->achievements()->pluck('achievement_id')->toArray();
+
         return view('dashboard', compact('achievements', 'userAchievements'));
     })->name('dashboard');
 
