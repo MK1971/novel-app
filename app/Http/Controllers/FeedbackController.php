@@ -24,7 +24,7 @@ class FeedbackController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:1000',
-            'type' => 'required|string|in:general,chapter,bug,suggestion',
+            'type' => 'required|string|in:general,chapter,bug,suggestion,site_suggestion',
             'chapter_id' => 'nullable|exists:chapters,id',
             'email' => 'nullable|email|max:255',
         ]);

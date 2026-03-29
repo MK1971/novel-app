@@ -16,6 +16,7 @@
                 <label for="type" class="block text-sm font-bold text-amber-900 mb-2">Feedback Type</label>
                 <select name="type" id="type" class="w-full bg-white border-amber-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 text-amber-900">
                     <option value="general">General Feedback</option>
+                    <option value="site_suggestion">Site Suggestion</option>
                     <option value="suggestion">Story Suggestion</option>
                     <option value="bug">Report a Bug</option>
                 </select>

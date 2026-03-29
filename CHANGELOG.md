@@ -98,3 +98,10 @@ This document summarizes the key changes and enhancements made to the `novel-app
 - **Peter Trull / vote index**: Prevented errors when a chapter number has only version A or only version B—logic that used both versions now runs only when A and B exist.
 - **App layout dropdown**: Corrected Blade attribute quoting in `layouts/app.blade.php` (`route('…')`, `onclick` / `closest('form')`) so compiled views no longer throw parse errors and authenticated layouts render reliably.
 - **Chapters index (merged behavior)**: Locked chapters show the dashed “Chapter locked” teaser; open chapters keep paragraph-level content with inline edit affordances where applicable.
+
+## Version 1.9.1 - Landing journey clarity & legal pages
+### Added
+- **Privacy & Terms**: Public routes `privacy` and `terms` with `privacy` / `terms` Blade views (guest layout); footer links on the landing page point to real URLs instead of `#`.
+- **How it works (3 steps)**: Scannable step strip above the two journey cards—read & contribute, earn points / unlock voting, vote on Peter Trull—with `#landing-how-steps` and a visible “How it works” heading.
+- **Peter Trull card callout**: Inline note that voting requires at least one accepted edit in *The Book With No Name*, plus a link to chapters.
+- **Tests**: `LegalPagesTest` for Privacy and Terms; extended `WelcomeLandingTest` for the new landing hooks and footer routes.

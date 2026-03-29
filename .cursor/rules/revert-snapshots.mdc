@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Revert snapshots (before any edit)
 
-**Landing baseline:** after each batch you accept, the canonical copy lives at `_local_backups/welcome-original.blade.php` (copy over `resources/views/welcome.blade.php` to restore). Latest baseline includes landing UX items 1–15 plus mobile menu refinements (compact panel, anchored under the menu button).
+**Landing baseline:** after each batch you accept, the canonical copy lives at `_local_backups/welcome-original.blade.php` (copy over `resources/views/welcome.blade.php` to restore). Latest baseline includes landing UX items 1–26 (including `?register=1` / `?login=1` via `resources/js/app.js` and modal focus trap + Escape in `components/modal.blade.php`), plus prior landing work.
 
 Before **changing** a project file (not `vendor/`, `node_modules/`, or generated build output):
 

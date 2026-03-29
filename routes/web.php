@@ -73,6 +73,14 @@ Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+
 Route::get('/chapters', [ChapterController::class, 'index'])->name('chapters.index');
 Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
 Route::post('/chapters/{chapter}/track-progress', [ChapterController::class, 'trackProgress'])->middleware('auth')->name('chapters.track-progress');
@@ -132,8 +140,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/chapters/story', [AdminChapterController::class, 'storeStoryChapter'])->name('chapters.store-story');
         Route::post('/chapters/peter-trull', [AdminChapterController::class, 'storePeterTrullChapter'])->name('chapters.store-peter-trull');
         Route::delete('/chapters/{chapter}', [AdminChapterController::class, 'destroy'])->name('chapters.destroy');
-        Route::post("/chapters/{chapter}/toggle-lock", [AdminChapterController::class, "toggleLock"])->name("chapters.toggle-lock");
-        Route::post("/chapters/{chapter}/archive", [AdminChapterController::class, "archive"])->name("chapters.archive");
+        Route::post('/chapters/{chapter}/toggle-lock', [AdminChapterController::class, 'toggleLock'])->name('chapters.toggle-lock');
+        Route::post('/chapters/{chapter}/archive', [AdminChapterController::class, 'archive'])->name('chapters.archive');
 
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');

@@ -3,11 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'WhatsMyBookName') }}</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=nunito:400,500,600,700,800,900&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
         <style>
             [x-cloak] { display: none !important; }
             /* Off-screen until focused (Safari-friendly vs clip-only hiding) */
@@ -85,16 +85,30 @@
                     box-shadow: none;
                 }
             }
-            /* Scroll on small viewports / touch — fixed is janky on iOS (UX #13) */
-            .bg-book-pattern {
-                background-image: linear-gradient(rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.86)), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2256&auto=format&fit=crop');
-                background-size: cover;
-                background-position: center;
-                background-attachment: scroll;
+            /* Self-hosted hero (UX #19); scroll on small / touch, fixed from md+ (UX #13) */
+            .landing-hero-bg {
+                position: absolute;
+                inset: 0;
+                z-index: 0;
+                overflow: hidden;
+                pointer-events: none;
+            }
+            .landing-hero-bg-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center;
+            }
+            .landing-hero-bg-overlay {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.86));
             }
             @media (min-width: 768px) {
-                .bg-book-pattern {
-                    background-attachment: fixed;
+                .landing-hero-bg {
+                    position: fixed;
+                    height: 100vh;
+                    width: 100%;
                 }
             }
             /* Hero legibility over busy photo (UX #10) */
@@ -148,6 +162,12 @@
             .book-cover:hover {
                 transform: rotateY(-10deg) rotateX(0deg);
             }
+            /* Micro-interactions: shared duration/easing for nav + card CTAs (UX #22) */
+            #landing-root .landing-ui-transition {
+                transition-duration: 200ms;
+                transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+
             @media (prefers-reduced-motion: reduce) {
                 .typewriter h1 {
                     animation: none !important;
@@ -181,6 +201,9 @@
                 #landing-root main > header button:hover {
                     transform: none !important;
                 }
+                #landing-root .landing-ui-transition {
+                    transition-duration: 0.01ms !important;
+                }
             }
         </style>
     </head>
@@ -195,11 +218,25 @@
                 requestAnimationFrame(function () { m.focus({ preventScroll: true }); });
             };
         </script>
-        <div id="landing-root" class="min-h-screen bg-book-pattern flex flex-col">
+        <div id="landing-root" class="relative flex min-h-screen flex-col">
+            <div class="landing-hero-bg" aria-hidden="true">
+                <img
+                    src="{{ asset('images/landing/hero-books-960.jpg') }}"
+                    srcset="{{ asset('images/landing/hero-books-960.jpg') }} 960w, {{ asset('images/landing/hero-books-1920.jpg') }} 1920w"
+                    sizes="100vw"
+                    width="1920"
+                    height="1280"
+                    fetchpriority="high"
+                    alt=""
+                    class="landing-hero-bg-img"
+                    decoding="async"
+                >
+                <div class="landing-hero-bg-overlay"></div>
+            </div>
             {{-- Solid light bar (opaque) so it stays visible over hero + cream sections; amber only on CTAs like Join Now --}}
-            <nav class="sticky top-0 z-50 bg-white border-b border-amber-200/90 shadow-md shadow-amber-900/10 relative" @click.outside="mobileNavOpen = false">
+            <nav class="relative z-50 sticky top-0 bg-white border-b border-amber-200/90 shadow-md shadow-amber-900/10" @click.outside="mobileNavOpen = false">
                 <div class="max-w-7xl mx-auto px-6 min-h-20 flex items-center justify-between gap-4">
-                    <a href="{{ route('home') }}" class="flex items-center gap-3 shrink-0 min-h-11 py-2 -my-1 rounded-lg text-amber-900 hover:text-amber-700 transition-colors focus:outline-none">
+                    <a href="{{ route('home') }}" class="landing-ui-transition flex items-center gap-3 shrink-0 min-h-11 py-2 -my-1 rounded-lg text-amber-900 hover:text-amber-700 transition-colors focus:outline-none">
                         <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0" aria-hidden="true">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.246 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
@@ -207,10 +244,10 @@
                     </a>
 
                     <div class="hidden md:flex items-center gap-8">
-                        <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
-                        <a href="{{ route('leaderboard') }}" class="inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
-                        <a href="{{ route('vote.index') }}" class="inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Peter Trull</a>
-                        <a href="{{ route('about') }}" class="inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">About</a>
+                        <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
+                        <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
+                        <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Peter Trull</a>
+                        <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">About</a>
                     </div>
 
                     <div class="hidden md:flex items-center gap-4">
@@ -220,18 +257,18 @@
                                     <span class="text-xs font-black uppercase tracking-widest text-amber-800/80">Member</span>
                                     <span class="text-sm font-black text-amber-950">{{ Auth::user()->name }}</span>
                                 </div>
-                                <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Dashboard</a>
+                                <a href="{{ route('dashboard') }}" class="landing-ui-transition inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Dashboard</a>
                             </div>
                         @else
-                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center min-h-11 px-2 -mx-2 text-sm font-bold text-amber-900 hover:text-amber-700 transition-colors rounded-lg">Sign In</button>
-                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Join Now</button>
+                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="landing-ui-transition inline-flex items-center min-h-11 px-2 -mx-2 text-sm font-bold text-amber-900 hover:text-amber-700 transition-colors rounded-lg">Sign In</button>
+                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Join Now</button>
                         @endauth
                     </div>
 
                     <div class="md:hidden relative shrink-0">
                         <button
                             type="button"
-                            class="inline-flex items-center justify-center min-h-11 min-w-11 rounded-xl text-amber-900 border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
+                            class="landing-ui-transition inline-flex items-center justify-center min-h-11 min-w-11 rounded-xl text-amber-900 border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
                             aria-controls="landing-mobile-menu"
                             x-bind:aria-expanded="mobileNavOpen"
                             @click="mobileNavOpen = !mobileNavOpen"
@@ -255,10 +292,10 @@
                         >
                             <div class="w-[10.25rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/15 bg-stone-950/92 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden max-h-[min(72vh,20rem)] flex flex-col">
                                 <nav class="flex flex-col gap-0.5 p-1.5 overflow-y-auto shrink" aria-label="Mobile navigation">
-                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" @click="mobileNavOpen = false" class="flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
-                                    <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
-                                    <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Peter Trull</a>
-                                    <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">About</a>
+                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
+                                    <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
+                                    <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Peter Trull</a>
+                                    <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">About</a>
                                 </nav>
                                 @auth
                                     <div class="p-2 space-y-2 bg-black/20">
@@ -266,12 +303,12 @@
                                             <p class="text-[10px] font-black uppercase tracking-widest text-amber-200/80">Member</p>
                                             <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name }}</p>
                                         </div>
-                                        <a href="{{ route('dashboard') }}" @click="mobileNavOpen = false" class="inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/15">Dashboard</a>
+                                        <a href="{{ route('dashboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors shadow-md shadow-amber-500/15">Dashboard</a>
                                     </div>
                                 @else
                                     <div class="p-2 flex flex-col gap-1.5 bg-black/20">
-                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="flex items-center justify-center w-full min-h-11 text-xs font-bold text-white rounded-xl bg-white/5 hover:bg-white/12 transition-colors">Sign In</button>
-                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors">Join Now</button>
+                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="landing-ui-transition flex items-center justify-center w-full min-h-11 text-xs font-bold text-white rounded-xl bg-white/5 hover:bg-white/12 transition-colors">Sign In</button>
+                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors">Join Now</button>
                                     </div>
                                 @endauth
                             </div>
@@ -280,7 +317,7 @@
                 </div>
             </nav>
 
-            <main id="main-content" tabindex="-1">
+            <main id="main-content" class="relative z-10" tabindex="-1">
             {{-- Hero Section --}}
             <header class="relative flex-grow flex items-center pt-20 pb-32 overflow-hidden">
                 <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -306,7 +343,7 @@
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
-                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
+                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
                                         Start Your Adventure
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
@@ -314,11 +351,11 @@
                                     </p>
                                 </div>
                                 @guest
-                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
+                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
                                         Join the Community
                                     </button>
                                 @else
-                                    <a href="{{ route('dashboard') }}" class="w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
+                                    <a href="{{ route('dashboard') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
                                         Go to Dashboard
                                     </a>
                                 @endguest
@@ -348,9 +385,31 @@
             {{-- The Two-Part Journey --}}
             <section class="py-32 bg-white border-y border-amber-100">
                 <div class="max-w-7xl mx-auto px-6">
-                    <div class="text-center mb-20">
+                    <div class="text-center mb-12">
                         <h2 class="text-4xl md:text-5xl font-black text-amber-900 mb-6">The Journey</h2>
                         <p class="text-xl text-amber-900/70 font-bold max-w-2xl mx-auto">Two distinct ways to contribute, earn points, and win prizes.</p>
+                    </div>
+
+                    {{-- How it works — 3 steps for scannability (UX #17) --}}
+                    <div id="landing-how-steps" class="mb-20 max-w-5xl mx-auto" aria-labelledby="landing-how-heading">
+                        <h3 id="landing-how-heading" class="text-center text-xs font-black uppercase tracking-[0.2em] text-amber-800/70 mb-8">How it works</h3>
+                        <ol class="grid md:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0">
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">1</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Read &amp; contribute</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Open <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit paid edit suggestions.</p>
+                            </li>
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Earn points</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — your <strong class="text-amber-900">first accepted edit</strong> unlocks voting.</p>
+                            </li>
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Vote on Peter Trull</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Compare Version A vs B and cast your vote to shape the detective storyline.</p>
+                            </li>
+                        </ol>
                     </div>
 
                     <div class="grid md:grid-cols-2 gap-12">
@@ -366,14 +425,14 @@
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 text-amber-900 font-bold">
                                     <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                    Earn 50 points for accepted edits
+                                    Up to 2 points per accepted edit (1 partial · 2 full · 0 if rejected)
                                 </li>
                                 <li class="flex items-center gap-3 text-amber-900 font-bold">
                                     <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                     Climb the global leaderboard
                                 </li>
                             </ul>
-                            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
+                            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
                                 Browse Chapters <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
@@ -384,8 +443,12 @@
                                 <span class="text-2xl font-black text-amber-400">02</span>
                             </div>
                             <h3 class="text-3xl font-black mb-6">Peter Trull: Solitary Detective</h3>
-                            <p class="text-lg text-amber-100/75 font-bold mb-8 leading-relaxed">
+                            <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
                                 Compare two versions of the same chapter and vote for the best one. Your votes decide the final direction of the detective's story.
+                            </p>
+                            <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
+                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">at least one accepted edit</strong> in <em>The Book With No Name</em> before you can vote here.
+                                <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 font-bold">
@@ -397,7 +460,7 @@
                                     Shape the final mystery
                                 </li>
                             </ul>
-                            <a href="{{ route('vote.index') }}" class="inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
+                            <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
                                 Start Voting <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
@@ -420,8 +483,8 @@
                 </div>
             </section>
 
-            {{-- Community Stats — live counts + configurable prize goal (UX #14) --}}
-            <section class="py-32" aria-labelledby="landing-stats-heading">
+            {{-- Community Stats — live counts + configurable prize goal (UX #14); cream band + borders (UX #23) --}}
+            <section id="landing-stats-strip" class="py-32 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-stats-heading">
                 <h2 id="landing-stats-heading" class="sr-only">Community statistics</h2>
                 <div class="max-w-7xl mx-auto px-6">
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -454,7 +517,7 @@
             </main>
 
             {{-- Footer --}}
-            <footer class="py-20 border-t border-amber-100 bg-white">
+            <footer class="relative z-10 py-20 border-t border-amber-100 bg-white">
                 <div class="max-w-7xl mx-auto px-6 text-center">
                     <div class="flex items-center justify-center gap-3 mb-8">
                         <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -462,12 +525,14 @@
                         </div>
                         <span class="text-lg font-black tracking-tight text-amber-900">WhatsMyBookName</span>
                     </div>
-                    <p class="text-amber-900/55 font-bold mb-8">© 2026 WhatsMyBookName. All rights reserved.</p>
-                    <div class="flex items-center justify-center gap-8">
-                        <a href="#" class="text-sm font-bold text-amber-900/70 hover:text-amber-900">Privacy Policy</a>
-                        <a href="#" class="text-sm font-bold text-amber-900/70 hover:text-amber-900">Terms of Service</a>
-                        <a href="{{ route('feedback.index') }}" class="text-sm font-bold text-amber-900/70 hover:text-amber-900">Feedback</a>
-                    </div>
+                    <p class="text-amber-900/55 font-bold mb-8">© {{ date('Y') }} WhatsMyBookName. All rights reserved.</p>
+                    <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm font-bold text-amber-900/70" aria-label="Legal">
+                        <a href="{{ route('privacy') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Privacy Policy</a>
+                        <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                        <a href="{{ route('terms') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Terms of Service</a>
+                        <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Feedback</a>
+                    </nav>
                 </div>
             </footer>
         </div>

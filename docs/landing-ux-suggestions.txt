@@ -1,7 +1,7 @@
 Landing page UX / UI suggestions (checklist)
 ============================================
 
-Baseline copy (items 1–15 + mobile menu refinements): _local_backups/welcome-original.blade.php
+Baseline copy (items 1–26 + mobile menu refinements, self-hosted hero, no Alpine CDN duplicate): _local_backups/welcome-original.blade.php
 Restore live page: cp _local_backups/welcome-original.blade.php resources/views/welcome.blade.php
 
 Status key: [done] [ ] = not started
@@ -36,33 +36,33 @@ TRUST & CONTENT
 ---------------
 [done] 14. Community stats — replace placeholders with real counts or label as illustrative
 [done] 15. Social proof — optional quotes / “as featured” row if you have assets
-[ ] 16. Footer legal — real routes for Privacy / Terms or remove until pages exist
+[done] 16. Footer legal — real routes for Privacy / Terms or remove until pages exist
 
 
 JOURNEY SECTION
 ---------------
-[ ] 17. Scannability — short “how it works in 3 steps” above the two cards
-[ ] 18. Peter Trull card — inline note + link if voting is gated (e.g. after paid edit)
+[done] 17. Scannability — short “how it works in 3 steps” above the two cards
+[done] 18. Peter Trull card — inline note + link if voting is gated (e.g. after paid edit)
 
 
 PERFORMANCE & RESILIENCE
 ------------------------
-[ ] 19. Hero image — srcset / self-host; consider fetchpriority if moving to <img> overlay
-[ ] 20. Alpine — single source (Vite OR CDN), not both, to avoid double-init bugs
-[ ] 21. csrf-token meta — if any JS on the landing page will POST without form @csrf
+[done] 19. Hero image — srcset / self-host; consider fetchpriority if moving to <img> overlay
+[done] 20. Alpine — single source (Vite OR CDN), not both, to avoid double-init bugs
+[done] 21. csrf-token meta — if any JS on the landing page will POST without form @csrf
 
 
 MICRO-INTERACTIONS & POLISH
 ----------------------------
-[ ] 22. Consistent hover/focus — same duration / easing on nav links and card CTAs
-[ ] 23. Stats strip — light band (e.g. bg cream) + border so it separates from white sections
-[ ] 24. Copyright — use © {{ date('Y') }} instead of hard-coded year
+[done] 22. Consistent hover/focus — same duration / easing on nav links and card CTAs
+[done] 23. Stats strip — light band (e.g. bg cream) + border so it separates from white sections
+[done] 24. Copyright — use © {{ date('Y') }} instead of hard-coded year
 
 
 MODALS (LANDING)
 ----------------
-[ ] 25. Query string — e.g. ?register=1 opens register modal for shared links
-[ ] 26. Focus trap + ESC — confirm modal component behavior on marketing page
+[done] 25. Query string — e.g. ?register=1 opens register modal for shared links
+[done] 26. Focus trap + ESC — confirm modal component behavior on marketing page
 
 
 Notes
