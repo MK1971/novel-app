@@ -391,7 +391,7 @@
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
                                 <p class="text-lg font-black text-amber-900 mb-2">Earn points</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — your <strong class="text-amber-900">first accepted edit</strong> unlocks voting.</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — each <strong class="text-amber-900">completed $2 payment</strong> adds <strong class="text-amber-900">one Peter Trull vote</strong> (no free votes).</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
@@ -436,13 +436,13 @@
                                 Compare two versions of the same chapter and vote for the best one. Your votes decide the final direction of the detective's story.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
-                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">at least one accepted edit</strong> in <em>The Book With No Name</em> before you can vote here.
+                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 edit payments</strong> in <em>The Book With No Name</em> — one vote per payment.
                                 <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                    Unlocked after your first edit
+                                    One vote per paid edit submission
                                 </li>
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>

@@ -34,7 +34,7 @@
                         <svg class="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
                     <h3 class="text-3xl font-extrabold mb-4">Voting is restricted</h3>
-                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed">Only contributors who have suggested an accepted edit in <strong>The Book With No Name</strong> can vote on these chapters.</p>
+                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed">Peter Trull voting uses <strong>paid edit credits</strong> only: each completed <strong>$2</strong> edit payment in <strong>The Book With No Name</strong> gives <strong>one vote</strong> here. There are no free votes based on accepted edits alone.</p>
                     <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
                         Start Contributing Now
                         <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
@@ -47,7 +47,10 @@
         @else
             <div class="mb-16 text-center max-w-3xl mx-auto">
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-4">Compare and Decide</h3>
-                <p class="text-amber-800/60 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Your vote will determine which one makes it into the final novel. Each user can vote only once per chapter.</p>
+                @if (($voteCreditsRemaining ?? 0) > 0)
+                    <p class="mb-4 text-amber-900 font-black text-sm uppercase tracking-widest">Unused vote credits: {{ $voteCreditsRemaining }}</p>
+                @endif
+                <p class="text-amber-800/60 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Casting a vote uses one paid edit credit. You can vote only once per chapter pair.</p>
             </div>
         @endif
 

@@ -30,8 +30,8 @@
                     </div>
                 @else
                     <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
-                        <span class="opacity-60 mr-1">Points for accepted edit:</span>
-                        <span class="text-amber-600">+1-2 pts</span>
+                        <span class="opacity-60 mr-1">Points (paid suggestions only):</span>
+                        <span class="text-amber-600">+1–2</span>
                     </div>
                 @endif
             </div>
@@ -44,6 +44,17 @@
     </div>
 
     <div class="py-12">
+        <div class="max-w-7xl mx-auto mb-8 space-y-3">
+            @if (session('success'))
+                <div class="p-4 bg-green-100 text-green-800 rounded-2xl border border-green-200 font-bold">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="p-4 bg-red-100 text-red-800 rounded-2xl border border-red-200 font-bold">{{ session('error') }}</div>
+            @endif
+            @if (session('warning'))
+                <div class="p-4 bg-amber-100 text-amber-900 rounded-2xl border border-amber-200 font-bold">{{ session('warning') }}</div>
+            @endif
+        </div>
         <div class="grid lg:grid-cols-3 gap-12">
             {{-- Chapter Content --}}
             <div class="lg:col-span-2">
@@ -106,11 +117,31 @@
                         </div>
                     @else
                         @auth
+                            @if($pendingPaymentEdit ?? null)
+                                <div class="mb-6 p-6 rounded-[2rem] border-2 border-amber-400/60 bg-amber-50 text-amber-900 shadow-sm">
+                                    <p class="text-sm font-black uppercase tracking-widest text-amber-800/70 mb-2">Checkout not finished</p>
+                                    <p class="text-sm font-bold text-amber-900/80 mb-4 leading-relaxed">
+                                        @if($pendingPaymentEdit->type === 'inline_edit')
+                                            Your paragraph suggestion is saved. You were not charged until PayPal completes successfully.
+                                        @else
+                                            Your draft is saved. You were not charged until PayPal completes successfully.
+                                        @endif
+                                    </p>
+                                    <form action="{{ route('payment.checkout') }}" method="POST" class="inline">
+                                        @csrf
+                                        <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
+                                        <input type="hidden" name="resume_edit_id" value="{{ $pendingPaymentEdit->id }}">
+                                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-amber-900 text-white text-sm font-extrabold rounded-2xl hover:bg-black transition-all shadow-lg">
+                                            Resume PayPal checkout ($2)
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
                             <div id="edit-submission-box" class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you earn <strong class="text-white">2 points</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected — same rules as the landing page. Your first accepted edit unlocks voting on Peter Trull.
+                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> can earn leaderboard points: <strong class="text-white">2</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected. Each completed payment also adds <strong class="text-white">one Peter Trull vote</strong> credit.
                                     </p>
                                     
                                     <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
@@ -134,7 +165,7 @@
                                                 class="w-full bg-white/10 border-white/20 rounded-2xl text-white placeholder-white/30 focus:ring-amber-500 focus:border-amber-500 font-bold p-4"
                                                 placeholder="Enter your suggested edit..."
                                                 required
-                                            >{{ old('edited_text', '') }}</textarea>
+                                            >{{ old('edited_text', ($pendingPaymentEdit ?? null) && ($pendingPaymentEdit->type ?? '') !== 'inline_edit' ? $pendingPaymentEdit->edited_text : '') }}</textarea>
                                             @error('edited_text')
                                                 <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
                                             @enderror
@@ -239,7 +270,10 @@
     <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
             <h3 class="text-2xl font-extrabold text-amber-900 mb-8">Suggest Paragraph Edit</h3>
-            <form id="inline-edit-form" class="space-y-8">
+            <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
+                @csrf
+                <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
+                <input type="hidden" name="type" value="inline_edit">
                 <input type="hidden" id="paragraph-number" name="paragraph_number">
                 <input type="hidden" id="original-text-input" name="original_text">
                 
@@ -258,9 +292,10 @@
                     <input type="text" id="edit-reason" name="reason" class="w-full bg-amber-50/50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
                 </div>
 
+                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph suggestions use the same <strong class="text-amber-900">$2</strong> PayPal checkout. Points apply only after payment succeeds and a moderator accepts your edit.</p>
                 <div class="flex items-center gap-4 pt-4">
                     <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Submit Suggestion
+                        Continue to PayPal ($2)
                     </button>
                     <button type="button" onclick="closeInlineEdit()" class="px-10 py-4 bg-amber-50 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-100 transition-all">
                         Cancel
@@ -290,31 +325,6 @@
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            data.chapter_id = chapterId;
-
-            fetch('{{ route('inline-edit.store', ['chapter' => $chapter->id]) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Suggestion submitted! If accepted: up to 2 points (2 full, 1 partial, 0 if rejected).');
-                    closeInlineEdit();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
 
         // Restore scroll position
         const savedProgress = {{ $progress ?? 0 }};

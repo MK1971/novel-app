@@ -10,7 +10,14 @@ class Vote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'chapter_id', 'version_chosen', 'session_id', 'paid_at'];
+    protected $fillable = ['user_id', 'chapter_id', 'version_chosen', 'session_id', 'paid_at', 'payment_id'];
+
+    protected function casts(): array
+    {
+        return [
+            'paid_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -20,5 +27,10 @@ class Vote extends Model
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(Chapter::class);
+    }
+
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
     }
 }

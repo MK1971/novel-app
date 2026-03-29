@@ -16,6 +16,7 @@ class InlineEdit extends Model
         'reason',
         'status',
         'admin_notes',
+        'payment_id',
     ];
 
     protected $casts = [
@@ -31,6 +32,11 @@ class InlineEdit extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
     }
 
     public function scopePending($query)

@@ -10,7 +10,7 @@ class Edit extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'chapter_id', 'type', 'original_text', 'edited_text', 'status', 'points_awarded'];
+    protected $fillable = ['user_id', 'chapter_id', 'type', 'original_text', 'edited_text', 'inline_edit_payload', 'status', 'points_awarded'];
 
     public function user(): BelongsTo
     {

@@ -46,9 +46,9 @@ Prioritized from a codebase walkthrough. Apply in order within each tier unless 
 
 | # | Item | Notes |
 |---|------|--------|
-| P3-1 | **PayPal / checkout error UX** | User-visible message when credentials missing or PayPal API fails; avoid silent or generic failures. `PaymentController`. |
-| P3-2 | **Voting vs `paid_at`** | Confirm product intent: free votes for eligible users vs paid. If free, consider renaming/clarifying `paid_at` in code or docs to avoid confusion. |
-| P3-3 | **About page refresh** | Mention $2 edit flow, gated voting, link to Privacy/Terms; match current product. `resources/views/about.blade.php`. |
+| P3-1 | **PayPal / checkout error UX** (done) | **Shipped (2026-03-29):** Validate sandbox/live client ID + secret before creating `Edit`; friendly flash when misconfigured; richer PayPal error summaries + try/catch on capture; improved invalid-session messages. Tests: `PaymentCheckoutConfigurationTest`. |
+| P3-2 | **Voting tied to payments** (done) | **Shipped (2026-03-29):** Peter Trull votes require an unused **completed** `Payment` per vote (`votes.payment_id`, unique). No votes from accepted-edit eligibility alone; `paid_at` on new votes mirrors payment capture time. Dashboard / copy updated. |
+| P3-3 | **About page refresh** (done) | **Shipped (2026-03-29):** $2 PayPal flow, points, payment-based vote credits, Peter Trull gating; links to Privacy, Terms, Feedback; CTA to chapters + vote hub. `resources/views/about.blade.php`. |
 | P3-4 | **Activity feed / analytics** | If low value, trim sidebar prominence or add content; if strategic, define minimum viable metrics. |
 | P3-5 | **Notifications in header** | Optional bell + unread count on `app` layout when notification volume grows. |
 | P3-6 | **Accessibility pass (app shell)** | Focus rings, heading order, reduce reliance on emoji-only meaning in critical UI (vote/chapters). Mirror landing patterns where useful. |

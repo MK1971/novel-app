@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chapter;
+use App\Models\Edit;
 use App\Models\ReadingProgress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class ChapterController extends Controller
             $lastProgress = ReadingProgress::where('user_id', Auth::id())
                 ->orderByDesc('updated_at')
                 ->first();
-            
+
             if ($lastProgress) {
                 return redirect()->route('chapters.show', $lastProgress->chapter_id);
             }
@@ -31,14 +32,14 @@ class ChapterController extends Controller
         Chapter::whereNotIn('id', $latestChapterIds)
             ->where('is_locked', false)
             ->update(['is_locked' => true]);
-            
+
         // Ensure the latest chapters are UNLOCKED (unless manually locked by admin)
         // For now, we follow the rule: only the latest is editable.
         Chapter::whereIn('id', $latestChapterIds)
             ->update(['is_locked' => false]);
 
         $chapters = Chapter::with('statistics')
-            ->whereHas('book', function($query) {
+            ->whereHas('book', function ($query) {
                 $query->where('name', 'The Book With No Name');
             })
             ->orderBy('number')
@@ -47,7 +48,7 @@ class ChapterController extends Controller
 
         // Ensure statistics exist for all chapters
         foreach ($chapters as $chapter) {
-            if (!$chapter->statistics) {
+            if (! $chapter->statistics) {
                 $chapter->statistics()->create([
                     'total_reads' => 0,
                     'total_edits' => 0,
@@ -84,11 +85,20 @@ class ChapterController extends Controller
             );
             $progress = $readingProgress->scroll_position;
         }
-        
+
         $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
         $stats->increment('total_reads');
-        
-        return view('chapters.show', compact('chapter', 'progress', 'stats'));
+
+        $pendingPaymentEdit = null;
+        if (Auth::check()) {
+            $pendingPaymentEdit = Edit::query()
+                ->where('user_id', Auth::id())
+                ->where('chapter_id', $chapter->id)
+                ->where('status', 'pending_payment')
+                ->first();
+        }
+
+        return view('chapters.show', compact('chapter', 'progress', 'stats', 'pendingPaymentEdit'));
     }
 
     public function trackProgress(Request $request, Chapter $chapter)
@@ -105,6 +115,7 @@ class ChapterController extends Controller
                 $stats->increment('total_reads');
             }
         }
+
         return response()->json(['success' => true]);
     }
 
@@ -117,6 +128,7 @@ class ChapterController extends Controller
                 ->first();
             $progress = $readingProgress ? $readingProgress->scroll_position : 0;
         }
+
         return response()->json(['scroll_position' => $progress]);
     }
 }

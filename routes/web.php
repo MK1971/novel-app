@@ -19,6 +19,7 @@ use App\Http\Controllers\VoteController;
 use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\InlineEdit;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -112,10 +113,10 @@ Route::middleware('auth')->group(function () {
         $achievements = \App\Models\Achievement::all();
         $userAchievements = auth()->user()->achievements()->pluck('achievement_id')->toArray();
         $user = auth()->user();
-        $canVote = Edit::where('user_id', $user->id)
-            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
-            ->exists()
-            || InlineEdit::where('user_id', $user->id)->where('status', 'approved')->exists();
+        $canVote = Payment::query()
+            ->where('user_id', $user->id)
+            ->withAvailableVoteCredit()
+            ->exists();
 
         return view('dashboard', compact('achievements', 'userAchievements', 'canVote'));
     })->name('dashboard');
@@ -126,6 +127,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+    Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
 
     Route::get('/chapters/{chapterId}/edit', [EditController::class, 'create'])->name('edits.create');

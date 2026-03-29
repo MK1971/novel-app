@@ -166,8 +166,10 @@
     <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
             <h3 class="text-2xl font-extrabold text-amber-900 mb-8">Suggest Paragraph Edit</h3>
-            <form id="inline-edit-form" class="space-y-8">
+            <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
+                @csrf
                 <input type="hidden" id="edit-chapter-id" name="chapter_id">
+                <input type="hidden" name="type" value="inline_edit">
                 <input type="hidden" id="paragraph-number" name="paragraph_number">
                 <input type="hidden" id="original-text-input" name="original_text">
                 
@@ -186,9 +188,10 @@
                     <input type="text" id="edit-reason" name="reason" class="w-full bg-amber-50/50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
                 </div>
 
+                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Uses the <strong class="text-amber-900">$2</strong> PayPal checkout. Leaderboard points apply only after payment succeeds and your edit is accepted.</p>
                 <div class="flex items-center gap-4 pt-4">
                     <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Submit Suggestion
+                        Continue to PayPal ($2)
                     </button>
                     <button type="button" onclick="closeInlineEdit()" class="px-10 py-4 bg-amber-50 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-100 transition-all">
                         Cancel
@@ -278,31 +281,6 @@
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            const chapterId = data.chapter_id;
-
-            fetch(`/chapters/${chapterId}/inline-edit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Suggestion submitted! If accepted: up to 2 points (2 full, 1 partial, 0 if rejected).');
-                    closeInlineEdit();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        });
 
         // Reading Progress Logic
         window.addEventListener('scroll', function() {

@@ -190,7 +190,7 @@
                                 @if($canVote ?? false)
                                     <p class="text-sm text-amber-800/60 font-bold">Compare versions and cast your vote</p>
                                 @else
-                                    <p class="text-sm text-amber-800/60 font-bold">Unlocked after your <span class="text-amber-900">first accepted edit</span> (or approved inline edit). You can still open the page to see what’s there.</p>
+                                    <p class="text-sm text-amber-800/60 font-bold">You need at least one <span class="text-amber-900">unused paid edit</span> (completed $2 checkout) for a vote credit. Each payment adds one Peter Trull vote. You can still open the page without credits.</p>
                                 @endif
                             </a>
                             <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
