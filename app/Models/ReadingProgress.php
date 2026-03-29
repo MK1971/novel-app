@@ -19,6 +19,14 @@ class ReadingProgress extends Model
         'last_read_at',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'completed' => 'boolean',
+            'last_read_at' => 'datetime',
+        ];
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

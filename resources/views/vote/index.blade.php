@@ -61,8 +61,8 @@
                     @php
                         $isLocked = $versionA->is_locked || $versionB->is_locked;
                         $userHasVoted = in_array($versionA->id, $hasVoted ?? []) || in_array($versionB->id, $hasVoted ?? []);
-                        $votesA = \App\Models\Vote::where('chapter_id', $versionA->id)->count();
-                        $votesB = \App\Models\Vote::where('chapter_id', $versionB->id)->count();
+                        $votesA = (int) ($voteCounts[$versionA->id] ?? 0);
+                        $votesB = (int) ($voteCounts[$versionB->id] ?? 0);
                         $totalVotes = $votesA + $votesB;
                     @endphp
                     <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">

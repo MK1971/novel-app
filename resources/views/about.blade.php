@@ -20,7 +20,7 @@
                             <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
                                 <h3 class="text-xl font-bold text-amber-900 mb-3">Part 1: The Book With No Name</h3>
                                 <p class="text-amber-800">
-                                    Contribute directly to the narrative. Suggest edits to existing chapters, refine the prose, and earn points for every contribution that gets accepted.
+                                    Contribute directly to the narrative. Suggest edits (small $2 fee per suggestion); when an edit is accepted you earn <strong class="text-amber-900">up to 2 points</strong> — <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected. Your <strong class="text-amber-900">first accepted edit</strong> unlocks voting on Peter Trull.
                                 </p>
                             </div>
                             <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">

@@ -1,93 +1,11 @@
-<aside class="hidden md:flex flex-col shrink-0 bg-white/50 backdrop-blur-sm border-r border-amber-200/60 sticky top-0 h-screen overflow-y-auto" style="width: 18rem; min-width: 18rem;">
-    <div class="p-8 space-y-10">
-        {{-- Main Navigation --}}
-        <div>
-            <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Main Menu</h3>
-            <nav class="space-y-2">
-                @auth
-                <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
-                    Dashboard
-                </x-sidebar-link>
-                @endauth
-                <x-sidebar-link :href="route('chapters.index', ['resume' => 1])" :active="request()->routeIs('chapters.*')" icon="book">
-                    The Story
-                </x-sidebar-link>
-                <x-sidebar-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" icon="vote">
-                    Peter Trull
-                </x-sidebar-link>
-                <x-sidebar-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" icon="trophy">
-                    Leaderboard
-                </x-sidebar-link>
-            </nav>
-        </div>
-
-        {{-- Explore Section --}}
-        <div>
-            <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Explore</h3>
-            <nav class="space-y-2">
-                <x-sidebar-link :href="route('archive.chapters')" :active="request()->routeIs('archive.*')" icon="archive">
-                    Archives
-                </x-sidebar-link>
-                <x-sidebar-link :href="route('analytics.index')" :active="request()->routeIs('analytics.*')" icon="analytics">
-                    Analytics
-                </x-sidebar-link>
-                <x-sidebar-link :href="route('about')" :active="request()->routeIs('about')" icon="info">
-                    About The Story
-                </x-sidebar-link>
-                <x-sidebar-link :href="route('feedback.index')" :active="request()->routeIs('feedback.index')" icon="feedback">
-                    Feedback
-                </x-sidebar-link>
-            </nav>
-        </div>
-
-        {{-- Admin Section --}}
-        @can('admin')
-            <div>
-                <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Administration</h3>
-                <nav class="space-y-2">
-                    <x-sidebar-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" icon="review">
-                        Review Suggestions
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" icon="upload">
-                        Upload Chapters
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" icon="users">
-                        User Management
-                    </x-sidebar-link>
-                    <x-sidebar-link :href="route('admin.feedback.index')" :active="request()->routeIs('admin.feedback.*')" icon="feedback">
-                        Review Feedback
-                    </x-sidebar-link>
-                </nav>
-            </div>
-        @endcan
-
-        {{-- User Profile --}}
-        @auth
-            <div>
-                <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Account</h3>
-                <nav class="space-y-2">
-                    <x-sidebar-link :href="route('profile.show')" :active="request()->routeIs('profile.show')" icon="user">
-                        My Profile
-                    </x-sidebar-link>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full flex items-center px-4 py-3 text-sm font-bold text-amber-900/60 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all group">
-                            <svg class="w-5 h-5 mr-3 opacity-40 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                            Log Out
-                        </button>
-                    </form>
-                </nav>
-            </div>
-        @endauth
-        
-        {{-- CTA for Guests --}}
-        @guest
-            <div class="p-6 bg-amber-500/10 rounded-3xl border border-amber-500/20">
-                <p class="text-sm font-bold text-amber-900 mb-4">Ready to shape the story?</p>
-                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-3 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
-                    Join Now
-                </button>
-            </div>
-        @endguest
-    </div>
+{{--
+  Desktop: position fixed (not sticky) — always pinned left under the bar; no flex/ancestor bugs.
+  Mobile: hidden here; hamburger drawer in app layout.
+  top/h height match sticky nav (~py-4 + one line). Tweak --app-shell-nav-h in app/guest layout if bar height changes.
+--}}
+<aside
+    class="hidden md:flex md:flex-col fixed left-0 z-30 overflow-y-auto border-r border-amber-200/60 bg-white/50 backdrop-blur-sm"
+    style="top: var(--app-shell-nav-h, 4.5rem); width: var(--app-shell-rail-w, 18rem); min-width: var(--app-shell-rail-w, 18rem); height: calc(100dvh - var(--app-shell-nav-h, 4.5rem)); max-height: calc(100dvh - var(--app-shell-nav-h, 4.5rem));"
+>
+    @include('layouts.partials.sidebar-inner')
 </aside>

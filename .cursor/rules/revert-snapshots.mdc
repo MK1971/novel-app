@@ -1,24 +1,43 @@
 ---
-description: Backup files before editing; revert via .revert-snapshots
+description: MANDATORY — backup files before any edit; verify backup exists first
 alwaysApply: true
 ---
 
-# Revert snapshots (before any edit)
+# Revert snapshots (**required before changing project files**)
 
-**Landing baseline:** after each batch you accept, the canonical copy lives at `_local_backups/welcome-original.blade.php` (copy over `resources/views/welcome.blade.php` to restore). Latest baseline includes landing UX items 1–26 (including `?register=1` / `?login=1` via `resources/js/app.js` and modal focus trap + Escape in `components/modal.blade.php`), plus prior landing work.
+This is **not optional**. Before you change any project source file, a **backup of the current on-disk content must already exist** and you must **confirm it** (e.g. read the backup path or list the folder). **Do not** run `search_replace` / `write` on that file until the backup step succeeded.
 
-Before **changing** a project file (not `vendor/`, `node_modules/`, or generated build output):
+**Excludes:** `vendor/`, `node_modules/`, generated build output (e.g. `public/build`), and purely generated artifacts — no backup required for those.
 
-1. **Create a timestamped snapshot** mirroring the repo path under:
-   `.revert-snapshots/YYYYMMDD-HHMMSS/<same-relative-path-as-original>`
-   Example: editing `resources/views/welcome.blade.php` → copy to  
-   `.revert-snapshots/20260326-153045/resources/views/welcome.blade.php`  
-   Use **one folder per change batch** (same timestamp for all files touched in that step).
+---
 
-2. **Then** apply the edit with search_replace / write.
+## Landing baseline (separate)
 
-3. **Revert** if needed: copy the snapshot file back over the working file (or ask to restore from that path).
+After accepted landing batches, the long-lived restore copy stays at **`_local_backups/welcome-original.blade.php`** (copy over `resources/views/welcome.blade.php` to restore). Updating the landing page still requires a **timestamped** pre-edit snapshot below, not only this baseline.
 
-4. **After you confirm the change is good**, optionally delete that snapshot folder to avoid clutter; the repo file is then the source of truth.
+---
 
-Do **not** commit `.revert-snapshots/` (it is gitignored).
+## Per-batch backups (every edit batch)
+
+1. **Pick one timestamp** for the batch: `YYYYMMDD-HHMMSS` (or a short label like `p1-vote` plus timestamp if you prefer).
+
+2. **Write backups** using **one** of these locations (mirror the repo-relative path inside the folder):
+
+   - **Preferred:** `.revert-snapshots/YYYYMMDD-HHMMSS/resources/views/...` etc.  
+   - **If that path is not writable** (common when the folder is gitignored): **`_local_backups/snapshots-YYYYMMDD-HHMMSS/`** with the same relative paths, **or** flat filenames plus a **`README.txt`** with exact `cp` restore commands (see `_local_backups/snapshots-p0/`).
+
+   Use **`php -r`** with `copy()` / `file_put_contents()` or the **Write** tool if shell `mkdir` fails on ignored directories.
+
+3. **Verify:** Open or list the backup file(s). Only then apply edits.
+
+4. **Revert:** Copy from the snapshot tree back over the working file(s), or follow `README.txt` in that snapshot folder.
+
+5. **After the user confirms** the change, you may delete that snapshot folder to reduce clutter.
+
+Do **not** commit `.revert-snapshots/` or `_local_backups/` (they are gitignored).
+
+---
+
+## Failure mode
+
+If you **cannot** create a backup after trying both locations and `php`/Write, **stop** and tell the user. **Do not** edit the target files without a backup.

@@ -297,7 +297,7 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Suggestion submitted! You will earn 1 point if accepted.');
+                    alert('Suggestion submitted! If accepted: up to 2 points (2 full, 1 partial, 0 if rejected).');
                     closeInlineEdit();
                 }
             })

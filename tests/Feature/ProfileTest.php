@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Book;
+use App\Models\Chapter;
+use App\Models\ReadingProgress;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +22,37 @@ class ProfileTest extends TestCase
             ->get('/profile');
 
         $response->assertOk();
+    }
+
+    public function test_profile_page_renders_when_reading_progress_has_null_last_read_at(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::create([
+            'name' => 'The Book With No Name',
+            'status' => 'in_progress',
+        ]);
+        $chapter = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Chapter One',
+            'number' => 1,
+            'content' => 'Body',
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => false,
+            'is_archived' => false,
+        ]);
+        ReadingProgress::create([
+            'user_id' => $user->id,
+            'chapter_id' => $chapter->id,
+            'scroll_position' => 0,
+            'completed' => false,
+            'last_read_at' => null,
+        ]);
+
+        $this->actingAs($user)
+            ->get('/profile')
+            ->assertOk()
+            ->assertSee('Not recorded yet', false);
     }
 
     public function test_profile_information_can_be_updated(): void

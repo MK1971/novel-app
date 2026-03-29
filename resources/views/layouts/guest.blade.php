@@ -16,12 +16,22 @@
         
         <style>
             [x-cloak] { display: none !important; }
+            :root {
+                --app-shell-nav-h: 4.5rem;
+                --app-shell-rail-w: 18rem;
+            }
+            @media (min-width: 768px) {
+                .app-shell__main-with-rail {
+                    padding-left: var(--app-shell-rail-w, 18rem);
+                }
+            }
         </style>
     </head>
     <body class="min-h-screen antialiased bg-[#fff9f0] text-[#2c2419]" style="font-family: 'Nunito', sans-serif;">
+        @php $guestShowSidebar = !isset($hideSidebar) || !$hideSidebar; @endphp
         <div class="min-h-screen flex flex-col">
             {{-- Top Navigation --}}
-            <nav class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+            <nav class="sticky top-0 z-40 border-b border-amber-200/60 bg-white/80 backdrop-blur-sm">
                 <div class="max-w-full mx-auto px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-8">
                         <a href="{{ url('/') }}" class="text-2xl font-extrabold text-amber-800 tracking-tight">
@@ -44,14 +54,12 @@
                 </div>
             </nav>
 
-            <div class="flex flex-1 overflow-hidden">
-                {{-- Sidebar --}}
-                @if(!isset($hideSidebar) || !$hideSidebar)
+            <div class="w-full">
+                @if($guestShowSidebar)
                     @include('layouts.sidebar')
                 @endif
 
-                {{-- Main Content Area --}}
-                <div class="flex-1 flex flex-col overflow-y-auto">
+                <div class="min-w-0 w-full {{ $guestShowSidebar ? 'app-shell__main-with-rail' : '' }}">
                     @isset($header)
                         <header class="bg-white/50 border-b border-amber-100 py-8 px-8">
                             <div class="max-w-7xl mx-auto">
@@ -60,14 +68,21 @@
                         </header>
                     @endisset
 
-                    <main class="flex-grow p-8">
+                    <main class="p-8">
                         <div class="max-w-7xl mx-auto">
                             {{ $slot }}
                         </div>
                     </main>
-                    
+
                     <footer class="py-8 px-8 border-t border-amber-100 text-center">
-                        <p class="text-amber-900/30 text-sm font-bold">© {{ date('Y') }} What's My Book Name. All rights reserved.</p>
+                        <p class="text-amber-900/55 font-bold mb-6 text-sm">© {{ date('Y') }} What's My Book Name. All rights reserved.</p>
+                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm font-bold text-amber-900/70" aria-label="Legal">
+                            <a href="{{ route('privacy') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Privacy Policy</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('terms') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Terms of Service</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Feedback</a>
+                        </nav>
                     </footer>
                 </div>
             </div>

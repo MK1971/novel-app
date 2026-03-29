@@ -100,6 +100,7 @@ Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 Route::get('/activity-feed', [ActivityFeedController::class, 'index'])->name('activity-feed.index');
 Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
+Route::get('/achievements/{achievement}', [AchievementController::class, 'show'])->name('achievements.show');
 Route::get('/archive/chapters', [ArchiveController::class, 'chapters'])->name('archive.chapters');
 Route::get('/archive/rounds', [ArchiveController::class, 'rounds'])->name('archive.rounds');
 
@@ -110,8 +111,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         $achievements = \App\Models\Achievement::all();
         $userAchievements = auth()->user()->achievements()->pluck('achievement_id')->toArray();
+        $user = auth()->user();
+        $canVote = Edit::where('user_id', $user->id)
+            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+            ->exists()
+            || InlineEdit::where('user_id', $user->id)->where('status', 'approved')->exists();
 
-        return view('dashboard', compact('achievements', 'userAchievements'));
+        return view('dashboard', compact('achievements', 'userAchievements', 'canVote'));
     })->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

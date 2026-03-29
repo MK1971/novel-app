@@ -42,7 +42,7 @@
                             <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
                                 <div>
                                     <h4 class="font-bold text-amber-900">{{ $progress->chapter->title }}</h4>
-                                    <p class="text-sm text-amber-600">Last read: {{ $progress->last_read_at->diffForHumans() }}</p>
+                                    <p class="text-sm text-amber-600">Last read: {{ $progress->last_read_at?->diffForHumans() ?? __('Not recorded yet') }}</p>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     @if($progress->completed)

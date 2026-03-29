@@ -30,6 +30,22 @@
                             @error('email') <p class="mt-2 text-sm text-red-600 font-bold">{{ $message }}</p> @enderror
                         </div>
 
+                        <div class="bg-amber-50/50 rounded-3xl p-8 border border-amber-100 space-y-6">
+                            <div>
+                                <h4 class="text-lg font-extrabold text-amber-900">Reset password</h4>
+                                <p class="text-amber-800/60 font-bold text-sm mt-1">Leave blank to keep the current password. When set, the user signs in with the new password immediately.</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-amber-900/30 uppercase tracking-[0.2em] mb-4">New password</label>
+                                <input type="password" name="password" autocomplete="new-password" class="w-full bg-white border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
+                                @error('password') <p class="mt-2 text-sm text-red-600 font-bold">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-amber-900/30 uppercase tracking-[0.2em] mb-4">Confirm new password</label>
+                                <input type="password" name="password_confirmation" autocomplete="new-password" class="w-full bg-white border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
+                            </div>
+                        </div>
+
                         <div class="bg-amber-50/50 rounded-3xl p-8 border border-amber-100">
                             <div class="flex items-center justify-between">
                                 <div>

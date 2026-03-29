@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
@@ -30,11 +31,14 @@ class AppServiceProvider extends ServiceProvider
             return $user->is_admin === true || $user->email === env('ADMIN_EMAIL', 'admin@example.com');
         });
 
-        View::composer('*', function ($view) {
+        View::composer(['layouts.app', 'layouts.guest'], function ($view) {
             $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-            $topLeader = User::where('email', '!=', $adminEmail)
-                ->orderByDesc('points')
-                ->first();
+            $topLeader = Cache::remember('layout.top_leader', 60, function () use ($adminEmail) {
+                return User::query()
+                    ->where('email', '!=', $adminEmail)
+                    ->orderByDesc('points')
+                    ->first();
+            });
             $view->with('topLeader', $topLeader);
         });
     }

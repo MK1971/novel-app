@@ -126,28 +126,18 @@
                 from { width: 0 }
                 to { width: 100% }
             }
-            @keyframes blink-caret {
-                from, to { border-color: transparent }
-                50% { border-color: #d97706; }
-            }
             .typewriter h1 {
                 overflow: hidden;
-                border-right: .15em solid #d97706;
                 white-space: normal;
-                margin: 0 auto;
+                margin: 0;
                 letter-spacing: -.02em;
-                animation:
-                    typing 3.5s steps(40, end),
-                    blink-caret .75s step-end infinite;
+                animation: typing 3.5s steps(40, end);
                 max-width: 100%;
                 word-wrap: break-word;
             }
-            /* Typewriter + wrapping fights the caret on small screens (UX #11) */
             @media (max-width: 767px) {
                 .typewriter h1 {
                     animation: none !important;
-                    border-right-width: 0 !important;
-                    border-right-color: transparent !important;
                     overflow: visible;
                 }
             }
@@ -171,8 +161,7 @@
             @media (prefers-reduced-motion: reduce) {
                 .typewriter h1 {
                     animation: none !important;
-                    border-right-width: 0 !important;
-                    border-right-color: transparent !important;
+                    overflow: visible;
                 }
                 .hero-ping-dot {
                     animation: none !important;

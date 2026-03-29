@@ -84,18 +84,24 @@
                     <h3 class="text-2xl font-extrabold text-amber-900 mb-6">💬 Recent Feedback</h3>
                     
                     @php
-                        $recentFeedback = \App\Models\Feedback::orderByDesc('created_at')->limit(5)->get();
+                        $recentFeedback = \App\Models\Feedback::with('user')
+                            ->orderByDesc('created_at')
+                            ->limit(5)
+                            ->get();
                     @endphp
                     
                     @if($recentFeedback->count() > 0)
                         <div class="space-y-4">
                             @foreach($recentFeedback as $feedback)
                                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
-                                    <div class="flex items-start justify-between gap-4 mb-2">
-                                        <span class="font-extrabold text-amber-900">{{ $feedback->sender_name ?? 'Anonymous' }}</span>
+                                    <div class="flex items-start justify-between gap-4 mb-2 flex-wrap">
+                                        <div class="flex flex-col gap-1">
+                                            <span class="font-extrabold text-amber-900">{{ $feedback->user?->name ?? $feedback->email ?? 'Anonymous' }}</span>
+                                            <span class="text-xs font-bold text-amber-700/80 uppercase tracking-wider">{{ str_replace('_', ' ', $feedback->type) }}</span>
+                                        </div>
                                         <p class="text-xs text-amber-800/60 font-bold">{{ $feedback->created_at->diffForHumans() }}</p>
                                     </div>
-                                    <p class="text-sm text-amber-900/80 font-bold">{{ Str::limit($feedback->message, 150) }}</p>
+                                    <p class="text-sm text-amber-900/80 font-bold">{{ Str::limit($feedback->content, 150) }}</p>
                                 </div>
                             @endforeach
                         </div>
@@ -149,7 +155,7 @@
                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
                         <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
                         <p class="text-amber-800/60 font-bold">Your Points</p>
-                        <p class="text-xs text-amber-800/40 font-bold mt-2">Earn more by contributing</p>
+                        <p class="text-xs text-amber-800/40 font-bold mt-2">Up to 2 pts per accepted edit (2 full · 1 partial · 0 rejected)</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
@@ -178,6 +184,14 @@
                             <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
                                 <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
+                            </a>
+                            <a href="{{ route('vote.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                                <p class="font-extrabold text-amber-900 mb-1">🗳️ Peter Trull · Vote</p>
+                                @if($canVote ?? false)
+                                    <p class="text-sm text-amber-800/60 font-bold">Compare versions and cast your vote</p>
+                                @else
+                                    <p class="text-sm text-amber-800/60 font-bold">Unlocked after your <span class="text-amber-900">first accepted edit</span> (or approved inline edit). You can still open the page to see what’s there.</p>
+                                @endif
                             </a>
                             <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>

@@ -39,8 +39,18 @@ class VoteController extends Controller
         
         // Group chapters by number for the view
         $chapters = $chapters->groupBy('number');
-        
-        return view('vote.index', compact('chapters', 'hasVoted', 'canVote'));
+
+        $chapterIds = $chapters->flatten()->pluck('id')->unique()->filter()->values();
+        $voteCounts = collect();
+        if ($chapterIds->isNotEmpty()) {
+            $voteCounts = Vote::query()
+                ->whereIn('chapter_id', $chapterIds)
+                ->selectRaw('chapter_id, COUNT(*) as cnt')
+                ->groupBy('chapter_id')
+                ->pluck('cnt', 'chapter_id');
+        }
+
+        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts'));
     }
 
     public function store(Request $request, Chapter $chapter)

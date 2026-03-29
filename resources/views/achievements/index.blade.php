@@ -61,7 +61,7 @@
                     <h3 class="text-xl font-extrabold text-amber-900 mb-4">Your Progress</h3>
                     <div class="grid md:grid-cols-4 gap-6">
                         <div class="bg-white rounded-xl p-6 text-center border border-amber-100">
-                            <p class="text-3xl font-extrabold text-amber-600">{{ auth()->user()->edits()->where('status', 'accepted')->count() }}</p>
+                            <p class="text-3xl font-extrabold text-amber-600">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() }}</p>
                             <p class="text-amber-800/60 font-bold text-sm mt-2">Accepted Edits</p>
                         </div>
                         <div class="bg-white rounded-xl p-6 text-center border border-amber-100">

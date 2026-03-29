@@ -110,7 +110,7 @@
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you'll earn 1-2 points and climb the leaderboard.
+                                        Help shape the narrative! For a small $2 fee, you can suggest a change to this chapter. If accepted, you earn <strong class="text-white">2 points</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected — same rules as the landing page. Your first accepted edit unlocks voting on Peter Trull.
                                     </p>
                                     
                                     <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
@@ -309,7 +309,7 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert('Suggestion submitted! You will earn 1 point if accepted.');
+                    alert('Suggestion submitted! If accepted: up to 2 points (2 full, 1 partial, 0 if rejected).');
                     closeInlineEdit();
                 }
             })
