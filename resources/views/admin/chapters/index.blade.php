@@ -23,14 +23,26 @@
                 
                 <form action="{{ route('admin.chapters.store-story') }}" method="POST" class="space-y-6 mb-12">
                     @csrf
-                    <div class="grid gap-6 md:grid-cols-2">
+                    <div class="grid gap-6 md:grid-cols-3">
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">Title</label>
                             <input type="text" name="title" value="{{ old('title') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Chapter Title" required>
                         </div>
                         <div>
-                            <label class="block text-amber-900 font-extrabold mb-2">Chapter Number</label>
-                            <input type="number" name="number" value="{{ old('number', $storyChapters->count() + 1) }}" min="1" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                            <label class="block text-amber-900 font-extrabold mb-2">List section</label>
+                            <select name="list_section" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                                @php $ls = old('list_section', 'chapter'); @endphp
+                                <option value="cold_open" @selected($ls === 'cold_open')>Cold open</option>
+                                <option value="prolog" @selected($ls === 'prolog')>Prolog</option>
+                                <option value="chapter" @selected($ls === 'chapter')>Chapter</option>
+                                <option value="epilog" @selected($ls === 'epilog')>Epilog</option>
+                            </select>
+                            <p class="text-xs font-bold text-amber-800/50 mt-2">Order on the reader list: cold open → prolog → chapters → epilog.</p>
+                        </div>
+                        <div>
+                            <label class="block text-amber-900 font-extrabold mb-2">Sort number</label>
+                            <input type="number" name="number" value="{{ old('number', $storyChapters->count() + 1) }}" min="0" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                            <p class="text-xs font-bold text-amber-800/50 mt-2">Within the same section, lower numbers appear first. Use 0 for cold open / prolog / epilog if you only have one of each.</p>
                         </div>
                     </div>
                     <div>
@@ -49,9 +61,10 @@
                             @foreach($storyChapters as $ch)
                                 <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-100 rounded-xl">
                                     <div class="flex items-center gap-4">
-                                        <span class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center font-extrabold text-amber-900 text-xs">{{ $ch->number }}</span>
+                                        <span class="shrink-0 px-3 py-2 bg-amber-200 rounded-xl font-extrabold text-amber-900 text-[10px] uppercase tracking-wider text-center max-w-[8rem] leading-tight">{{ $ch->listSectionBadge() }}</span>
                                         <div>
                                             <p class="font-extrabold text-amber-900">{{ $ch->title }}</p>
+                                            <p class="text-xs font-bold text-amber-700/60">Sort #{{ $ch->number }}</p>
                                             <p class="text-xs font-bold {{ $ch->is_locked ? 'text-red-500' : 'text-green-500' }}">
                                                 {{ $ch->is_locked ? '🔒 Locked' : '🔓 Open for Edits' }}
                                             </p>
@@ -92,17 +105,29 @@
                 
                 <form action="{{ route('admin.chapters.store-peter-trull') }}" method="POST" class="space-y-6 mb-12">
                     @csrf
-                    <div class="grid gap-6 md:grid-cols-2">
+                    <div class="grid gap-6 md:grid-cols-3">
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">Title</label>
                             <input type="text" name="title" value="{{ old('title') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Chapter Title" required>
                         </div>
                         <div>
-                            <label class="block text-amber-900 font-extrabold mb-2">Chapter Number</label>
+                            <label class="block text-amber-900 font-extrabold mb-2">List section</label>
+                            <select name="list_section" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                                @php $ptLs = old('list_section', 'chapter'); @endphp
+                                <option value="cold_open" @selected($ptLs === 'cold_open')>Cold open</option>
+                                <option value="prolog" @selected($ptLs === 'prolog')>Prolog</option>
+                                <option value="chapter" @selected($ptLs === 'chapter')>Chapter</option>
+                                <option value="epilog" @selected($ptLs === 'epilog')>Epilog</option>
+                            </select>
+                            <p class="text-xs font-bold text-amber-800/50 mt-2">Vote list order matches the main book: cold open → prolog → chapters → epilog.</p>
+                        </div>
+                        <div>
+                            <label class="block text-amber-900 font-extrabold mb-2">Sort number</label>
                             @php
-                                $maxNum = $peterChapters->isEmpty() ? 1 : (int) $peterChapters->groupBy('number')->keys()->max() + 1;
+                                $peterNextNum = $peterChapters->isEmpty() ? 1 : ((int) $peterChapters->max('number')) + 1;
                             @endphp
-                            <input type="number" name="number" value="{{ old('number', $maxNum) }}" min="1" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                            <input type="number" name="number" value="{{ old('number', $peterNextNum) }}" min="0" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>
+                            <p class="text-xs font-bold text-amber-800/50 mt-2">Within the same section, lower numbers appear first.</p>
                         </div>
                     </div>
                     <div class="grid md:grid-cols-2 gap-6">
@@ -124,12 +149,13 @@
                     <div class="space-y-4">
                         <h4 class="text-lg font-extrabold text-amber-900">Existing Chapter Pairs</h4>
                         <div class="grid gap-4">
-                            @foreach($peterChapters->groupBy('number') as $num => $vers)
+                            @foreach($peterChapters->groupBy(fn ($c) => $c->votePairGroupKey()) as $pairKey => $vers)
                                 <div class="flex items-center justify-between p-4 bg-amber-50 border border-amber-100 rounded-xl">
                                     <div class="flex items-center gap-4">
-                                        <span class="w-8 h-8 bg-amber-200 rounded-full flex items-center justify-center font-extrabold text-amber-900 text-xs">{{ $num }}</span>
+                                        <span class="shrink-0 px-3 py-2 bg-amber-200 rounded-xl font-extrabold text-amber-900 text-[10px] uppercase tracking-wider text-center max-w-[8rem] leading-tight">{{ $vers->first()->listSectionBadge() }}</span>
                                         <div>
                                             <p class="font-extrabold text-amber-900">{{ $vers->first()->title }}</p>
+                                            <p class="text-xs font-bold text-amber-700/60">Sort #{{ $vers->first()->number }}</p>
                                             <p class="text-xs font-bold {{ $vers->first()->is_locked ? 'text-red-500' : 'text-green-500' }}">
                                                 {{ $vers->first()->is_locked ? '🔒 Locked' : '🔓 Open for Voting' }}
                                             </p>

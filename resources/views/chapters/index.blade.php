@@ -14,8 +14,8 @@
         </div>
     </x-slot>
 
-    {{-- Reading Progress Bar --}}
-    <div class="fixed top-0 left-0 w-full h-1 bg-amber-100 z-[100]">
+    {{-- Reading progress: below sticky nav (P3-7) --}}
+    <div class="fixed left-0 right-0 w-full h-1.5 bg-amber-100/90 z-[35] pointer-events-none" style="top: var(--app-shell-nav-h, 4.5rem)">
         <div id="reading-progress" class="h-full bg-amber-600 transition-all duration-200" style="width: 0%"></div>
     </div>
 
@@ -35,14 +35,14 @@
                     data-chapter-id="{{ $chapter->id }}"
                 >
                     {{-- Decorative background number --}}
-                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none">
-                        {{ $chapter->number }}
+                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none leading-none">
+                        {{ $chapter->listSectionDecorativeMarker() }}
                     </div>
                     
                     <div class="relative z-10">
                         <div class="flex items-center justify-between mb-10">
                             <div class="flex items-center gap-4">
-                                <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">Chapter {{ $chapter->number }}</span>
+                                <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">{{ $chapter->listSectionBadge() }}</span>
                                 <span class="text-amber-800/60 font-bold">Version {{ $chapter->version }}</span>
                             </div>
                             
@@ -113,7 +113,7 @@
                                 @endphp
                                 @foreach($paragraphs as $index => $paragraph)
                                     @if(trim($paragraph))
-                                        <p class="mb-6 relative group">
+                                        <p class="mb-6 relative group" data-paragraph-index="{{ $index }}">
                                             {{ $paragraph }}
                                             @auth
                                                 <button
@@ -240,7 +240,19 @@
                     selectionButton.style.top = rect.top + window.scrollY + 'px';
                     
                     selectionButton.onclick = function() {
-                        openInlineEdit(chapterId, 0, selectedText);
+                        let paragraphIndex = 0;
+                        let node = range.commonAncestorContainer;
+                        if (node.nodeType === 3) {
+                            node = node.parentElement;
+                        }
+                        while (node && node !== document.body) {
+                            if (node.dataset && node.dataset.paragraphIndex !== undefined) {
+                                paragraphIndex = parseInt(node.dataset.paragraphIndex, 10) || 0;
+                                break;
+                            }
+                            node = node.parentElement;
+                        }
+                        openInlineEdit(chapterId, paragraphIndex, selectedText);
                         selection.removeAllRanges();
                         selectionButton.remove();
                         selectionButton = null;

@@ -6,18 +6,17 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class DatabaseSeeder extends Seeder
+class AdminOnlySeeder extends Seeder
 {
     /**
-     * Seed the application's database.
-     *
-     * Intentionally minimal: admin login only. Create books and chapters via Admin
-     * (or run a dedicated demo seeder) when you need sample content.
+     * Create the single admin account (override email via ADMIN_EMAIL in .env).
      */
     public function run(): void
     {
+        $email = env('ADMIN_EMAIL', 'admin@example.com');
+
         User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => $email],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('password'),

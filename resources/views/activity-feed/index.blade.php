@@ -1,8 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <h2 class="font-extrabold text-3xl text-amber-900">🔥 Live Activity Feed</h2>
-            <p class="text-amber-800/60 font-bold">See what the community is doing</p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="font-extrabold text-3xl text-amber-900">Live activity stream</h1>
+                <p class="text-amber-800/60 font-bold mt-1">Recent edits, votes, and milestones from the community.</p>
+            </div>
+            <a href="{{ route('analytics.index') }}" class="text-sm font-extrabold text-amber-700 hover:text-amber-900 underline decoration-amber-300 shrink-0">← Back to insights</a>
         </div>
     </x-slot>
 

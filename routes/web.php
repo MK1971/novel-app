@@ -21,6 +21,7 @@ use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
 use App\Models\User;
+use App\Support\AchievementUnlock;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -110,9 +111,11 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.s
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        $achievements = \App\Models\Achievement::all();
-        $userAchievements = auth()->user()->achievements()->pluck('achievement_id')->toArray();
         $user = auth()->user();
+        AchievementUnlock::syncForUser($user);
+
+        $achievements = \App\Models\Achievement::all();
+        $userAchievements = $user->achievements()->pluck('achievement_id')->toArray();
         $canVote = Payment::query()
             ->where('user_id', $user->id)
             ->withAvailableVoteCredit()

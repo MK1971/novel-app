@@ -35,6 +35,9 @@
                                     @case('chapters_read')
                                         {{ $achievement->requirement_value }} Chapters Read
                                         @break
+                                @case('completed_payments')
+                                        {{ $achievement->requirement_value }} Completed checkout(s)
+                                        @break
                                 @endswitch
                             </p>
                         </div>

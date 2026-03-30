@@ -122,24 +122,47 @@
             .hero-foreground .hero-cta-subline-shadow {
                 text-shadow: 0 1px 16px rgba(0, 0, 0, 0.72);
             }
-            @keyframes typing {
-                from { width: 0 }
-                to { width: 100% }
+            /* Hero headline: reserved height + fade-in (avoids width-based “typing” reflow) */
+            .landing-hero-headline-slot {
+                min-height: 7.25rem;
             }
-            .typewriter h1 {
-                overflow: hidden;
-                white-space: normal;
-                margin: 0;
-                letter-spacing: -.02em;
-                animation: typing 3.5s steps(40, end);
-                max-width: 100%;
-                word-wrap: break-word;
-            }
-            @media (max-width: 767px) {
-                .typewriter h1 {
-                    animation: none !important;
-                    overflow: visible;
+            @media (min-width: 768px) {
+                .landing-hero-headline-slot {
+                    min-height: 8.75rem;
                 }
+            }
+            @media (min-width: 1024px) {
+                .landing-hero-headline-slot {
+                    min-height: 10.5rem;
+                }
+            }
+            /* Headline: JS typewriter + fixed min-height on slot limits vertical jump */
+            .landing-hero-headline-slot h1 {
+                margin: 0;
+                letter-spacing: -0.02em;
+            }
+            .landing-hero-typewriter-caret {
+                display: inline-block;
+                width: 0.12em;
+                min-width: 3px;
+                height: 0.82em;
+                margin-left: 0.06em;
+                background: #fbbf24;
+                vertical-align: -0.07em;
+                border-radius: 1px;
+                animation: landingHeroCaretBlink 0.95s step-end infinite;
+            }
+            .landing-hero-typewriter-caret.is-done {
+                animation: none;
+                opacity: 0;
+                width: 0;
+                min-width: 0;
+                margin-left: 0;
+                transition: opacity 0.45s ease, width 0.35s ease, margin 0.35s ease;
+            }
+            @keyframes landingHeroCaretBlink {
+                0%, 45% { opacity: 1; }
+                50%, 100% { opacity: 0; }
             }
             .book-mockup {
                 perspective: 1000px;
@@ -159,9 +182,8 @@
             }
 
             @media (prefers-reduced-motion: reduce) {
-                .typewriter h1 {
-                    animation: none !important;
-                    overflow: visible;
+                .landing-hero-typewriter-caret {
+                    display: none !important;
                 }
                 .hero-ping-dot {
                     animation: none !important;
@@ -235,7 +257,7 @@
                     <div class="hidden md:flex items-center gap-8">
                         <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
                         <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
-                        <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Peter Trull</a>
+                        <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 max-w-[11rem] md:max-w-none text-xs md:text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg text-center md:text-left leading-snug whitespace-normal">Peter Trull Solitary Detective</a>
                         <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">About</a>
                     </div>
 
@@ -283,7 +305,7 @@
                                 <nav class="flex flex-col gap-0.5 p-1.5 overflow-y-auto shrink" aria-label="Mobile navigation">
                                     <a href="{{ route('chapters.index', ['resume' => 1]) }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
                                     <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
-                                    <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Peter Trull</a>
+                                    <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-xs font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors leading-snug">Peter Trull Solitary Detective</a>
                                     <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">About</a>
                                 </nav>
                                 @auth
@@ -320,14 +342,19 @@
                                 Round 1 is Live
                             </div>
                             
-                            <div class="typewriter mb-8">
-                                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.2] break-words whitespace-normal">
-                                    Where your edits shape the narrative...
+                            <div class="landing-hero-headline-slot mb-8">
+                                <h1
+                                    class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.2] break-words"
+                                    id="landing-hero-headline"
+                                    data-type-text="Where your edits shape the narrative…"
+                                >
+                                    {{-- Visible before/without JS; typewriter replaces span content when script runs --}}
+                                    <span class="landing-hero-typewriter" aria-hidden="true">Where your edits shape the narrative…</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
                                 </h1>
                             </div>
                             
-                            <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-xl">
-                                A two-part collaborative journey where your edits shape the narrative and your votes decide the final mystery.
+                            <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
+                                A two-part journey: co-write the living manuscript of <span class="font-black text-inherit">The Book With No Name</span> by suggesting edits. Each completed <span class="font-black text-inherit">$2</span> edit unlocks one ballot to vote on Version A vs B for <span class="font-black text-inherit">Peter Trull Solitary Detective</span>.
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
@@ -391,11 +418,11 @@
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
                                 <p class="text-lg font-black text-amber-900 mb-2">Earn points</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — each <strong class="text-amber-900">completed $2 payment</strong> adds <strong class="text-amber-900">one Peter Trull vote</strong> (no free votes).</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — each <strong class="text-amber-900">completed $2 payment</strong> adds <strong class="text-amber-900">one vote</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong> (no free votes).</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Vote on Peter Trull</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Vote on Peter Trull Solitary Detective</p>
                                 <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Compare Version A vs B and cast your vote to shape the detective storyline.</p>
                             </li>
                         </ol>
@@ -431,7 +458,7 @@
                             <div class="landing-motion-icon w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
                                 <span class="text-2xl font-black text-amber-400">02</span>
                             </div>
-                            <h3 class="text-3xl font-black mb-6">Peter Trull: Solitary Detective</h3>
+                            <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
                                 Compare two versions of the same chapter and vote for the best one. Your votes decide the final direction of the detective's story.
                             </p>
@@ -495,7 +522,7 @@
                         <div class="text-center">
                             <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['prize_pool'] }}</div>
                             <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Prize goal</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Campaign pool</div>
+                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced fund · not a live balance</div>
                         </div>
                     </div>
                     <p id="landing-stats-footnote" class="mt-10 text-center text-xs font-bold text-amber-800/60 max-w-2xl mx-auto leading-relaxed">

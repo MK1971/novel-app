@@ -106,6 +106,19 @@ class VotePaymentTest extends TestCase
         $this->assertSame(1, Vote::where('user_id', $user->id)->count());
     }
 
+    public function test_visiting_chapter_index_does_not_lock_peter_trull_version_a(): void
+    {
+        [, $chA, $chB] = $this->peterTrullChapterPair(1);
+
+        $this->assertFalse((bool) $chA->fresh()->is_locked);
+        $this->assertFalse((bool) $chB->fresh()->is_locked);
+
+        $this->get(route('chapters.index'))->assertOk();
+
+        $this->assertFalse((bool) $chA->fresh()->is_locked, 'Version A must stay unlocked for voting (auto-lock is manuscript-only).');
+        $this->assertFalse((bool) $chB->fresh()->is_locked);
+    }
+
     public function test_second_chapter_pair_requires_second_payment(): void
     {
         [, $ch1A] = $this->peterTrullChapterPair(1);

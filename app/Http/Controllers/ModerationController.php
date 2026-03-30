@@ -6,6 +6,7 @@ use App\Models\ChapterStatistic;
 use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
+use App\Support\AchievementUnlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -46,6 +47,8 @@ class ModerationController extends Controller
         if ($points > 0) {
             $edit->user->increment('points', $points);
         }
+
+        AchievementUnlock::syncForUser($edit->user);
 
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
         $stats->increment('accepted_edits');
@@ -91,6 +94,8 @@ class ModerationController extends Controller
         if ($hasPaid) {
             $inlineEdit->user->increment('points', 1);
         }
+
+        AchievementUnlock::syncForUser($inlineEdit->user);
 
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('accepted_edits');

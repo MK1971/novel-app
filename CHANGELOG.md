@@ -2,6 +2,56 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.20 - Admin-only seed, achievements auto-heal, voting/payment fixes, shell UX
+### Changed
+- **`DatabaseSeeder`**: Seeds **only** the admin user (`admin@example.com` / `password`). No demo books, chapters, **`test@example.com`**, reading progress, or achievement rows. Use Admin to create content; run **`php artisan db:reset-app-data --force`** to truncate app tables and re-seed admin via **`AdminOnlySeeder`**.
+- **Achievement unlocks**: Single evaluator **`App\Support\AchievementUnlock`**. Achievement **definitions** live in **`config/achievements.php`** and are written to the DB **only when the `achievements` table is empty** (covers migrate-without-seed). Sync runs from dashboard, achievements index/show, vote index, after casting a vote, payment success, moderation/admin approve paths, and when a **new** reading-progress row is created.
+- **Chapter list auto-lock**: Applies **only** to **The Book With No Name** — **Peter Trull** pairs are no longer locked by visiting **`/chapters`**.
+- **Vote hub (`/vote`)**: **Version A / B** vote buttons respect **each row’s `is_locked`** (pair badge “Locked” only if **both** locked). Header “vote credits” chip uses **high-contrast** emerald styling.
+- **Landing**: Prize stat footnote **“Announced fund · not a live balance”**; **`config/marketing.php`** documents the configurable **`LANDING_PRIZE_POOL_DISPLAY`** line.
+
+### Fixed
+- **`Payment::vote()`**: **`HasOne`** uses foreign key **`votes.payment_id` → `payments.id`** (not the PayPal order id stored in **`payments.payment_id`**), so vote credits count correctly.
+- **Peter Trull pair matching**: **`VoteController`** treats **`list_section` null** like **`chapter`** when resolving A/B pairs for “already voted” / payment consumption.
+- **Inline / PayPal flow**: **`QueryException`** on checkout and success paths caught with clear **migrate** / session guidance; success flash notes **Peter Trull** vote credit.
+- **Chapters index**: Text-selection “Suggest edit” passes the correct **paragraph index** via **`data-paragraph-index`**.
+
+### Added
+- **`config/achievements.php`**, **`database/seeders/AdminOnlySeeder.php`**, **`app/Console/Commands/ResetAppDataCommand`** (`db:reset-app-data`).
+- **Migration**: **`list_section`** on **`chapters`** (ordering for cold open / prolog / chapter / epilog).
+- **Tests**: **`PaymentVoteCreditScopeTest`**, **`AnalyticsInsightsTest`**, **`NotificationsPageTest`** (and related coverage updates).
+- **`docs/brand-naming.md`**.
+
+### Repository
+- **Snapshot tag**: **`snapshot-20260330-development`** (annotated) on the **Development** branch commit for this batch.
+
+## Version 1.9.19 - Notifications view fix, dashboard achievement icon, seed data
+### Fixed
+- **Notifications page**: Removed invalid Blade pattern (splitting `<x-app-layout>` / `<x-guest-layout>` with `@if` around slots), which caused **“syntax error, unexpected token else”**. Page is **auth-only** and now uses a single `<x-app-layout>` wrapper.
+- **Dashboard**: Achievement tiles use **`icon_emoji`** (the real column name) instead of a non-existent **`icon`** attribute.
+
+### Changed
+- **`DatabaseSeeder`**: Seeds four achievements and a **`test@example.com`** user (`password` / `password`) with **reading progress** on chapter 1 and **“First steps”** unlocked for dashboard testing.
+
+### Added
+- **Test**: `NotificationsPageTest`.
+
+## Version 1.9.18 - P3-4 through P3-8 (insights, notifications, a11y, progress bar, brand doc)
+### Changed
+- **Insights hub (`/analytics`)**: MVP summary metrics (total votes, pending edits, activity-feed entries last 7 days), **recent activity** preview with link to full stream; sidebar label **Analytics** → **Insights**. `AnalyticsController`, `analytics/index.blade.php`.
+- **Activity stream** (`/activity-feed`): Page `h1`, link back to insights; dashboard quick link points to **insights** with updated copy.
+- **App header**: **Notifications** bell with **unread count** badge; `layouts.app` view composer (`unreadNotificationCount`). User menu trigger gets **focus-visible** ring.
+- **Reading progress** (chapter index + show): Bar sits **below** sticky top nav (`--app-shell-nav-h`), lower z-index, non-interactive strip to avoid clash with chrome (P3-7).
+- **Vote hub**: Primary page title promoted to **`h1`**; “Exclusive voting hub” and status chips use text + `aria-hidden` emoji where helpful.
+- **Guest nav**: Leader strip **sr-only** prefix; Sign In **focus-visible** ring.
+
+### Added
+- **Accessibility**: Global **`:focus-visible`** outline via `resources/css/app.css` (Tailwind `@layer base`).
+- **Brand doc**: `docs/brand-naming.md` (product vs books vs handles) for P3-8.
+
+### Added (tests)
+- `AnalyticsInsightsTest`.
+
 ## Version 1.9.17 - Paid-only points + PayPal abandon draft retention
 ### Changed
 - **Leaderboard points**: Admin approve paths (`ModerationController`, `EditApprovalController`) increment points only when a **completed** `Payment` is linked to that suggestion (`payments.edit_id` for full/phrase edits; `inline_edits.payment_id` for paragraph edits). Copy on chapter pages states points apply **after** successful payment.

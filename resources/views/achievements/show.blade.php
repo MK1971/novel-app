@@ -40,6 +40,9 @@
                         @case('chapters_read')
                             {{ $achievement->requirement_value }} chapters read
                             @break
+                        @case('completed_payments')
+                            {{ $achievement->requirement_value }} completed $2 edit payment(s)
+                            @break
                         @default
                             {{ $achievement->requirement_value }} ({{ $achievement->requirement_type }})
                     @endswitch

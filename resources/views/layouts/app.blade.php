@@ -56,19 +56,36 @@
                         </a>
                         @if($topLeader)
                             <div class="hidden lg:flex items-center px-4 py-1.5 bg-amber-100 text-amber-900 text-sm font-bold rounded-full border border-amber-200/50">
-                                <span class="mr-2">🏆</span>
+                                <span class="mr-2" aria-hidden="true">🏆</span>
+                                <span class="sr-only">Top leaderboard: </span>
                                 <span class="opacity-60 mr-1">Leader:</span>
                                 <span>{{ $topLeader->name }}</span>
-                                <span class="mx-2 opacity-20">|</span>
+                                <span class="mx-2 opacity-20" aria-hidden="true">|</span>
                                 <span>{{ $topLeader->points }} pts</span>
                             </div>
                         @endif
                     </div>
                     
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        @auth
+                            <a
+                                href="{{ route('notifications.index') }}"
+                                class="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-amber-200 bg-white text-amber-900 shadow-sm hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]"
+                                aria-label="Notifications{{ ($unreadNotificationCount ?? 0) > 0 ? ', '.$unreadNotificationCount.' unread' : '' }}"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @if(($unreadNotificationCount ?? 0) > 0)
+                                    <span class="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] px-1 flex items-center justify-center rounded-full bg-red-600 text-[10px] font-black text-white leading-none">
+                                        {{ $unreadNotificationCount > 9 ? '9+' : $unreadNotificationCount }}
+                                    </span>
+                                @endif
+                            </a>
+                        @endauth
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
-                                <button class="inline-flex items-center px-4 py-2 border border-amber-200 text-sm font-bold rounded-full text-amber-900 bg-white hover:bg-amber-50 focus:outline-none transition-all shadow-sm">
+                                <button class="inline-flex items-center px-4 py-2 border border-amber-200 text-sm font-bold rounded-full text-amber-900 bg-white hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] transition-all shadow-sm">
                                     <div class="w-6 h-6 bg-amber-500 rounded-full mr-2 flex items-center justify-center text-[10px] text-black">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                     </div>

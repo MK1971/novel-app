@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Achievement;
 use App\Models\Edit;
 use App\Models\Payment;
+use App\Support\AchievementUnlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -44,7 +44,7 @@ class EditApprovalController extends Controller
             $edit->user->increment('points', $points);
         }
 
-        $this->checkAndUnlockAchievements($edit->user);
+        AchievementUnlock::syncForUser($edit->user);
 
         $message = 'Edit approved.';
         if (! $hasCompletedPayment) {
@@ -60,43 +60,5 @@ class EditApprovalController extends Controller
         $edit->update(['status' => 'rejected']);
 
         return back()->with('success', 'Edit rejected.');
-    }
-
-    private function checkAndUnlockAchievements($user)
-    {
-        $achievements = Achievement::all();
-
-        foreach ($achievements as $achievement) {
-            if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
-                continue;
-            }
-
-            $hasAchievement = false;
-
-            switch ($achievement->requirement_type) {
-                case 'edits_accepted':
-                    $acceptedEdits = $user->edits()->whereIn('status', ['accepted', 'accepted_partial'])->count();
-                    $hasAchievement = $acceptedEdits >= $achievement->requirement_value;
-                    break;
-
-                case 'votes_cast':
-                    $votesCast = $user->votes()->count();
-                    $hasAchievement = $votesCast >= $achievement->requirement_value;
-                    break;
-
-                case 'points_earned':
-                    $hasAchievement = $user->points >= $achievement->requirement_value;
-                    break;
-
-                case 'chapters_read':
-                    $chaptersRead = $user->readingProgress()->where('completed', true)->count();
-                    $hasAchievement = $chaptersRead >= $achievement->requirement_value;
-                    break;
-            }
-
-            if ($hasAchievement) {
-                $user->achievements()->attach($achievement->id, ['unlocked_at' => now()]);
-            }
-        }
     }
 }

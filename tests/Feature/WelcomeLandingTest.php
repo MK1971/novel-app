@@ -60,7 +60,8 @@ class WelcomeLandingTest extends TestCase
         $this->assertStringContainsString('landing-motion-card', $src);
         $this->assertStringContainsString('hero-ping-dot', $src);
         $this->assertStringContainsString('hero-foreground', $src);
-        $this->assertStringContainsString('max-width: 767px', $src);
+        $this->assertStringContainsString('data-type-text', $src);
+        $this->assertStringContainsString('landing-hero-typewriter', $src);
         $this->assertStringContainsString('landing-hero-bg', $src);
         $this->assertStringContainsString('hero-books-960.jpg', $src);
         $this->assertStringContainsString('srcset=', $src);
@@ -79,5 +80,6 @@ class WelcomeLandingTest extends TestCase
         $this->assertStringContainsString('openAuthModalFromLandingQuery', $js);
         $this->assertStringContainsString('landing-root', $js);
         $this->assertStringContainsString('stripQueryParam', $js);
+        $this->assertStringContainsString('initLandingHeroTypewriter', $js);
     }
 }

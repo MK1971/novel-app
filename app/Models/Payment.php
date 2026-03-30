@@ -28,8 +28,12 @@ class Payment extends Model
         return $this->belongsTo(Edit::class);
     }
 
+    /**
+     * Vote ballot consumed by this payment. Foreign key is votes.payment_id → payments.id
+     * (not the PayPal order id stored in payments.payment_id).
+     */
     public function vote(): HasOne
     {
-        return $this->hasOne(Vote::class);
+        return $this->hasOne(Vote::class, 'payment_id', 'id');
     }
 }

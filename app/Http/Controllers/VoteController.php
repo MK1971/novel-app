@@ -6,6 +6,7 @@ use App\Models\Chapter;
 use App\Models\ChapterStatistic;
 use App\Models\Payment;
 use App\Models\Vote;
+use App\Support\AchievementUnlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,13 +16,19 @@ class VoteController extends Controller
     public function index()
     {
         $book = \App\Models\Book::where('name', 'Peter Trull Solitary Detective')->first();
-        $chapters = $book?->chapters()->orderBy('number')->get() ?? collect();
+        $chapters = $book?->chapters()
+            ->orderByRaw(Chapter::listSectionOrderSql())
+            ->orderBy('number')
+            ->orderBy('version')
+            ->get() ?? collect();
 
         $hasVoted = [];
         $canVote = false;
         $voteCreditsRemaining = 0;
 
         if (Auth::check()) {
+            AchievementUnlock::syncForUser(Auth::user());
+
             $hasVoted = Vote::where('user_id', Auth::id())
                 ->pluck('chapter_id')
                 ->toArray();
@@ -34,8 +41,8 @@ class VoteController extends Controller
             $canVote = $voteCreditsRemaining > 0;
         }
 
-        // Group chapters by number for the view
-        $chapters = $chapters->groupBy('number');
+        // Group A/B pairs by list section + number (cold open / prolog / chapter / epilog)
+        $chapters = $chapters->groupBy(fn (Chapter $c) => $c->votePairGroupKey());
 
         $chapterIds = $chapters->flatten()->pluck('id')->unique()->filter()->values();
         $voteCounts = collect();
@@ -60,12 +67,20 @@ class VoteController extends Controller
             return back()->with('error', 'Voting is closed for this chapter.');
         }
 
-        $existingVote = Vote::where('user_id', Auth::id())
-            ->whereIn('chapter_id', function ($query) use ($chapter) {
-                $query->select('id')->from('chapters')
-                    ->where('book_id', $chapter->book_id)
-                    ->where('number', $chapter->number);
+        $section = $chapter->list_section ?: Chapter::LIST_SECTION_CHAPTER;
+        $pairIds = Chapter::query()
+            ->where('book_id', $chapter->book_id)
+            ->where('number', $chapter->number)
+            ->where(function ($q) use ($section) {
+                $q->where('list_section', $section);
+                if ($section === Chapter::LIST_SECTION_CHAPTER) {
+                    $q->orWhereNull('list_section');
+                }
             })
+            ->pluck('id');
+
+        $existingVote = Vote::where('user_id', Auth::id())
+            ->whereIn('chapter_id', $pairIds)
             ->first();
 
         if ($existingVote) {
@@ -100,11 +115,13 @@ class VoteController extends Controller
         }
 
         if (! $vote) {
-            return back()->with('error', 'Each vote on Peter Trull uses one completed $2 edit payment. You have no unused vote credits.');
+            return back()->with('error', 'Each vote on Peter Trull Solitary Detective uses one completed $2 edit payment. You have no unused vote credits.');
         }
 
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapter->id]);
         $stats->increment('total_votes');
+
+        AchievementUnlock::syncForUser(Auth::user());
 
         return back()->with('success', 'Your vote has been cast!');
     }

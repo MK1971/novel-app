@@ -1,6 +1,6 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
-    $pointsExplainer = 'Accepted edits earn up to 2 points: 2 for a full accept, 1 for partial, 0 if rejected. Peter Trull votes use paid edit credits: each completed $2 checkout gives one vote.';
+    $pointsExplainer = 'Accepted edits earn up to 2 points: 2 for a full accept, 1 for partial, 0 if rejected. Peter Trull Solitary Detective votes use paid edit credits: each completed $2 checkout gives one vote.';
 @endphp
 
 <x-dynamic-component :component="$layout">

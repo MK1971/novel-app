@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\ReadingProgress;
+use App\Support\AchievementUnlock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,26 +24,35 @@ class ChapterController extends Controller
             }
         }
 
-        // Automatic locking logic: Lock all chapters except the latest one for each book
-        // We identify "latest" by the highest ID for each book to handle duplicate numbers
-        $latestChapterIds = Chapter::selectRaw('book_id, MAX(id) as max_id')
-            ->groupBy('book_id')
-            ->pluck('max_id');
+        // Automatic locking: only for the main manuscript book — not Peter Trull (A/B pairs).
+        // Otherwise visiting /chapters would lock Version A (lower id) and break voting on both columns.
+        $bookIdsToAutoLock = Book::query()
+            ->where('name', '!=', 'Peter Trull Solitary Detective')
+            ->pluck('id');
 
-        // Lock all chapters that are NOT the latest for their respective books
-        Chapter::whereNotIn('id', $latestChapterIds)
-            ->where('is_locked', false)
-            ->update(['is_locked' => true]);
+        if ($bookIdsToAutoLock->isNotEmpty()) {
+            $latestChapterIds = Chapter::query()
+                ->selectRaw('book_id, MAX(id) as max_id')
+                ->whereIn('book_id', $bookIdsToAutoLock)
+                ->groupBy('book_id')
+                ->pluck('max_id');
 
-        // Ensure the latest chapters are UNLOCKED (unless manually locked by admin)
-        // For now, we follow the rule: only the latest is editable.
-        Chapter::whereIn('id', $latestChapterIds)
-            ->update(['is_locked' => false]);
+            Chapter::query()
+                ->whereIn('book_id', $bookIdsToAutoLock)
+                ->whereNotIn('id', $latestChapterIds)
+                ->where('is_locked', false)
+                ->update(['is_locked' => true]);
+
+            Chapter::query()
+                ->whereIn('id', $latestChapterIds)
+                ->update(['is_locked' => false]);
+        }
 
         $chapters = Chapter::with('statistics')
             ->whereHas('book', function ($query) {
                 $query->where('name', 'The Book With No Name');
             })
+            ->orderByRaw(Chapter::listSectionOrderSql())
             ->orderBy('number')
             ->orderBy('id')
             ->get();
@@ -84,6 +95,9 @@ class ChapterController extends Controller
                 ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
             );
             $progress = $readingProgress->scroll_position;
+            if ($readingProgress->wasRecentlyCreated) {
+                AchievementUnlock::syncForUser(Auth::user());
+            }
         }
 
         $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
@@ -113,6 +127,7 @@ class ChapterController extends Controller
             if ($progress->wasRecentlyCreated) {
                 $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
                 $stats->increment('total_reads');
+                AchievementUnlock::syncForUser(Auth::user());
             }
         }
 

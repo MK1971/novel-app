@@ -7,6 +7,8 @@ use App\Models\ChapterStatistic;
 use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
+use App\Support\AchievementUnlock;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -86,7 +88,13 @@ class PaymentController extends Controller
             session()->forget('inlineEditData');
         }
 
-        $edit = $this->findOrSyncPendingPaymentEdit($request, $chapter, $payloadJson);
+        try {
+            $edit = $this->findOrSyncPendingPaymentEdit($request, $chapter, $payloadJson);
+        } catch (QueryException $e) {
+            Log::error('payment.checkout database error', ['message' => $e->getMessage()]);
+
+            return back()->with('error', self::friendlyDatabaseErrorMessage($e));
+        }
 
         session(['edit_type' => $request->type]);
 
@@ -270,50 +278,68 @@ class PaymentController extends Controller
         }
 
         if (isset($captureResponse['status']) && $captureResponse['status'] === 'COMPLETED') {
-            $payment = Payment::create([
-                'user_id' => $request->user()->id,
-                'amount_cents' => 200,
-                'payment_id' => $token,
-                'status' => 'completed',
-                'edit_id' => $editId,
-            ]);
+            try {
+                $payment = Payment::create([
+                    'user_id' => $request->user()->id,
+                    'amount_cents' => 200,
+                    'payment_id' => $token,
+                    'status' => 'completed',
+                    'edit_id' => $editId,
+                ]);
 
-            if ($edit->type === 'inline_edit') {
-                $raw = $edit->inline_edit_payload ?: session('inlineEditData');
-                $inlineEditArray = is_string($raw) ? json_decode($raw, true) : null;
-                if (! is_array($inlineEditArray)) {
-                    Log::critical('Paid inline edit missing payload', ['edit_id' => $edit->id, 'user_id' => $request->user()->id]);
+                if ($edit->type === 'inline_edit') {
+                    $raw = $edit->inline_edit_payload ?: session('inlineEditData');
+                    $inlineEditArray = is_string($raw) ? json_decode($raw, true) : null;
+                    if (! is_array($inlineEditArray)) {
+                        Log::critical('Paid inline edit missing payload', ['edit_id' => $edit->id, 'user_id' => $request->user()->id]);
 
-                    return redirect()->route('chapters.show', $chapterId)->with(
-                        'error',
-                        'Your payment was recorded, but we could not restore your paragraph suggestion. Please contact support with your PayPal receipt so we can fix this.'
-                    );
+                        return redirect()->route('chapters.show', $chapterId)->with(
+                            'error',
+                            'Your payment was recorded, but we could not restore your paragraph suggestion. Please contact support with your PayPal receipt so we can fix this.'
+                        );
+                    }
+
+                    InlineEdit::create([
+                        'user_id' => $request->user()->id,
+                        'chapter_id' => $chapterId,
+                        'paragraph_number' => (int) ($inlineEditArray['paragraph_number'] ?? 0),
+                        'original_text' => (string) ($inlineEditArray['original_text'] ?? ''),
+                        'suggested_text' => (string) ($inlineEditArray['suggested_text'] ?? ''),
+                        'reason' => (string) ($inlineEditArray['reason'] ?? ''),
+                        'status' => 'pending',
+                        'payment_id' => $payment->id,
+                    ]);
+                    session()->forget('inlineEditData');
+                    $edit->update([
+                        'inline_edit_payload' => null,
+                    ]);
                 }
 
-                InlineEdit::create([
-                    'user_id' => $request->user()->id,
+                $edit->update(['status' => 'pending']);
+
+                $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapterId]);
+                $stats->increment('total_edits');
+
+                AchievementUnlock::syncForUser($request->user());
+            } catch (QueryException $e) {
+                Log::error('payment.success database error', [
+                    'message' => $e->getMessage(),
                     'chapter_id' => $chapterId,
-                    'paragraph_number' => (int) ($inlineEditArray['paragraph_number'] ?? 0),
-                    'original_text' => (string) ($inlineEditArray['original_text'] ?? ''),
-                    'suggested_text' => (string) ($inlineEditArray['suggested_text'] ?? ''),
-                    'reason' => (string) ($inlineEditArray['reason'] ?? ''),
-                    'status' => 'pending',
-                    'payment_id' => $payment->id,
+                    'edit_id' => $editId,
                 ]);
-                session()->forget('inlineEditData');
-                $edit->update([
-                    'inline_edit_payload' => null,
-                ]);
+
+                return redirect()->route('chapters.show', $chapterId)->with(
+                    'error',
+                    self::friendlyDatabaseErrorMessage($e)
+                );
             }
-
-            $edit->update(['status' => 'pending']);
-
-            $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapterId]);
-            $stats->increment('total_edits');
 
             return redirect()
                 ->to(route('chapters.show', $chapterId).'#edit-submission-box')
-                ->with('success', 'Thank you for your submission! Your payment was accepted and your edit has been submitted for review.');
+                ->with(
+                    'success',
+                    'Thank you for your submission! Your payment was accepted and your edit has been submitted for review. You now have one vote credit on Peter Trull Solitary Detective (open Vote in the menu when you are ready).'
+                );
         }
 
         $summary = self::summarizePayPalResponse($captureResponse);
@@ -323,6 +349,23 @@ class PaymentController extends Controller
             'error',
             'Payment could not be completed. '.$summary
         );
+    }
+
+    private static function friendlyDatabaseErrorMessage(QueryException $e): string
+    {
+        $m = $e->getMessage();
+        if (
+            str_contains($m, 'inline_edit_payload')
+            || str_contains($m, 'Unknown column')
+            || str_contains($m, 'no such column')
+        ) {
+            return 'The database is missing a required update. Run php artisan migrate on the server, then try checkout again.';
+        }
+        if (str_contains($m, 'foreign key') || str_contains($m, 'FOREIGN KEY constraint')) {
+            return 'This checkout no longer matches saved data (for example the chapter was removed). Open Chapters and start a new suggestion, then pay again.';
+        }
+
+        return 'A database error blocked checkout. After deploying, run php artisan migrate. If it still fails, contact support with the time you tried to pay.';
     }
 
     private static function paypalCredentialsConfigured(): bool

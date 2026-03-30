@@ -23,7 +23,7 @@
                                     Read published chapters and submit edit suggestions through a secure <strong class="text-amber-900">$2 PayPal checkout per suggestion</strong>. If a moderator accepts your edit, you earn <strong class="text-amber-900">up to 2 points</strong> — <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected. Points feed the public leaderboard.
                                 </p>
                                 <p class="text-amber-800 text-sm font-bold leading-relaxed">
-                                    Each <strong class="text-amber-900">completed payment</strong> also adds <strong class="text-amber-900">one vote credit</strong> for Peter Trull. There are no free votes based on accepted edits alone.
+                                    Each <strong class="text-amber-900">completed payment</strong> also adds <strong class="text-amber-900">one vote credit</strong> for Peter Trull Solitary Detective. There are no free votes based on accepted edits alone.
                                 </p>
                             </div>
                             <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
@@ -32,7 +32,7 @@
                                     Compare <strong class="text-amber-900">Version A</strong> and <strong class="text-amber-900">Version B</strong> of the same chapter and vote for the direction the detective story should take. <strong class="text-amber-900">Casting a vote uses one unused vote credit</strong> from a completed $2 edit payment; you can vote once per chapter pair.
                                 </p>
                                 <p class="text-amber-800 text-sm font-bold leading-relaxed">
-                                    <a href="{{ route('vote.index') }}" class="text-amber-700 underline decoration-amber-300 hover:text-amber-900">Open the Peter Trull voting hub</a>
+                                    <a href="{{ route('vote.index') }}" class="text-amber-700 underline decoration-amber-300 hover:text-amber-900">Open the Peter Trull Solitary Detective voting hub</a>
                                     — you can browse without credits, but ballots require an available credit.
                                 </p>
                             </div>

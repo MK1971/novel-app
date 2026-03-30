@@ -44,16 +44,18 @@ Prioritized from a codebase walkthrough. Apply in order within each tier unless 
 
 ## P3 — Deeper product / a11y / nice-to-have
 
+**Status: complete** (2026-03-30). See `CHANGELOG` **1.9.18**.
+
 | # | Item | Notes |
 |---|------|--------|
 | P3-1 | **PayPal / checkout error UX** (done) | **Shipped (2026-03-29):** Validate sandbox/live client ID + secret before creating `Edit`; friendly flash when misconfigured; richer PayPal error summaries + try/catch on capture; improved invalid-session messages. Tests: `PaymentCheckoutConfigurationTest`. |
 | P3-2 | **Voting tied to payments** (done) | **Shipped (2026-03-29):** Peter Trull votes require an unused **completed** `Payment` per vote (`votes.payment_id`, unique). No votes from accepted-edit eligibility alone; `paid_at` on new votes mirrors payment capture time. Dashboard / copy updated. |
 | P3-3 | **About page refresh** (done) | **Shipped (2026-03-29):** $2 PayPal flow, points, payment-based vote credits, Peter Trull gating; links to Privacy, Terms, Feedback; CTA to chapters + vote hub. `resources/views/about.blade.php`. |
-| P3-4 | **Activity feed / analytics** | If low value, trim sidebar prominence or add content; if strategic, define minimum viable metrics. |
-| P3-5 | **Notifications in header** | Optional bell + unread count on `app` layout when notification volume grows. |
-| P3-6 | **Accessibility pass (app shell)** | Focus rings, heading order, reduce reliance on emoji-only meaning in critical UI (vote/chapters). Mirror landing patterns where useful. |
-| P3-7 | **Reading progress bar vs sticky chrome** | Chapter index: z-index / overlap with sticky nav on small screens; verify tap targets. |
-| P3-8 | **Brand string consistency** | Document when to use “What’s My Book Name” vs “WhatsMyBookName” vs book titles; sweep key layouts. |
+| P3-4 | **Activity feed / analytics** (done) | **Shipped (2026-03-30):** Single sidebar entry **Insights** → `/analytics`; MVP summary strip (votes, pending edits, 7d feed count); recent activity preview + link to full `activity-feed`. `AnalyticsController`, `analytics/index.blade.php`. Test: `AnalyticsInsightsTest`. |
+| P3-5 | **Notifications in header** (done) | **Shipped (2026-03-30):** Bell + unread badge on `layouts/app.blade.php`; `View::composer` supplies `unreadNotificationCount`. |
+| P3-6 | **Accessibility pass (app shell)** (done) | **Shipped (2026-03-30):** `:focus-visible` ring in `resources/css/app.css`; `h1`/heading cleanup on vote + activity + analytics; emoji paired with text or `aria-hidden` where decorative; `sr-only` on leader strip (app + guest). |
+| P3-7 | **Reading progress bar vs sticky chrome** (done) | **Shipped (2026-03-30):** Progress bar positioned `top: var(--app-shell-nav-h)`, `z-[35]`, `pointer-events-none` on chapter index + show. |
+| P3-8 | **Brand string consistency** (done) | **Shipped (2026-03-30):** `docs/brand-naming.md` guidelines; nav/footer already use product title consistently. |
 
 ---
 

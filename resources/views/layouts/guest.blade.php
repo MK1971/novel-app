@@ -39,17 +39,18 @@
                         </a>
                         @if($topLeader)
                             <div class="hidden lg:flex items-center px-4 py-1.5 bg-amber-100 text-amber-900 text-sm font-bold rounded-full border border-amber-200/50">
-                                <span class="mr-2">🏆</span>
+                                <span class="mr-2" aria-hidden="true">🏆</span>
+                                <span class="sr-only">Top leaderboard: </span>
                                 <span class="opacity-60 mr-1">Leader:</span>
                                 <span>{{ $topLeader->name }}</span>
-                                <span class="mx-2 opacity-20">|</span>
+                                <span class="mx-2 opacity-20" aria-hidden="true">|</span>
                                 <span>{{ $topLeader->points }} pts</span>
                             </div>
                         @endif
                     </div>
                     
                     <div class="flex items-center gap-4">
-                        <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-6 py-2 bg-amber-500 text-black font-bold rounded-full hover:bg-amber-600 transition-all shadow-md shadow-amber-500/20">Sign In</button>
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-6 py-2 bg-amber-500 text-black font-bold rounded-full hover:bg-amber-600 transition-all shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">Sign In</button>
                     </div>
                 </div>
             </nav>

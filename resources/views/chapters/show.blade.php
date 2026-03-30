@@ -11,7 +11,7 @@
                 </a>
                 <div>
                     <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                        Chapter {{ $chapter->number }}: {{ $chapter->title }}
+                        {{ $chapter->headingPrefix() }}: {{ $chapter->title }}
                     </h2>
                     <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ $chapter->created_at->format('M d, Y') }}</p>
                 </div>
@@ -38,8 +38,8 @@
         </div>
     </x-slot>
 
-    {{-- Reading Progress Bar --}}
-    <div class="fixed top-0 left-0 w-full h-1 bg-amber-100 z-[100]">
+    {{-- Reading progress: below sticky nav (P3-7) --}}
+    <div class="fixed left-0 right-0 w-full h-1.5 bg-amber-100/90 z-[35] pointer-events-none" style="top: var(--app-shell-nav-h, 4.5rem)">
         <div id="reading-progress" class="h-full bg-amber-600 transition-all duration-200" style="width: 0%"></div>
     </div>
 
@@ -60,8 +60,8 @@
             <div class="lg:col-span-2">
                 <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
                     {{-- Decorative background number --}}
-                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none">
-                        {{ $chapter->number }}
+                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none leading-none">
+                        {{ $chapter->listSectionDecorativeMarker() }}
                     </div>
                     
                     <div class="relative z-10">
@@ -141,7 +141,7 @@
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> can earn leaderboard points: <strong class="text-white">2</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected. Each completed payment also adds <strong class="text-white">one Peter Trull vote</strong> credit.
+                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> can earn leaderboard points: <strong class="text-white">2</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected. Each completed payment also adds <strong class="text-white">one vote</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
                                     </p>
                                     
                                     <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">

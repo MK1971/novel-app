@@ -12,7 +12,7 @@
                 The Story
             </x-sidebar-link>
             <x-sidebar-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" icon="vote">
-                Peter Trull
+                Peter Trull Solitary Detective
             </x-sidebar-link>
             <x-sidebar-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" icon="trophy">
                 Leaderboard
@@ -28,7 +28,7 @@
                 Archives
             </x-sidebar-link>
             <x-sidebar-link :href="route('analytics.index')" :active="request()->routeIs('analytics.*')" icon="analytics">
-                Analytics
+                Insights
             </x-sidebar-link>
             <x-sidebar-link :href="route('about')" :active="request()->routeIs('about')" icon="info">
                 About The Story

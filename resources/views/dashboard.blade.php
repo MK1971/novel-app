@@ -186,20 +186,20 @@
                                 <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
                             </a>
                             <a href="{{ route('vote.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                                <p class="font-extrabold text-amber-900 mb-1">🗳️ Peter Trull · Vote</p>
+                                <p class="font-extrabold text-amber-900 mb-1">🗳️ Peter Trull Solitary Detective · Vote</p>
                                 @if($canVote ?? false)
                                     <p class="text-sm text-amber-800/60 font-bold">Compare versions and cast your vote</p>
                                 @else
-                                    <p class="text-sm text-amber-800/60 font-bold">You need at least one <span class="text-amber-900">unused paid edit</span> (completed $2 checkout) for a vote credit. Each payment adds one Peter Trull vote. You can still open the page without credits.</p>
+                                    <p class="text-sm text-amber-800/60 font-bold">You need at least one <span class="text-amber-900">unused paid edit</span> (completed $2 checkout) for a vote credit. Each payment adds one vote for Peter Trull Solitary Detective. You can still open the page without credits.</p>
                                 @endif
                             </a>
                             <a href="{{ route('leaderboard') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">🏆 Leaderboard</p>
                                 <p class="text-sm text-amber-800/60 font-bold">See top contributors</p>
                             </a>
-                            <a href="{{ route('activity-feed.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
-                                <p class="font-extrabold text-amber-900 mb-1">🔥 Activity Feed</p>
-                                <p class="text-sm text-amber-800/60 font-bold">Community updates</p>
+                            <a href="{{ route('analytics.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2">
+                                <p class="font-extrabold text-amber-900 mb-1"><span aria-hidden="true">📊</span> Community insights</p>
+                                <p class="text-sm text-amber-800/60 font-bold">Stats, voting trends, and recent activity — plus link to the full feed</p>
                             </a>
                         </div>
                     </div>
@@ -212,7 +212,7 @@
                                     $isUnlocked = in_array($achievement->id, $userAchievements);
                                 @endphp
                                 <a href="{{ route('achievements.show', $achievement) }}" class="flex flex-col items-center text-center p-4 rounded-2xl border {{ $isUnlocked ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-40' }} hover:shadow-md transition-all">
-                                    <div class="text-3xl mb-2">{{ $achievement->icon }}</div>
+                                    <div class="text-3xl mb-2" aria-hidden="true">{{ $achievement->icon_emoji }}</div>
                                     <p class="text-xs font-extrabold text-amber-900 leading-tight">{{ $achievement->name }}</p>
                                 </a>
                             @endforeach

@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
-use App\Models\User;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +41,14 @@ class AppServiceProvider extends ServiceProvider
                     ->first();
             });
             $view->with('topLeader', $topLeader);
+        });
+
+        View::composer('layouts.app', function ($view) {
+            $unreadNotificationCount = 0;
+            if (Auth::check()) {
+                $unreadNotificationCount = Auth::user()->notifications()->whereNull('read_at')->count();
+            }
+            $view->with('unreadNotificationCount', $unreadNotificationCount);
         });
     }
 }
