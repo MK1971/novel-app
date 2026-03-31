@@ -22,9 +22,13 @@
                     </div>
                     
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ \App\Models\Edit::where('status', 'pending')->count() }}</div>
+                        @php
+                            $adminPendingChapter = \App\Models\Edit::where('status', 'pending')->where('type', '!=', 'inline_edit')->count();
+                            $adminPendingParagraph = \App\Models\InlineEdit::where('status', 'pending')->count();
+                        @endphp
+                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ $adminPendingChapter + $adminPendingParagraph }}</div>
                         <p class="text-blue-800/60 font-bold">Pending Edits</p>
-                        <p class="text-xs text-blue-800/40 font-bold mt-2">Awaiting review</p>
+                        <p class="text-xs text-blue-800/40 font-bold mt-2">Chapter/phrase + paragraph queues (stubs excluded)</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
@@ -46,12 +50,20 @@
                     
                     @php
                         $pendingEdits = \App\Models\Edit::where('status', 'pending')
+                            ->where('type', '!=', 'inline_edit')
                             ->with('user', 'chapter')
                             ->orderByDesc('created_at')
                             ->limit(10)
                             ->get();
+                        $pendingParagraphCount = \App\Models\InlineEdit::where('status', 'pending')->count();
                     @endphp
                     
+                    @if($pendingParagraphCount > 0)
+                        <p class="text-sm font-bold text-amber-800/70 mb-4">
+                            <span class="text-amber-900 font-extrabold">{{ $pendingParagraphCount }}</span> paragraph-level suggestion(s) pending —
+                            <a href="{{ route('admin.inline-edits.index') }}" class="text-amber-900 underline font-extrabold hover:text-amber-600">open Paragraph edits</a>.
+                        </p>
+                    @endif
                     @if($pendingEdits->count() > 0)
                         <div class="space-y-4">
                             @foreach($pendingEdits as $edit)
@@ -72,9 +84,9 @@
                                 </div>
                             @endforeach
                         </div>
-                    @else
+                    @elseif($pendingEdits->isEmpty() && $pendingParagraphCount === 0)
                         <div class="text-center py-8 bg-amber-50 rounded-xl border border-amber-100">
-                            <p class="text-amber-800/60 font-bold">No pending edits to review</p>
+                            <p class="text-amber-800/60 font-bold">No pending suggestions in either queue.</p>
                         </div>
                     @endif
                 </div>
@@ -155,25 +167,25 @@
                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
                         <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
                         <p class="text-amber-800/60 font-bold">Your Points</p>
-                        <p class="text-xs text-amber-800/40 font-bold mt-2">Up to 2 pts per accepted edit (2 full · 1 partial · 0 rejected)</p>
+                        <p class="text-xs text-amber-800/40 font-bold mt-2">Chapter and paragraph suggestions both use <strong class="text-amber-800/60">2</strong> / <strong class="text-amber-800/60">1</strong> / <strong class="text-amber-800/60">0</strong> (full / partial / reject) when paid and moderated.</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->edits()->count() + auth()->user()->inlineEdits()->count() }}</div>
+                        <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ auth()->user()->editSuggestionsSubmittedCount() }}</div>
                         <p class="text-blue-800/60 font-bold">Your Edits</p>
-                        <p class="text-xs text-blue-800/40 font-bold mt-2">Suggestions submitted</p>
+                        <p class="text-xs text-blue-800/40 font-bold mt-2">Each paid suggestion counts once (full-chapter + paragraph are separate; internal payment rows are not double-counted).</p>
                     </div>
                     
                     <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() + auth()->user()->inlineEdits()->where('status', 'approved')->count() }}</div>
+                        <div class="text-4xl font-extrabold text-green-600 mb-2">{{ auth()->user()->acceptedChapterAndParagraphEditCount() }}</div>
                         <p class="text-green-800/60 font-bold">Accepted</p>
-                        <p class="text-xs text-green-800/40 font-bold mt-2">Edits in the novel</p>
+                        <p class="text-xs text-green-800/40 font-bold mt-2">Includes partial chapter accepts and approved paragraph suggestions (each counts as one “accept” toward this number).</p>
                     </div>
 
                     <div class="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-red-600 mb-2">{{ auth()->user()->edits()->where('status', 'rejected')->count() + auth()->user()->inlineEdits()->where('status', 'rejected')->count() }}</div>
+                        <div class="text-4xl font-extrabold text-red-600 mb-2">{{ auth()->user()->rejectedChapterAndParagraphEditCount() }}</div>
                         <p class="text-red-800/60 font-bold">Rejected</p>
-                        <p class="text-xs text-red-800/40 font-bold mt-2">Suggestions declined</p>
+                        <p class="text-xs text-red-800/40 font-bold mt-2">Declined chapter or paragraph suggestions</p>
                     </div>
                 </div>
 

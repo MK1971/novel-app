@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('topLeader', $topLeader);
         });
 
-        View::composer('layouts.app', function ($view) {
+        View::composer(['layouts.app', 'layouts.guest'], function ($view) {
             $unreadNotificationCount = 0;
             if (Auth::check()) {
                 $unreadNotificationCount = Auth::user()->notifications()->whereNull('read_at')->count();

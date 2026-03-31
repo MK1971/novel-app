@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AchievementController;
-use App\Http\Controllers\ActivityFeedController;
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
@@ -100,7 +99,6 @@ Route::get('/leaderboard', function () {
 
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
-Route::get('/activity-feed', [ActivityFeedController::class, 'index'])->name('activity-feed.index');
 Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
 Route::get('/achievements/{achievement}', [AchievementController::class, 'show'])->name('achievements.show');
 Route::get('/archive/chapters', [ArchiveController::class, 'chapters'])->name('archive.chapters');

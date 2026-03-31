@@ -1,0 +1,27 @@
+---
+description: After code changes, list functions and areas the user should verify
+alwaysApply: true
+---
+
+# Impacted surface — call out for human review
+
+When you **make substantive code changes** (controllers, models, routes, payments, moderation, auth, migrations, or multi-file Blade), end your **final reply to the user** (or add a clearly labeled section) with **what to double-check**, so they can spot regressions without reading the whole diff.
+
+## What to include
+
+Use a short **`### Verification / likely impact`** (or **`### Check these areas`**) section with bullets:
+
+1. **PHP methods** — Name concrete callables that were **edited** or are **callers/callees** of the changed logic, in **`Class::method`** form (e.g. **`PaymentController::captureOrder`**, **`ModerationController::approveInlineEdit`**). Include jobs, commands, or **`App\Support\*`** helpers when relevant.
+2. **HTTP routes / user flows** — Paths or route names affected (e.g. **`GET /analytics`**, **`chapters.show`**).
+3. **Blade / UI** — View files or components that change visible behavior (not every touched file—only user-visible or layout-critical ones).
+4. **Data / migrations** — New or altered columns, seeders, or queries that need **`migrate`** or manual data checks.
+5. **Tests** — Suggest **`php artisan test`** with filters or test class names when coverage exists or when behavior is fragile.
+
+## When to skip or shorten
+
+- **Trivial** edits (typos, comments only, single-line formatting): omit the section or one line (“No behavioral surface to verify.”).
+- If the user asked **not** to include this for a turn, skip for that turn only.
+
+## Tone
+
+Keep it **scannable**: bold lead phrase per bullet, no long prose. Prefer **action-oriented** hints (“Retest PayPal return URL after edit submission”) when a specific manual step matters.

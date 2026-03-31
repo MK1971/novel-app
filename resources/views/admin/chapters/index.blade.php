@@ -16,6 +16,17 @@
                 </div>
             @endif
 
+            @if ($errors->any())
+                <div class="p-4 bg-red-100 text-red-800 rounded-2xl border border-red-200 shadow-sm font-bold space-y-1" role="alert">
+                    <p class="font-extrabold">Could not save — please fix the following:</p>
+                    <ul class="list-disc list-inside text-sm font-bold">
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- Upload chapter for The Book With No Name --}}
             <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 shadow-sm">
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-2">📖 The Book With No Name</h3>

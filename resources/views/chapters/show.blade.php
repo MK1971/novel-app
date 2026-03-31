@@ -30,8 +30,9 @@
                     </div>
                 @else
                     <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
-                        <span class="opacity-60 mr-1">Points (paid suggestions only):</span>
-                        <span class="text-amber-600">+1–2</span>
+                        <span class="opacity-60 mr-1">Points if accepted (paid only):</span>
+                        <span class="text-amber-600">0–2</span>
+                        <span class="opacity-60 ml-1 font-extrabold">(2 full · 1 partial)</span>
                     </div>
                 @endif
             </div>
@@ -44,6 +45,9 @@
     </div>
 
     <div class="py-12">
+        @php
+            $chapterSuggestFabVisible = !($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective');
+        @endphp
         <div class="max-w-7xl mx-auto mb-8 space-y-3">
             @if (session('success'))
                 <div class="p-4 bg-green-100 text-green-800 rounded-2xl border border-green-200 font-bold">{{ session('success') }}</div>
@@ -55,9 +59,10 @@
                 <div class="p-4 bg-amber-100 text-amber-900 rounded-2xl border border-amber-200 font-bold">{{ session('warning') }}</div>
             @endif
         </div>
+        {{-- Below lg: suggest panel first so it is visible on load without scrolling past the chapter --}}
         <div class="grid lg:grid-cols-3 gap-12">
             {{-- Chapter Content --}}
-            <div class="lg:col-span-2">
+            <div class="order-2 lg:order-1 lg:col-span-2">
                 <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
                     {{-- Decorative background number --}}
                     <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none leading-none">
@@ -81,9 +86,10 @@
                                         @auth
                                             @if(!$chapter->is_locked)
                                                 <button 
+                                                    type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
                                                     class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
-                                                    title="Suggest edit for this paragraph"
+                                                    title="Paragraph edit ($2): suggest a change to this paragraph only. Whole-chapter rewrites use the sidebar form."
                                                 >
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </button>
@@ -93,13 +99,30 @@
                                 @endif
                             @endforeach
                         </div>
+                        @if($chapterSuggestFabVisible)
+                            <div class="mt-12 pt-10 border-t border-amber-100 hidden lg:block">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl bg-amber-50/80 border border-amber-100 px-6 py-5">
+                                    <p class="text-sm font-bold text-amber-800/90 text-left">
+                                        Whole-chapter suggestion or account signup lives in the panel to the side — jump there without scrolling back up.
+                                    </p>
+                                    <a
+                                        href="#chapter-suggest-edit-sidebar"
+                                        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-amber-900 text-white px-6 py-3.5 text-sm font-extrabold shadow-lg shadow-amber-900/20 hover:bg-black transition-colors whitespace-nowrap"
+                                        onclick="event.preventDefault(); window.scrollToSuggestEditSidebar();"
+                                    >
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        Suggest an edit
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
 
-            {{-- Sidebar: Suggest Edit --}}
-            <div class="lg:col-span-1">
-                <div class="sticky top-24 space-y-8">
+            {{-- Sidebar: Suggest Edit (sticky on large screens; first on small screens so form is on-screen immediately) --}}
+            <div class="order-1 lg:order-2 lg:col-span-1">
+                <div id="chapter-suggest-edit-sidebar" class="scroll-mt-28 space-y-8 lg:sticky lg:top-[calc(var(--app-shell-nav-h,4.5rem)+0.375rem+0.75rem)] lg:max-h-[calc(100vh-var(--app-shell-nav-h,4.5rem)-2rem)] lg:overflow-y-auto lg:overscroll-y-contain lg:self-start">
                     @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
                         <div class="bg-amber-50 border-2 border-amber-100 rounded-[3rem] p-10 text-amber-900 shadow-sm relative overflow-hidden">
                             <div class="relative z-10">
@@ -140,8 +163,15 @@
                             <div id="edit-submission-box" class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
+                                    <div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20 text-amber-100/90 text-sm font-bold leading-relaxed">
+                                        <p class="mb-2"><span class="text-white font-extrabold">Two ways to suggest</span> (each uses a <span class="text-white">$2</span> PayPal checkout):</p>
+                                        <ul class="list-disc list-inside space-y-1.5 text-amber-100/85">
+                                            <li><span class="text-white">Paragraph</span> — Hover a paragraph and tap the pencil to suggest a change to <em>that paragraph only</em>. Moderators use the same scale as full-chapter edits: <span class="text-white">2 pts</span> full accept, <span class="text-white">1 pt</span> partial, <span class="text-white">0</span> if rejected.</li>
+                                            <li><span class="text-white">Writing / Phrase</span> (below) — Replace the <em>entire chapter text</em>. Same <span class="text-white">2 / 1 / 0</span> scale: full accept, partial accept, reject.</li>
+                                        </ul>
+                                    </div>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> can earn leaderboard points: <strong class="text-white">2</strong> for a full accept, <strong class="text-white">1</strong> for partial, <strong class="text-white">0</strong> if rejected. Each completed payment also adds <strong class="text-white">one vote</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
+                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed payment also adds <strong class="text-white">one vote</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
                                     </p>
                                     
                                     <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
@@ -149,11 +179,12 @@
                                         <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                                         
                                         <div>
-                                            <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit Type</label>
+                                            <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit type (full chapter)</label>
                                             <select name="type" class="w-full bg-white/10 border-white/20 rounded-2xl text-white focus:ring-amber-500 focus:border-amber-500 font-bold p-4 outline-none transition-all" required>
-                                                <option value="writing" class="bg-amber-900">Writing Edit</option>
-                                                <option value="phrase" class="bg-amber-900">Phrase Edit</option>
+                                                <option value="writing" class="bg-amber-900">Writing Edit — full replacement text</option>
+                                                <option value="phrase" class="bg-amber-900">Phrase Edit — full replacement text</option>
                                             </select>
+                                            <p class="text-[11px] font-bold text-amber-200/60 mt-2 leading-relaxed">For a single-paragraph change, use the pencil on a paragraph in the chapter, not this dropdown.</p>
                                         </div>
 
                                         <div>
@@ -263,13 +294,31 @@
                 </div>
             </div>
         </div>
+
+        @if($chapterSuggestFabVisible)
+            <a
+                href="#chapter-suggest-edit-sidebar"
+                class="lg:hidden fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-2xl bg-amber-900 text-white px-5 py-3.5 text-sm font-extrabold shadow-xl shadow-amber-900/30 ring-2 ring-white/40 hover:bg-black transition-colors max-w-[calc(100vw-2.5rem)]"
+                onclick="event.preventDefault(); window.scrollToSuggestEditSidebar();"
+            >
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span>Suggest edit</span>
+            </a>
+        @endif
+
+        <script>
+            window.scrollToSuggestEditSidebar = function () {
+                document.getElementById('chapter-suggest-edit-sidebar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+        </script>
     </div>
 
     {{-- Inline Edit Modal --}}
     @auth
     <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
-            <h3 class="text-2xl font-extrabold text-amber-900 mb-8">Suggest Paragraph Edit</h3>
+            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Suggest paragraph edit</h3>
+            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> checkout. Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
                 @csrf
                 <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">

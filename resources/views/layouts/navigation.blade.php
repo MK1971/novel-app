@@ -33,6 +33,9 @@
                         <x-nav-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                             Review Suggestions
                         </x-nav-link>
+                        <x-nav-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                            Paragraph edits
+                        </x-nav-link>
                         <x-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                             Upload Chapters
                         </x-nav-link>
@@ -107,6 +110,9 @@
             @can('admin')
                 <x-responsive-nav-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" class="text-amber-900 font-semibold">
                     Review Suggestions
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" class="text-amber-900 font-semibold">
+                    Paragraph edits
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold">
                     Upload Chapters

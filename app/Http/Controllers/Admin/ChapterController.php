@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\Chapter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ChapterController extends Controller
@@ -71,9 +72,18 @@ class ChapterController extends Controller
     public function storePeterTrullChapter(Request $request)
     {
         Gate::authorize('admin');
+
+        Log::info('admin.peter_trull.upload.hit', [
+            'user_id' => auth()->id(),
+            'title' => $request->input('title'),
+            'number' => $request->input('number'),
+            'list_section' => $request->input('list_section'),
+        ]);
+
         $request->validate([
             'title' => 'required|string|max:255',
-            'number' => 'required|integer|min:1',
+            'number' => 'required|integer|min:0',
+            'list_section' => ['required', Rule::in(Chapter::LIST_SECTIONS)],
             'content_a' => 'required|string',
             'content_b' => 'required|string',
         ]);
@@ -91,7 +101,7 @@ class ChapterController extends Controller
         // Lock all previous chapters of this book
         Chapter::where('book_id', $book->id)->update(['is_locked' => true]);
 
-        Chapter::create([
+        $chA = Chapter::create([
             'book_id' => $book->id,
             'title' => $request->title,
             'number' => $request->number,
@@ -101,7 +111,7 @@ class ChapterController extends Controller
             'status' => 'published',
             'is_locked' => false,
         ]);
-        Chapter::create([
+        $chB = Chapter::create([
             'book_id' => $book->id,
             'title' => $request->title,
             'number' => $request->number,
@@ -110,6 +120,12 @@ class ChapterController extends Controller
             'version' => 'B',
             'status' => 'published',
             'is_locked' => false,
+        ]);
+
+        Log::info('admin.peter_trull.upload.success', [
+            'book_id' => $book->id,
+            'chapter_a_id' => $chA->id,
+            'chapter_b_id' => $chB->id,
         ]);
 
         return back()->with('success', 'Chapter pair added and previous chapters locked.');

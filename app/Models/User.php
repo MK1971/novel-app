@@ -42,6 +42,37 @@ class User extends Authenticatable
         return $this->hasMany(InlineEdit::class);
     }
 
+    /**
+     * Chapter-level edit rows only. Excludes `inline_edit` PayPal stub rows (each paid paragraph also has an `inline_edits` row).
+     */
+    public function chapterLevelEditsForStats()
+    {
+        return $this->edits()->where('type', '!=', 'inline_edit');
+    }
+
+    public function editSuggestionsSubmittedCount(): int
+    {
+        return $this->chapterLevelEditsForStats()->count() + $this->inlineEdits()->count();
+    }
+
+    public function acceptedChapterAndParagraphEditCount(): int
+    {
+        $chapterAccepted = $this->chapterLevelEditsForStats()
+            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+            ->count();
+
+        return $chapterAccepted + $this->inlineEdits()->where('status', 'approved')->count();
+    }
+
+    public function rejectedChapterAndParagraphEditCount(): int
+    {
+        $chapterRejected = $this->chapterLevelEditsForStats()
+            ->where('status', 'rejected')
+            ->count();
+
+        return $chapterRejected + $this->inlineEdits()->where('status', 'rejected')->count();
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

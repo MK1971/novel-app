@@ -165,7 +165,8 @@
     @auth
     <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
-            <h3 class="text-2xl font-extrabold text-amber-900 mb-8">Suggest Paragraph Edit</h3>
+            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Suggest paragraph edit</h3>
+            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">Change <strong class="text-amber-900">one paragraph</strong> in this chapter. For the <strong class="text-amber-900">entire chapter</strong>, use the sidebar on the chapter page (Writing / Phrase). Same <strong class="text-amber-900">$2</strong> checkout. Points match chapter edits: <strong class="text-amber-900">2</strong> full / <strong class="text-amber-900">1</strong> partial / <strong class="text-amber-900">0</strong> rejected.</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
                 @csrf
                 <input type="hidden" id="edit-chapter-id" name="chapter_id">

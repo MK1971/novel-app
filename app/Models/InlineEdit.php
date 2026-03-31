@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class InlineEdit extends Model
 {
+    public const OUTCOME_FULL = 'full';
+
+    public const OUTCOME_PARTIAL = 'partial';
+
     protected $fillable = [
         'chapter_id',
         'user_id',
@@ -15,6 +19,7 @@ class InlineEdit extends Model
         'suggested_text',
         'reason',
         'status',
+        'moderation_outcome',
         'admin_notes',
         'payment_id',
     ];

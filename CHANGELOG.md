@@ -2,6 +2,27 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.21 - Insights accuracy, activity feed removal, chapter suggest UX, inline-edit moderation parity
+### Added
+- **`moderation_outcome`** on **`inline_edits`** (migration) for full vs partial accept tracking aligned with chapter edits.
+- **Tests**: **`InlineEditPartialApproveTest`**, **`UserEditDashboardStatsTest`** for paragraph moderation and dashboard edit stats.
+- **Guest nav**: **`nav-account-menu`** partial and layout wiring so logged-in readers on guest layout see account/unread counts consistently.
+
+### Changed
+- **Community insights (`/analytics`)**: **Pending edits** count matches the real moderator queue (full-chapter pending excluding `inline_edit` stubs **plus** pending **`InlineEdit`** rows). **Manuscript by chapter** uses **`chapter_statistics`** (paid / accepted / rejected) plus live **in-queue** badges instead of raw row counts that did not reflect moderation.
+- **Activity stream removed**: **`/activity-feed`** route, **`ActivityFeedController`**, and **`activity-feed`** view deleted; insights page no longer shows recent activity or “feed events (7d)”. **`EditController`** no longer writes **`activity_feed`** rows.
+- **Chapter read (`chapters/show`)**: Suggest sidebar **sticky** with nav-aware **`top`** and scrollable max height on **`lg+`**; **mobile** column order puts the suggest / sign-in panel **first** so it is visible on load; **FAB** and **`scrollToSuggestEditSidebar`** for jump-to-form; bottom “Suggest an edit” strip on **desktop only** after long reads.
+- **Admin Review Suggestions**: **Paragraph** and **full-chapter** cards show **Accept full / partial / Reject** actions **above** the diff as well as below. **Inline moderation** page layout aligned; **Peter Trull** upload validation and admin chapter list messaging tightened.
+- **`ModerationController`**: Paragraph approve/reject updates **`ChapterStatistic`** and points in line with chapter-level moderation; **`PaymentController`** / **`InlineEdit`** model updates for the paid paragraph flow and queue hygiene.
+- **`User`**: Dashboard / stats helpers avoid double-counting paragraph stubs and align accepted counts with chapter + inline moderation outcomes.
+- **`AnalyticsInsightsTest`**: Assertions updated for the insights page without the activity block.
+
+### Fixed
+- **Payment / inline checkout** edge cases and payload handling where noted in **`PaymentController`** for **`InlineEdit`** creation.
+
+### Repository
+- **Snapshot tag**: **`snapshot-20260331-development`** (annotated) on the **Development** branch commit for this batch.
+
 ## Version 1.9.20 - Admin-only seed, achievements auto-heal, voting/payment fixes, shell UX
 ### Changed
 - **`DatabaseSeeder`**: Seeds **only** the admin user (`admin@example.com` / `password`). No demo books, chapters, **`test@example.com`**, reading progress, or achievement rows. Use Admin to create content; run **`php artisan db:reset-app-data --force`** to truncate app tables and re-seed admin via **`AdminOnlySeeder`**.

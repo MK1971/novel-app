@@ -14,7 +14,7 @@ class AnalyticsInsightsTest extends TestCase
         $this->get(route('analytics.index'))
             ->assertOk()
             ->assertSee('Community insights', false)
-            ->assertSee('Recent activity', false)
+            ->assertSee('Manuscript contributions by chapter', false)
             ->assertSee('Peter Trull Solitary Detective — voting trends', false);
     }
 }

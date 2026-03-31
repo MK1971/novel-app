@@ -47,6 +47,9 @@
                 <x-sidebar-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" icon="review">
                     Review Suggestions
                 </x-sidebar-link>
+                <x-sidebar-link :href="route('admin.inline-edits.index')" :active="request()->routeIs('admin.inline-edits.*')" icon="review">
+                    Paragraph edits
+                </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" icon="upload">
                     Upload Chapters
                 </x-sidebar-link>

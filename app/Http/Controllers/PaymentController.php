@@ -278,6 +278,8 @@ class PaymentController extends Controller
         }
 
         if (isset($captureResponse['status']) && $captureResponse['status'] === 'COMPLETED') {
+            $edit->refresh();
+
             try {
                 $payment = Payment::create([
                     'user_id' => $request->user()->id,
@@ -288,10 +290,18 @@ class PaymentController extends Controller
                 ]);
 
                 if ($edit->type === 'inline_edit') {
-                    $raw = $edit->inline_edit_payload ?: session('inlineEditData');
-                    $inlineEditArray = is_string($raw) ? json_decode($raw, true) : null;
+                    $raw = $edit->inline_edit_payload;
+                    if ($raw === null || $raw === '') {
+                        $sessionRaw = session('inlineEditData');
+                        $raw = is_string($sessionRaw) ? $sessionRaw : null;
+                    }
+                    $inlineEditArray = self::decodeInlineEditPayloadRaw($raw);
                     if (! is_array($inlineEditArray)) {
-                        Log::critical('Paid inline edit missing payload', ['edit_id' => $edit->id, 'user_id' => $request->user()->id]);
+                        Log::critical('Paid inline edit missing or invalid payload', [
+                            'edit_id' => $edit->id,
+                            'user_id' => $request->user()->id,
+                            'payload_len' => is_string($raw) ? strlen($raw) : null,
+                        ]);
 
                         return redirect()->route('chapters.show', $chapterId)->with(
                             'error',
@@ -301,7 +311,7 @@ class PaymentController extends Controller
 
                     InlineEdit::create([
                         'user_id' => $request->user()->id,
-                        'chapter_id' => $chapterId,
+                        'chapter_id' => (int) $chapterId,
                         'paragraph_number' => (int) ($inlineEditArray['paragraph_number'] ?? 0),
                         'original_text' => (string) ($inlineEditArray['original_text'] ?? ''),
                         'suggested_text' => (string) ($inlineEditArray['suggested_text'] ?? ''),
@@ -349,6 +359,33 @@ class PaymentController extends Controller
             'error',
             'Payment could not be completed. '.$summary
         );
+    }
+
+    /**
+     * Restore paragraph suggestion JSON from DB column or session (string).
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function decodeInlineEditPayloadRaw(mixed $raw): ?array
+    {
+        if (is_array($raw)) {
+            return $raw;
+        }
+        if (! is_string($raw)) {
+            return null;
+        }
+        $trimmed = trim($raw);
+        if ($trimmed === '') {
+            return null;
+        }
+        $flags = JSON_INVALID_UTF8_IGNORE | JSON_BIGINT_AS_STRING;
+        $decoded = json_decode($trimmed, true, 512, $flags);
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+        $decoded = json_decode(stripslashes($trimmed), true, 512, $flags);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     private static function friendlyDatabaseErrorMessage(QueryException $e): string

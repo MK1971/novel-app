@@ -15,9 +15,19 @@ class ModerationController extends Controller
     public function index()
     {
         Gate::authorize('admin');
-        $edits = Edit::with(['user', 'chapter'])->where('status', 'pending')->orderBy('created_at')->get();
+        // `inline_edit` rows are payment stubs; real paragraph text lives in `inline_edits` (Inline Moderation).
+        $edits = Edit::with(['user', 'chapter'])
+            ->where('status', 'pending')
+            ->where('type', '!=', 'inline_edit')
+            ->orderBy('created_at')
+            ->get();
 
-        return view('admin.edits.index', compact('edits'));
+        $pendingInlineEdits = InlineEdit::with(['user', 'chapter'])
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
+
+        return view('admin.edits.index', compact('edits', 'pendingInlineEdits'));
     }
 
     public function approve(Edit $edit, Request $request)
@@ -80,10 +90,16 @@ class ModerationController extends Controller
         return view('admin.moderation.inline-edits', compact('inlineEdits'));
     }
 
-    public function approveInlineEdit(InlineEdit $inlineEdit)
+    public function approveInlineEdit(Request $request, InlineEdit $inlineEdit)
     {
         Gate::authorize('admin');
-        $inlineEdit->update(['status' => 'approved']);
+        $partial = $request->boolean('partial');
+        $outcome = $partial ? InlineEdit::OUTCOME_PARTIAL : InlineEdit::OUTCOME_FULL;
+
+        $inlineEdit->update([
+            'status' => 'approved',
+            'moderation_outcome' => $outcome,
+        ]);
 
         $hasPaid = $inlineEdit->payment_id
             && Payment::query()
@@ -92,7 +108,8 @@ class ModerationController extends Controller
                 ->exists();
 
         if ($hasPaid) {
-            $inlineEdit->user->increment('points', 1);
+            $points = $partial ? 1 : 2;
+            $inlineEdit->user->increment('points', $points);
         }
 
         AchievementUnlock::syncForUser($inlineEdit->user);
@@ -100,9 +117,12 @@ class ModerationController extends Controller
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('accepted_edits');
 
-        $message = 'Inline edit approved.';
         if (! $hasPaid) {
-            $message .= ' No leaderboard points were awarded because this suggestion has no completed payment on file.';
+            $message = 'Paragraph suggestion recorded as accepted, but no completed payment was on file — no points awarded.';
+        } elseif ($partial) {
+            $message = 'Paragraph suggestion accepted partial (1 pt).';
+        } else {
+            $message = 'Paragraph suggestion accepted full (2 pts).';
         }
 
         if (request()->wantsJson()) {

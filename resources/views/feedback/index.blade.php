@@ -1,10 +1,23 @@
-<x-guest-layout>
+@php
+    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+@endphp
+
+<x-dynamic-component :component="$layout">
+    <x-slot name="header">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
+                    Community Feedback
+                </h2>
+                <p class="text-amber-800/60 font-bold mt-1">Share ideas and read what others said.</p>
+            </div>
+        </div>
+    </x-slot>
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl sm:rounded-2xl border border-amber-100">
                 <div class="p-8 md:p-12">
-                    <h1 class="text-4xl font-bold text-amber-900 mb-8 text-center">Community Feedback</h1>
-                    
                     <div class="grid lg:grid-cols-2 gap-12">
                         {{-- Feedback Form --}}
                         <div>
@@ -49,4 +62,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-dynamic-component>
