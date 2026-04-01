@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ArchiveController;
@@ -50,7 +51,7 @@ Route::get('/', function () {
     $editsAcceptedCount = Edit::whereIn('status', $acceptedEditStatuses)->count()
         + InlineEdit::where('status', 'approved')->count();
 
-    $chaptersLiveCount = Chapter::where('status', 'published')->count();
+    $chaptersLiveCount = Chapter::logicalReaderPieceCount();
 
     $landingStats = [
         'contributors' => $abbrevInt($contributorsCount),
@@ -145,8 +146,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/edits/{edit}/approve', [ModerationController::class, 'approve'])->name('edits.approve');
         Route::post('/edits/{edit}/reject', [ModerationController::class, 'reject'])->name('edits.reject');
 
+        Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
         Route::get('/chapters', [AdminChapterController::class, 'index'])->name('chapters.index');
         Route::post('/chapters/story', [AdminChapterController::class, 'storeStoryChapter'])->name('chapters.store-story');
+        Route::post('/chapters/story/revision', [AdminChapterController::class, 'publishStoryRevision'])->name('chapters.publish-story-revision');
+        Route::post('/chapters/story/{chapter}/close-without-merge', [AdminChapterController::class, 'closeStoryWithoutMergedUpload'])->name('chapters.close-story-without-merge');
+        Route::post('/chapters/story/{chapter}/extend-window', [AdminChapterController::class, 'extendEditingWindow'])->name('chapters.extend-editing-window');
         Route::post('/chapters/peter-trull', [AdminChapterController::class, 'storePeterTrullChapter'])->name('chapters.store-peter-trull');
         Route::delete('/chapters/{chapter}', [AdminChapterController::class, 'destroy'])->name('chapters.destroy');
         Route::post('/chapters/{chapter}/toggle-lock', [AdminChapterController::class, 'toggleLock'])->name('chapters.toggle-lock');

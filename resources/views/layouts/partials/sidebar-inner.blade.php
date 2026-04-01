@@ -8,7 +8,7 @@
                 Dashboard
             </x-sidebar-link>
             @endauth
-            <x-sidebar-link :href="route('chapters.index', ['resume' => 1])" :active="request()->routeIs('chapters.*')" icon="book">
+            <x-sidebar-link :href="route('chapters.index')" :active="request()->routeIs('chapters.*')" icon="book">
                 The Story
             </x-sidebar-link>
             <x-sidebar-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" icon="vote">
@@ -52,6 +52,9 @@
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" icon="upload">
                     Upload Chapters
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('admin.settings.edit')" :active="request()->routeIs('admin.settings.*')" icon="feedback">
+                    Site settings
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" icon="users">
                     User Management

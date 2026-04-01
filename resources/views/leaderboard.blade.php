@@ -28,7 +28,7 @@
                 </div>
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No contributors on the board yet</h3>
                 <p class="text-amber-800/70 font-bold leading-relaxed mb-8">{{ $pointsExplainer }}</p>
-                <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
                     Read chapters &amp; suggest an edit
                     <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </a>
@@ -84,7 +84,7 @@
             </div>
             <h3 class="text-3xl font-extrabold text-amber-900 mb-4">Want to see your name here?</h3>
             <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.</p>
-            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+            <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
                 Start Contributing Now
                 <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
             </a>

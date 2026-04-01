@@ -33,7 +33,11 @@ class ModerationController extends Controller
     public function approve(Edit $edit, Request $request)
     {
         Gate::authorize('admin');
-        $status = $request->input('status', 'accepted_full');
+        $validated = $request->validate([
+            'status' => ['required', 'in:accepted_full,accepted_partial'],
+            'merged_text' => ['nullable', 'string', 'max:100000'],
+        ]);
+        $status = $validated['status'];
 
         $hasCompletedPayment = Payment::query()
             ->where('edit_id', $edit->id)
@@ -49,10 +53,16 @@ class ModerationController extends Controller
             };
         }
 
-        $edit->update([
+        $update = [
             'status' => $status,
             'points_awarded' => $points,
-        ]);
+        ];
+        $merged = $validated['merged_text'] ?? null;
+        if (is_string($merged) && trim($merged) !== '') {
+            $update['edited_text'] = $merged;
+        }
+
+        $edit->update($update);
 
         if ($points > 0) {
             $edit->user->increment('points', $points);
@@ -93,13 +103,22 @@ class ModerationController extends Controller
     public function approveInlineEdit(Request $request, InlineEdit $inlineEdit)
     {
         Gate::authorize('admin');
+        $validated = $request->validate([
+            'merged_text' => ['nullable', 'string', 'max:100000'],
+        ]);
         $partial = $request->boolean('partial');
         $outcome = $partial ? InlineEdit::OUTCOME_PARTIAL : InlineEdit::OUTCOME_FULL;
 
-        $inlineEdit->update([
+        $update = [
             'status' => 'approved',
             'moderation_outcome' => $outcome,
-        ]);
+        ];
+        $merged = $validated['merged_text'] ?? null;
+        if (is_string($merged) && trim($merged) !== '') {
+            $update['suggested_text'] = $merged;
+        }
+
+        $inlineEdit->update($update);
 
         $hasPaid = $inlineEdit->payment_id
             && Payment::query()

@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\Payment;
+use App\Support\ChapterLifecycle;
 use Illuminate\Http\Request;
 
 class EditController extends Controller
 {
     public function create($chapterId)
     {
-        $chapter = Chapter::findOrFail($chapterId);
+        $chapter = Chapter::with('book')->findOrFail($chapterId);
+        if (ChapterLifecycle::isPeterTrullChapter($chapter)) {
+            return redirect()->route('chapters.show', $chapter)->with('error', 'Peter Trull chapters use voting only, not paid edits.');
+        }
         $user = request()->user();
         $hasPaid = Payment::where('user_id', $user->id)
             ->where('status', 'completed')
@@ -32,7 +36,10 @@ class EditController extends Controller
             'edited_text' => 'required|string',
         ]);
 
-        $chapter = Chapter::findOrFail($request->chapter_id);
+        $chapter = Chapter::with('book')->findOrFail($request->chapter_id);
+        if (ChapterLifecycle::isPeterTrullChapter($chapter)) {
+            return back()->with('error', 'Peter Trull chapters use voting only, not paid edits.');
+        }
         $user = $request->user();
         $hasPaid = Payment::where('user_id', $user->id)
             ->where('status', 'completed')

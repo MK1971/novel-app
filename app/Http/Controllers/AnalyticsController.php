@@ -38,7 +38,7 @@ class AnalyticsController extends Controller
             ->map(function ($stat) {
                 $chapter = Chapter::find($stat->chapter_id);
                 $stat->chapter_number = $chapter?->number;
-                $stat->chapter_title = $chapter?->title;
+                $stat->chapter_title = $chapter ? $chapter->displayTitle() : null;
                 $stat->chapter_group_key = $chapter ? $chapter->votePairGroupKey() : 'unknown';
                 $stat->chapter_heading = $chapter ? $chapter->headingPrefix() : 'Chapter';
 

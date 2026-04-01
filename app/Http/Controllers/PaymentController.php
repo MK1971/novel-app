@@ -8,6 +8,8 @@ use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
 use App\Support\AchievementUnlock;
+use App\Support\AdminNotifier;
+use App\Support\ChapterLifecycle;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,6 +76,9 @@ class PaymentController extends Controller
         }
 
         $chapter = Chapter::findOrFail($request->chapter_id);
+        if ($response = $this->assertChapterAllowsPaidEdits($chapter)) {
+            return $response;
+        }
 
         $payloadJson = null;
         if ($request->type === 'inline_edit') {
@@ -117,6 +122,10 @@ class PaymentController extends Controller
         }
 
         $chapter = Chapter::findOrFail($request->chapter_id);
+        if ($response = $this->assertChapterAllowsPaidEdits($chapter)) {
+            return $response;
+        }
+
         $edit = Edit::query()
             ->whereKey($request->resume_edit_id)
             ->where('user_id', $request->user()->id)
@@ -186,8 +195,29 @@ class PaymentController extends Controller
         ]);
     }
 
+    private function assertChapterAllowsPaidEdits(Chapter $chapter): ?RedirectResponse
+    {
+        $chapter->loadMissing('book');
+        if (ChapterLifecycle::isPeterTrullChapter($chapter)) {
+            return back()->with(
+                'error',
+                'Paid edits apply to The Book With No Name only. Peter Trull is voting-only.'
+            );
+        }
+
+        if (ChapterLifecycle::isTbwChapter($chapter) && ChapterLifecycle::suggestionsClosedForTbwChapter($chapter)) {
+            return back()->with('error', 'The editing window for this chapter has closed.');
+        }
+
+        return null;
+    }
+
     private function startPayPalCheckout(Chapter $chapter, Edit $edit): RedirectResponse
     {
+        if ($response = $this->assertChapterAllowsPaidEdits($chapter)) {
+            return $response;
+        }
+
         $chapterId = $chapter->id;
         $editId = $edit->id;
 
@@ -204,7 +234,7 @@ class PaymentController extends Controller
                 ],
                 'purchase_units' => [
                     [
-                        'description' => 'Suggest Edit - '.$chapter->title.' - The Book With No Name',
+                        'description' => 'Suggest Edit - '.$chapter->displayTitle().' - The Book With No Name',
                         'amount' => [
                             'currency_code' => 'USD',
                             'value' => '2.00',
@@ -331,6 +361,14 @@ class PaymentController extends Controller
                 $stats->increment('total_edits');
 
                 AchievementUnlock::syncForUser($request->user());
+
+                $chapterForMail = Chapter::with('book')->find($chapterId);
+                if ($chapterForMail && ChapterLifecycle::isTbwChapter($chapterForMail)) {
+                    $label = $edit->type === 'inline_edit' ? 'Paragraph suggestion' : 'Full-chapter suggestion';
+                    AdminNotifier::notifyNewPaidSuggestion(
+                        "{$label} pending review for chapter #{$chapterId} (edit #{$edit->id}) by {$request->user()->name}."
+                    );
+                }
             } catch (QueryException $e) {
                 Log::error('payment.success database error', [
                     'message' => $e->getMessage(),

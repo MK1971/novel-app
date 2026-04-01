@@ -41,16 +41,18 @@
                         @foreach($readingProgress as $progress)
                             <div class="flex items-center justify-between p-4 bg-amber-50 rounded-xl border border-amber-100">
                                 <div>
-                                    <h4 class="font-bold text-amber-900">{{ $progress->chapter->title }}</h4>
+                                    <h4 class="font-bold text-amber-900">{{ $progress->chapter->displayTitle() }}</h4>
                                     <p class="text-sm text-amber-600">Last read: {{ $progress->last_read_at?->diffForHumans() ?? __('Not recorded yet') }}</p>
                                 </div>
                                 <div class="flex items-center gap-4">
                                     @if($progress->completed)
                                         <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full uppercase tracking-wider">Completed</span>
+                                    @elseif($progress->chapter && $progress->chapter->is_locked)
+                                        <span class="px-3 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full uppercase tracking-wider">Locked</span>
                                     @else
                                         <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider">In Progress</span>
                                     @endif
-                                    <a href="{{ route('chapters.show', $progress->chapter) }}" class="text-amber-600 hover:text-amber-800 font-bold">Continue</a>
+                                    <a href="{{ route('chapters.show', $progress->chapter) }}" class="text-amber-600 hover:text-amber-800 font-bold">{{ ($progress->chapter && $progress->chapter->is_locked) ? __('Read') : __('Continue') }}</a>
                                 </div>
                             </div>
                         @endforeach

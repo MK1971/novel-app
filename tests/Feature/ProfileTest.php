@@ -24,6 +24,40 @@ class ProfileTest extends TestCase
         $response->assertOk();
     }
 
+    public function test_profile_reading_progress_shows_locked_not_in_progress_for_locked_chapter(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::create([
+            'name' => 'The Book With No Name',
+            'status' => 'in_progress',
+        ]);
+        $chapter = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Chapter One',
+            'number' => 1,
+            'content' => 'Body',
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => true,
+            'is_archived' => false,
+        ]);
+        ReadingProgress::create([
+            'user_id' => $user->id,
+            'chapter_id' => $chapter->id,
+            'scroll_position' => 100,
+            'completed' => false,
+            'last_read_at' => now(),
+        ]);
+
+        $html = $this->actingAs($user)
+            ->get('/profile')
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('Locked', $html);
+        $this->assertStringNotContainsString('>In Progress<', $html);
+    }
+
     public function test_profile_page_renders_when_reading_progress_has_null_last_read_at(): void
     {
         $user = User::factory()->create();

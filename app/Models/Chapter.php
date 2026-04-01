@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 class Chapter extends Model
 {
@@ -28,7 +30,43 @@ class Chapter extends Model
         self::LIST_SECTION_EPILOG,
     ];
 
-    protected $fillable = ['book_id', 'title', 'number', 'list_section', 'content', 'version', 'status', 'is_locked', 'is_archived'];
+    protected $fillable = [
+        'book_id',
+        'title',
+        'number',
+        'list_section',
+        'content',
+        'version',
+        'status',
+        'is_locked',
+        'locked_at',
+        'is_archived',
+        'is_reader_archive_link',
+        'published_at',
+        'editing_closes_at',
+        'editing_deadline_reminder_sent_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'published_at' => 'datetime',
+            'editing_closes_at' => 'datetime',
+            'editing_deadline_reminder_sent_at' => 'datetime',
+            'locked_at' => 'datetime',
+            'is_reader_archive_link' => 'boolean',
+        ];
+    }
+
+    /** Best-effort instant this row was locked (for reader copy). Falls back to updated_at if unset. */
+    public function lockedAtForDisplay(): ?Carbon
+    {
+        if (! $this->is_locked) {
+            return null;
+        }
+
+        return $this->locked_at ?? $this->updated_at;
+    }
 
     /**
      * Order for reader and admin lists: cold open → prolog → chapters → epilog.
@@ -86,10 +124,69 @@ class Chapter extends Model
         };
     }
 
+    /** Title for display when `title` is empty (optional in admin upload). */
+    public function displayTitle(): string
+    {
+        $t = trim((string) ($this->title ?? ''));
+
+        return $t !== '' ? $t : 'Untitled';
+    }
+
     /** Group A/B vote pairs (same section + number, different version). */
     public function votePairGroupKey(): string
     {
         return ($this->list_section ?? self::LIST_SECTION_CHAPTER).'::'.$this->number;
+    }
+
+    /**
+     * Reader-facing “pieces” for stats: TBWNN uses the same single stream as /chapters (non-archived, version A / empty).
+     * Peter Trull uses one count per voting slot (same list_section + number), not per A/B row.
+     * Any other books: one row per non-archived chapter.
+     */
+    public static function logicalReaderPieceCount(bool $publishedOnly = false): int
+    {
+        $tbwnnId = Book::query()->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME)->value('id');
+        $ptId = Book::query()->where('name', Book::NAME_PETER_TRULL)->value('id');
+
+        $applyLive = static function (Builder $q) use ($publishedOnly): void {
+            $q->where('is_archived', false);
+            if ($publishedOnly) {
+                $q->where('status', 'published');
+            }
+        };
+
+        $total = 0;
+
+        if ($tbwnnId) {
+            $q = static::query()->where('book_id', $tbwnnId);
+            $applyLive($q);
+            $q->where(function (Builder $qq) {
+                $qq->whereNull('version')
+                    ->orWhere('version', '')
+                    ->orWhereRaw('LOWER(TRIM(version)) = ?', ['a']);
+            });
+            $total += $q->count();
+        }
+
+        if ($ptId) {
+            $q = static::query()->where('book_id', $ptId);
+            $applyLive($q);
+            $total += $q->get(['list_section', 'number'])
+                ->unique(fn (self $c) => ($c->list_section ?? self::LIST_SECTION_CHAPTER).'|'.$c->number)
+                ->count();
+        }
+
+        $otherIds = Book::query()
+            ->pluck('id')
+            ->diff(collect([$tbwnnId, $ptId])->filter());
+
+        if ($otherIds->isNotEmpty()) {
+            $q = static::query()->whereIn('book_id', $otherIds);
+            $applyLive($q);
+            $total += $q->count();
+        }
+
+        return $total;
     }
 
     public function book(): BelongsTo
@@ -125,5 +222,20 @@ class Chapter extends Model
     public function activityFeed(): HasMany
     {
         return $this->hasMany(ActivityFeed::class);
+    }
+
+    public function isPastEditingWindow(): bool
+    {
+        return $this->editing_closes_at !== null && now()->greaterThan($this->editing_closes_at);
+    }
+
+    /** Paid manuscript suggestions (TBWNN index inline) allowed when chapter is open and within editing window. */
+    public function manuscriptPaidEditsOpen(): bool
+    {
+        if ($this->is_locked) {
+            return false;
+        }
+
+        return ! $this->isPastEditingWindow();
     }
 }

@@ -59,6 +59,15 @@ Prioritized from a codebase walkthrough. Apply in order within each tier unless 
 
 ---
 
+## Parked — implement when prioritized
+
+| Saved | Item | Notes |
+|-------|------|-------|
+| **2026-03-31** | **Chapter edit window (“clock”)** | When a chapter is **open for editing**, show a clear **time remaining** (e.g. open for edits for the next **X** days). **Default when a chapter is opened: 30 days.** **Admin** can **lengthen or shorten** the window based on how many edits are coming in. *User request: save for a future batch — not implemented in the 2026-03-31 release.* Full lifecycle rules (TBWNN vs Peter Trull, archive links, notify email): **`docs/chapter-lifecycle-spec.md`**. |
+| **2026-04-01** | **Chapter lifecycle (implementation pending)** | Canonical spec: **`docs/chapter-lifecycle-spec.md`**. Covers: archive = **final closed** revision only; **Peter Trull** = votes pick archived version, admin override, one close step; **TBWNN** = close without merged upload if all rejected + no pending at clock end; merged upload required if any accept; **30 days from publication**; **notify email in admin UI**. |
+
+---
+
 ## How to use this doc
 
 - Tick or strike items as you ship them.

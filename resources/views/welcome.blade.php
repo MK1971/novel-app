@@ -255,7 +255,7 @@
                     </a>
 
                     <div class="hidden md:flex items-center gap-8">
-                        <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
+                        <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
                         <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
                         <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 max-w-[11rem] md:max-w-none text-xs md:text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg text-center md:text-left leading-snug whitespace-normal">Peter Trull Solitary Detective</a>
                         <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">About</a>
@@ -303,7 +303,7 @@
                         >
                             <div class="w-[10.25rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/15 bg-stone-950/92 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden max-h-[min(72vh,20rem)] flex flex-col">
                                 <nav class="flex flex-col gap-0.5 p-1.5 overflow-y-auto shrink" aria-label="Mobile navigation">
-                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
+                                    <a href="{{ route('chapters.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
                                     <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
                                     <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-xs font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors leading-snug">Peter Trull Solitary Detective</a>
                                     <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">About</a>
@@ -359,7 +359,7 @@
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
-                                    <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
+                                    <a href="{{ route('chapters.index') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
                                         Start Your Adventure
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
@@ -448,7 +448,7 @@
                                     Climb the global leaderboard
                                 </li>
                             </ul>
-                            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
+                            <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
                                 Browse Chapters <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
@@ -464,7 +464,7 @@
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
                                 <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 edit payments</strong> in <em>The Book With No Name</em> — one vote per payment.
-                                <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
+                                <a href="{{ route('chapters.index') }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 font-bold">
@@ -517,7 +517,7 @@
                         <div class="text-center">
                             <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['chapters_live'] }}</div>
                             <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Chapters Live</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Published</div>
+                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">On the chapter list</div>
                         </div>
                         <div class="text-center">
                             <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['prize_pool'] }}</div>

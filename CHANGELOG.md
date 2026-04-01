@@ -2,6 +2,28 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.22 - Chapter lifecycle, TBWNN admin workflow, merge preview fix, stats and profile UX
+### Added
+- **`ChapterLifecycle`** and related gates for TBWNN suggestions, publish/close-without-merge, and Peter Trull pair handling; **`AdminNotifier`** for admin-facing email when the editing window ends with pending work.
+- **`AppSetting`** model, admin **Settings** UI (**`SettingsController`**, **`resources/views/admin/settings`**), migrations **`chapter_lifecycle_and_app_settings`** and **`locked_at`** on **`chapters`**, plus **`backfill_peter_trull_voting_deadlines`**.
+- **`TbwRevisionMergePreview`** for merged-text preview on Manage Chapters (accepted edits highlighted in green).
+- **Artisan** **`chapter:editing-deadline-reminders`** (**`SendChapterEditingDeadlineReminders`**) scheduled daily in **`bootstrap/app.php`**.
+- **Tests**: **`TbwnnChapterLockAndUploadDeadlineTest`**, **`TbwnnPublishDuplicateGuardTest`**, **`ChapterLogicalReaderPieceCountTest`**, **`TbwRevisionMergePreviewTest`**; **Profile** test for locked reading-progress badge.
+- **`docs/chapter-lifecycle-spec.md`**; backlog note in **`docs/app-improvement-backlog.md`**.
+
+### Changed
+- **Admin Manage Chapters**: TBWNN story upload / **Publish integrated revision & lock** / **Close without merged text** / extend editing close date; Peter Trull pair upload and archive behavior aligned with lifecycle rules.
+- **Reader manuscript list (`chapters/index`)** and **chapter show**: paid-edit window copy, locked summaries, inline suggest flow; **Suggest an edit** jump strip visible on all breakpoints (not only **`lg+`**).
+- **`Chapter::logicalReaderPieceCount()`**: reader-facing totals (TBWNN A stream, Peter Trull one per voting slot); **admin dashboard** purple tile shows that count plus raw **`Chapter::count()`** with clearer contrast; **landing** “Chapters live” uses the same logical count as **`/chapters`** (caption **“On the chapter list”**). TBWNN main stream treats **`version`** case-insensitively as **A** (also **`ChapterController@index`**).
+- **Profile → Reading progress**: locked chapters show **Locked** instead of **In Progress** when **`completed`** is still false; link label **Read** vs **Continue**.
+- **Payment / moderation / vote / analytics / archive / leaderboard / sidebar**: use **`Book::NAME_*`** constants and lifecycle-aware checks where applicable.
+
+### Fixed
+- **Merge preview highlighting**: **`markersToHtml`** closing delimiter used **RS + E** (not **US + E**), so green **`<mark>`** replaces raw **`Si4` / `Ei4`** markers.
+
+### Repository
+- **Snapshot tag**: **`snapshot-20260331-v1922`** (annotated) on the **Development** branch commit for this batch.
+
 ## Version 1.9.21 - Insights accuracy, activity feed removal, chapter suggest UX, inline-edit moderation parity
 ### Added
 - **`moderation_outcome`** on **`inline_edits`** (migration) for full vs partial accept tracking aligned with chapter edits.

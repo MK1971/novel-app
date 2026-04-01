@@ -1,5 +1,7 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+    $isPeterTrullBook = $chapter->book && $chapter->book->name === \App\Models\Book::NAME_PETER_TRULL;
+    $manuscriptEditsAllowed = ! $isPeterTrullBook && ! ($suggestionsClosed ?? false);
 @endphp
 
 <x-dynamic-component :component="$layout">
@@ -11,13 +13,69 @@
                 </a>
                 <div>
                     <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                        {{ $chapter->headingPrefix() }}: {{ $chapter->title }}
+                        {{ $chapter->headingPrefix() }}: {{ $chapter->displayTitle() }}
                     </h2>
-                    <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ $chapter->created_at->format('M d, Y') }}</p>
+                    <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ ($chapter->published_at ?? $chapter->created_at)->timezone(config('app.timezone'))->format('M j, Y') }}</p>
+                    @if(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
+                        @php $editingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
+                        @if($chapter->is_locked)
+                            @php $mClosed = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($mClosed)
+                                    Paid editing closed on {{ $mClosed->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Paid editing is closed for this chapter.
+                                @endif
+                            </p>
+                        @elseif($chapter->manuscriptPaidEditsOpen())
+                            <p class="text-sm font-black text-amber-700 mt-2">
+                                Paid edits open until {{ $editingEndLocal->format('M j, Y') }}
+                                ({{ $editingWindowEndsAt->diffForHumans() }}).
+                            </p>
+                        @else
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                Paid editing for this release ended {{ $editingEndLocal->format('M j, Y') }}.
+                            </p>
+                        @endif
+                    @elseif($isPeterTrullBook && ($editingWindowEndsAt ?? null))
+                        @php $votingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
+                        @if($chapter->is_locked)
+                            @php $vClosed = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($vClosed)
+                                    Voting closed on {{ $vClosed->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Voting is closed for this chapter.
+                                @endif
+                            </p>
+                        @elseif(! $chapter->isPastEditingWindow())
+                            <p class="text-sm font-black text-amber-700 mt-2">
+                                Voting open until {{ $votingEndLocal->format('M j, Y') }}
+                                ({{ $editingWindowEndsAt->diffForHumans() }}).
+                            </p>
+                        @else
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                Voting period ended {{ $votingEndLocal->format('M j, Y') }}.
+                            </p>
+                        @endif
+                        <p class="text-xs font-bold text-amber-800/60 mt-1">No paid edits on this book. Vote credits come from completed $2 checkouts in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Go to the vote page</a>.</p>
+                    @elseif($isPeterTrullBook)
+                        @if($chapter->is_locked)
+                            @php $vClosedNoDeadline = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($vClosedNoDeadline)
+                                    Voting closed on {{ $vClosedNoDeadline->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Voting is closed for this chapter.
+                                @endif
+                            </p>
+                        @endif
+                        <p class="text-sm font-bold text-amber-800/70 mt-2 max-w-2xl">Voting only — no paid edits. Vote credits come from $2 checkouts in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Vote here</a>.</p>
+                    @endif
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
+                @if($chapter->is_locked && ! $isPeterTrullBook)
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest bg-white/50 px-4 py-2 rounded-xl border border-amber-100">
                             <span class="text-green-600">{{ $stats->accepted_edits ?? 0 }} Accepted</span>
@@ -28,11 +86,15 @@
                             🔒 Locked
                         </div>
                     </div>
-                @else
+                @elseif(! $isPeterTrullBook)
                     <div class="px-4 py-2 bg-amber-100 rounded-2xl border border-amber-200/50 text-amber-900 text-sm font-bold">
                         <span class="opacity-60 mr-1">Points if accepted (paid only):</span>
                         <span class="text-amber-600">0–2</span>
                         <span class="opacity-60 ml-1 font-extrabold">(2 full · 1 partial)</span>
+                    </div>
+                @else
+                    <div class="px-4 py-2 bg-emerald-100 rounded-2xl border border-emerald-200/50 text-emerald-900 text-sm font-bold">
+                        Peter Trull — voting only (no paid edits on this chapter)
                     </div>
                 @endif
             </div>
@@ -46,7 +108,7 @@
 
     <div class="py-12">
         @php
-            $chapterSuggestFabVisible = !($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective');
+            $chapterSuggestFabVisible = ! $chapter->is_locked && $manuscriptEditsAllowed && ! $isPeterTrullBook;
         @endphp
         <div class="max-w-7xl mx-auto mb-8 space-y-3">
             @if (session('success'))
@@ -84,7 +146,7 @@
                                     <p class="mb-6 relative group">
                                         {{ $paragraph }}
                                         @auth
-                                            @if(!$chapter->is_locked)
+                                            @if(! $chapter->is_locked && $manuscriptEditsAllowed)
                                                 <button 
                                                     type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
@@ -100,7 +162,7 @@
                             @endforeach
                         </div>
                         @if($chapterSuggestFabVisible)
-                            <div class="mt-12 pt-10 border-t border-amber-100 hidden lg:block">
+                            <div class="mt-12 pt-10 border-t border-amber-100">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl bg-amber-50/80 border border-amber-100 px-6 py-5">
                                     <p class="text-sm font-bold text-amber-800/90 text-left">
                                         Whole-chapter suggestion or account signup lives in the panel to the side — jump there without scrolling back up.
@@ -123,7 +185,19 @@
             {{-- Sidebar: Suggest Edit (sticky on large screens; first on small screens so form is on-screen immediately) --}}
             <div class="order-1 lg:order-2 lg:col-span-1">
                 <div id="chapter-suggest-edit-sidebar" class="scroll-mt-28 space-y-8 lg:sticky lg:top-[calc(var(--app-shell-nav-h,4.5rem)+0.375rem+0.75rem)] lg:max-h-[calc(100vh-var(--app-shell-nav-h,4.5rem)-2rem)] lg:overflow-y-auto lg:overscroll-y-contain lg:self-start">
-                    @if($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective')
+                    @if($isPeterTrullBook)
+                        <div class="bg-emerald-50 border-2 border-emerald-100 rounded-[3rem] p-10 text-emerald-900 shadow-sm relative overflow-hidden">
+                            <div class="relative z-10">
+                                <h3 class="text-2xl font-extrabold mb-4">Voting — not paid edits</h3>
+                                <p class="text-emerald-800/80 font-bold mb-8 leading-relaxed">
+                                    Peter Trull Solitary Detective uses community votes between two versions. Open the vote hub to pick A or B.
+                                </p>
+                                <a href="{{ route('vote.index') }}" class="w-full inline-block text-center py-5 bg-emerald-800 text-white text-lg font-extrabold rounded-2xl hover:bg-emerald-950 transition-all shadow-xl">
+                                    Go to vote hub
+                                </a>
+                            </div>
+                        </div>
+                    @elseif($chapter->is_locked && ! $isPeterTrullBook)
                         <div class="bg-amber-50 border-2 border-amber-100 rounded-[3rem] p-10 text-amber-900 shadow-sm relative overflow-hidden">
                             <div class="relative z-10">
                                 <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-8">
@@ -137,6 +211,11 @@
                                     Read Next Chapter
                                 </a>
                             </div>
+                        </div>
+                    @elseif(! $manuscriptEditsAllowed && ! $chapter->is_locked)
+                        <div class="bg-amber-100 border-2 border-amber-200 rounded-[3rem] p-10 text-amber-900 shadow-sm">
+                            <h3 class="text-2xl font-extrabold mb-4">Editing window closed</h3>
+                            <p class="text-amber-800/80 font-bold leading-relaxed">The 30-day period for paid suggestions on this chapter has ended.</p>
                         </div>
                     @else
                         @auth

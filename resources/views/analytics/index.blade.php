@@ -87,7 +87,7 @@
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-amber-50/50 rounded-2xl border border-amber-100 hover:bg-amber-50 transition-all">
                                 <div class="flex flex-col min-w-0">
                                     <span class="font-black text-amber-900">{{ $chapter->headingPrefix() }}</span>
-                                    <span class="text-xs font-bold text-amber-800/40 truncate">{{ $chapter->title }}</span>
+                                    <span class="text-xs font-bold text-amber-800/40 truncate">{{ $chapter->displayTitle() }}</span>
                                 </div>
                                 <div class="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
                                     @if($chapter->insight_pending > 0)

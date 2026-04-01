@@ -38,9 +38,14 @@
                     </div>
                     
                     <div class="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-[2rem] p-8">
-                        <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ \App\Models\Chapter::count() }}</div>
-                        <p class="text-purple-800/60 font-bold">Total Chapters</p>
-                        <p class="text-xs text-purple-800/40 font-bold mt-2">Across all books</p>
+                        @php
+                            $adminReaderChapters = \App\Models\Chapter::logicalReaderPieceCount();
+                            $adminChapterRows = \App\Models\Chapter::count();
+                        @endphp
+                        <div class="text-4xl font-black tabular-nums text-purple-950 mb-1">{{ $adminReaderChapters }}</div>
+                        <p class="text-purple-800/60 font-bold">Reader-facing pieces</p>
+                        <p class="text-sm font-bold text-purple-900/80 mt-2 tabular-nums">{{ $adminChapterRows }} chapter rows in database</p>
+                        <p class="text-xs text-purple-800/40 font-bold mt-2">Top number matches the chapter list (main book A stream; Peter Trull A/B = one each). Bottom is raw rows if you need the DB total.</p>
                     </div>
                 </div>
 
@@ -74,7 +79,7 @@
                                                 <span class="font-extrabold text-amber-900">{{ $edit->user->name }}</span>
                                                 <span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded">{{ ucfirst($edit->type) }}</span>
                                             </div>
-                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->title }}</p>
+                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->displayTitle() }}</p>
                                             <p class="text-xs text-amber-800/60 font-bold">{{ $edit->created_at->diffForHumans() }}</p>
                                         </div>
                                         <a href="{{ route('admin.edits.index') }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">
@@ -162,7 +167,6 @@
 
             @else
                 {{-- USER DASHBOARD --}}
-                
                 <div class="grid md:grid-cols-4 gap-6 mb-12">
                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8">
                         <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
@@ -193,7 +197,7 @@
                     <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8">
                         <h3 class="text-2xl font-extrabold text-amber-900 mb-6">📚 Quick Links</h3>
                         <div class="grid gap-4">
-                            <a href="{{ route('chapters.index', ['resume' => 1]) }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
+                            <a href="{{ route('chapters.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
                                 <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
                             </a>

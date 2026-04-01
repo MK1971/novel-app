@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Chapter;
 use App\Models\ChapterStatistic;
 use App\Models\Payment;
 use App\Models\Vote;
 use App\Support\AchievementUnlock;
+use App\Support\ChapterLifecycle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +17,9 @@ class VoteController extends Controller
 {
     public function index()
     {
-        $book = \App\Models\Book::where('name', 'Peter Trull Solitary Detective')->first();
+        $book = Book::where('name', Book::NAME_PETER_TRULL)->first();
         $chapters = $book?->chapters()
+            ->where('is_archived', false)
             ->orderByRaw(Chapter::listSectionOrderSql())
             ->orderBy('number')
             ->orderBy('version')
@@ -44,6 +47,8 @@ class VoteController extends Controller
         // Group A/B pairs by list section + number (cold open / prolog / chapter / epilog)
         $chapters = $chapters->groupBy(fn (Chapter $c) => $c->votePairGroupKey());
 
+        $latestPtVotePairKey = $chapters->isNotEmpty() ? $chapters->keys()->last() : null;
+
         $chapterIds = $chapters->flatten()->pluck('id')->unique()->filter()->values();
         $voteCounts = collect();
         if ($chapterIds->isNotEmpty()) {
@@ -54,7 +59,19 @@ class VoteController extends Controller
                 ->pluck('cnt', 'chapter_id');
         }
 
-        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts', 'voteCreditsRemaining'));
+        $archiveChapters = collect();
+        if ($book) {
+            $archiveChapters = Chapter::query()
+                ->where('book_id', $book->id)
+                ->where('is_archived', true)
+                ->where('is_reader_archive_link', true)
+                ->orderByRaw(Chapter::listSectionOrderSql())
+                ->orderBy('number')
+                ->orderBy('version')
+                ->get();
+        }
+
+        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts', 'voteCreditsRemaining', 'archiveChapters', 'latestPtVotePairKey'));
     }
 
     public function store(Request $request, Chapter $chapter)
@@ -65,6 +82,15 @@ class VoteController extends Controller
 
         if ($chapter->is_locked) {
             return back()->with('error', 'Voting is closed for this chapter.');
+        }
+
+        if ($chapter->is_archived) {
+            return back()->with('error', 'Voting is not available for archived versions.');
+        }
+
+        $chapter->loadMissing('book');
+        if (ChapterLifecycle::isPeterTrullChapter($chapter) && ChapterLifecycle::editingWindowExpired($chapter)) {
+            return back()->with('error', 'The voting period for this chapter has ended.');
         }
 
         $section = $chapter->list_section ?: Chapter::LIST_SECTION_CHAPTER;

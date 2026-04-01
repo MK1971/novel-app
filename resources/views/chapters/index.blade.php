@@ -28,11 +28,18 @@
         @endif
 
         <div class="max-w-5xl mx-auto space-y-16">
+            @php
+                $tbwnnPrimaryMaxId = ($chapters ?? collect())->max('id');
+            @endphp
             @forelse($chapters ?? [] as $chapter)
+                @php
+                    $isLatestTbwSlot = $tbwnnPrimaryMaxId !== null && (int) $chapter->id === (int) $tbwnnPrimaryMaxId;
+                @endphp
                 <div 
                     id="chapter-{{ $chapter->id }}" 
                     class="chapter-container bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden transition-all duration-500"
                     data-chapter-id="{{ $chapter->id }}"
+                    data-paid-edits-open="{{ $chapter->manuscriptPaidEditsOpen() ? '1' : '0' }}"
                 >
                     {{-- Decorative background number --}}
                     <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none leading-none">
@@ -75,33 +82,47 @@
                                         </div>
                                     </div>
                                     <button 
+                                        type="button"
                                         onclick="toggleChapter({{ $chapter->id }})"
                                         class="p-3 bg-amber-50 rounded-2xl text-amber-900 hover:bg-amber-100 transition-all"
                                         id="toggle-btn-{{ $chapter->id }}"
+                                        aria-expanded="{{ $isLatestTbwSlot ? 'true' : 'false' }}"
+                                        aria-label="{{ $isLatestTbwSlot ? 'Collapse chapter summary' : 'Expand chapter summary' }}"
                                     >
-                                        <svg class="w-6 h-6 transform transition-transform duration-300" id="icon-{{ $chapter->id }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        <svg class="w-6 h-6 transform transition-transform duration-300 {{ $isLatestTbwSlot ? 'rotate-180' : '' }}" id="icon-{{ $chapter->id }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                     </button>
                                 @else
-                                    <div class="px-6 py-3 bg-green-100 rounded-2xl border border-green-200 text-green-700 text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                                        <span class="relative flex h-2 w-2">
-                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                        </span>
-                                        Open for Edits
-                                    </div>
+                                    @if($chapter->manuscriptPaidEditsOpen())
+                                        <div class="px-6 py-3 bg-green-100 rounded-2xl border border-green-200 text-green-700 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                                            <span class="relative flex h-2 w-2">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                            </span>
+                                            Open for Edits
+                                        </div>
+                                    @else
+                                        <div class="px-6 py-3 bg-amber-100 rounded-2xl border border-amber-200 text-amber-800 text-xs font-black uppercase tracking-widest">
+                                            Editing window closed
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>
 
-                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-4' : 'mb-8' }}">{{ $chapter->title }}</h3>
+                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-4' : 'mb-8' }}">{{ $chapter->displayTitle() }}</h3>
 
                         @if($chapter->is_locked)
-                            <div class="bg-amber-50/30 rounded-[2rem] p-10 border-2 border-dashed border-amber-200/50 mb-12 text-center group-hover:border-amber-300/50 transition-all">
-                                <div class="w-16 h-16 bg-amber-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                    <span class="text-2xl">🔒</span>
+                            <div
+                                id="content-{{ $chapter->id }}"
+                                class="mb-12 {{ $isLatestTbwSlot ? '' : 'hidden' }}"
+                            >
+                                <div class="bg-amber-50/30 rounded-[2rem] p-10 border-2 border-dashed border-amber-200/50 text-center group-hover:border-amber-300/50 transition-all">
+                                    <div class="w-16 h-16 bg-amber-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                        <span class="text-2xl">🔒</span>
+                                    </div>
+                                    <p class="text-amber-900/40 font-extrabold text-lg mb-2 uppercase tracking-widest">Chapter Locked</p>
+                                    <p class="text-amber-800/30 font-bold italic">This chapter is now part of the permanent record. Click below to read the final version.</p>
                                 </div>
-                                <p class="text-amber-900/40 font-extrabold text-lg mb-2 uppercase tracking-widest">Chapter Locked</p>
-                                <p class="text-amber-800/30 font-bold italic">This chapter is now part of the permanent record. Click below to read the final version.</p>
                             </div>
                         @else
                             <div
@@ -116,13 +137,15 @@
                                         <p class="mb-6 relative group" data-paragraph-index="{{ $index }}">
                                             {{ $paragraph }}
                                             @auth
-                                                <button
-                                                    onclick="openInlineEdit({{ $chapter->id }}, {{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
-                                                    class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
-                                                    title="Suggest edit for this paragraph"
-                                                >
-                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                </button>
+                                                @if($chapter->manuscriptPaidEditsOpen())
+                                                    <button
+                                                        onclick="openInlineEdit({{ $chapter->id }}, {{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
+                                                        class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
+                                                        title="Suggest edit for this paragraph"
+                                                    >
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                    </button>
+                                                @endif
                                             @endauth
                                         </p>
                                     @endif
@@ -130,15 +153,36 @@
                             </div>
                         @endif
 
-                        <div class="flex items-center justify-between pt-8 border-t border-amber-100">
-                            <div class="text-amber-800/40 text-sm font-bold">
-                                Published {{ $chapter->created_at->format('M d, Y') }}
+                        <div class="flex items-center justify-between pt-8 border-t border-amber-100 gap-6 flex-wrap">
+                            <div class="text-amber-800/40 text-sm font-bold space-y-1 min-w-0">
+                                <div>Published {{ ($chapter->published_at ?? $chapter->created_at)->timezone(config('app.timezone'))->format('M j, Y') }}</div>
+                                @if($chapter->is_locked)
+                                    @php $paidClosedOn = $chapter->lockedAtForDisplay(); @endphp
+                                    <div class="text-amber-800/80 font-bold">
+                                        @if($paidClosedOn)
+                                            Paid editing closed on {{ $paidClosedOn->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                        @else
+                                            Paid editing is closed for this chapter.
+                                        @endif
+                                    </div>
+                                @elseif($chapter->editing_closes_at)
+                                    @if($chapter->manuscriptPaidEditsOpen())
+                                        <div class="text-amber-800 font-bold">Paid edits open until {{ $chapter->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }} ({{ $chapter->editing_closes_at->diffForHumans() }}).</div>
+                                    @else
+                                        <div class="text-amber-800/80 font-bold">Paid editing for this round ended {{ $chapter->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }}.</div>
+                                    @endif
+                                @endif
                             </div>
                             
-                            @if(!$chapter->is_locked)
+                            @if(!$chapter->is_locked && $chapter->manuscriptPaidEditsOpen())
                                 <a href="{{ route('chapters.show', $chapter) }}" class="inline-flex items-center px-10 py-5 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
                                     Suggest an Edit
                                     <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                </a>
+                            @elseif(!$chapter->is_locked)
+                                <a href="{{ route('chapters.show', $chapter) }}" class="inline-flex items-center px-10 py-5 bg-amber-100 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all border border-amber-200 shadow-sm transform hover:-translate-y-1">
+                                    View chapter
+                                    <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
                             @else
                                 <a href="{{ route('chapters.show', $chapter) }}" class="inline-flex items-center px-10 py-5 bg-amber-100 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all border border-amber-200 shadow-sm transform hover:-translate-y-1">
@@ -158,6 +202,22 @@
                     <p class="text-amber-800/50 text-lg font-bold">No chapters have been published yet. Check back soon!</p>
                 </div>
             @endforelse
+
+            @if(isset($archiveChapters) && $archiveChapters->isNotEmpty())
+                <div class="border-t-2 border-amber-200/60 pt-16">
+                    <h2 class="text-2xl font-extrabold text-amber-900 mb-2">Previous published versions</h2>
+                    <p class="text-amber-800/60 font-bold mb-8 text-sm">Final closed text from earlier editing rounds (read-only).</p>
+                    <ul class="space-y-3">
+                        @foreach($archiveChapters as $arch)
+                            <li>
+                                <a href="{{ route('chapters.show', $arch) }}" class="inline-flex items-center gap-2 text-amber-800 font-extrabold hover:text-amber-950 underline decoration-amber-300">
+                                    {{ $arch->headingPrefix() }}: {{ $arch->displayTitle() }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
     </div>
 
@@ -230,6 +290,10 @@
                 }
 
                 if (chapterContent && !chapterContent.classList.contains('hidden')) {
+                    const chWrap = chapterContent.closest('.chapter-container');
+                    if (! chWrap || chWrap.getAttribute('data-paid-edits-open') !== '1') {
+                        return;
+                    }
                     const chapterId = chapterContent.id.replace('content-', '');
                     
                     selectionButton = document.createElement('button');
@@ -267,12 +331,22 @@
         function toggleChapter(id) {
             const content = document.getElementById('content-' + id);
             const icon = document.getElementById('icon-' + id);
+            const btn = document.getElementById('toggle-btn-' + id);
+            if (!content || !icon) return;
             if (content.classList.contains('hidden')) {
                 content.classList.remove('hidden');
                 icon.classList.add('rotate-180');
+                if (btn) {
+                    btn.setAttribute('aria-expanded', 'true');
+                    btn.setAttribute('aria-label', 'Collapse chapter summary');
+                }
             } else {
                 content.classList.add('hidden');
                 icon.classList.remove('rotate-180');
+                if (btn) {
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Expand chapter summary');
+                }
             }
         }
 
@@ -333,16 +407,13 @@
             });
         }
 
-        // Restore scroll position for the last read chapter
-        const savedProgress = @json($progress);
-        const lastChapterId = Object.keys(savedProgress).pop();
-        if (lastChapterId && savedProgress[lastChapterId] > 0) {
-            const element = document.getElementById('chapter-' + lastChapterId);
-            if (element) {
-                element.scrollIntoView();
-                window.scrollBy(0, savedProgress[lastChapterId]);
-            }
-        }
+        @if(is_array($resumeReading ?? null) && (int) ($resumeReading['scroll_position'] ?? 0) > 0)
+        window.addEventListener('load', function () {
+            var y = {{ (int) $resumeReading['scroll_position'] }};
+            if (y <= 0) return;
+            window.scrollTo(0, y);
+        });
+        @endif
         @endauth
     </script>
 </x-dynamic-component>

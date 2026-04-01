@@ -17,37 +17,16 @@
             <div class="space-y-14">
                 <section aria-labelledby="heading-paragraph-edits">
                     <h3 id="heading-paragraph-edits" class="text-lg font-extrabold text-amber-900 mb-2">Paragraph-level (paid checkout)</h3>
-                    <p class="text-amber-800/50 text-sm font-bold mb-6">Same <strong class="text-amber-900">2 / 1 / 0</strong> point scale as full-chapter suggestions: <strong class="text-amber-900">Accept full (2 pts)</strong>, <strong class="text-amber-900">Accept partial (1 pt)</strong>, <strong class="text-amber-900">Reject (0 pts)</strong>.</p>
+                    <p class="text-amber-800/50 text-sm font-bold mb-6">Same <strong class="text-amber-900">2 / 1 / 0</strong> point scale as full-chapter suggestions. When you accept, you can <strong class="text-amber-900">edit the merge text</strong> below (typos, house style) before it is stored — the green preview on Manage Chapters uses that final wording.</p>
                     <div class="grid gap-8">
                         @forelse($pendingInlineEdits ?? [] as $inlineEdit)
                             <div class="bg-white border-2 border-emerald-100 shadow-sm rounded-3xl p-8">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
                                     <div>
-                                        <h3 class="text-xl font-bold text-amber-900">{{ $inlineEdit->chapter->title }}</h3>
+                                        <h3 class="text-xl font-bold text-amber-900">{{ $inlineEdit->chapter->displayTitle() }}</h3>
                                         <p class="text-amber-800/70 font-medium">By {{ $inlineEdit->user->name }} • Paragraph #{{ $inlineEdit->paragraph_number }} • {{ $inlineEdit->created_at->diffForHumans() }}</p>
                                     </div>
                                     <span class="px-4 py-1 bg-emerald-100 text-emerald-900 text-xs font-black rounded-full uppercase tracking-widest">Paragraph</span>
-                                </div>
-                                <div class="flex flex-wrap gap-4 pb-6 mb-6 border-b border-amber-100">
-                                    <form action="{{ route('admin.inline-edits.approve', $inlineEdit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
-                                            Accept Full (2 pts)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.inline-edits.approve', $inlineEdit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="partial" value="1">
-                                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
-                                            Accept Partial (1 pt)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.inline-edits.reject', $inlineEdit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="px-6 py-2 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20">
-                                            Reject (0 pts)
-                                        </button>
-                                    </form>
                                 </div>
                                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                                     <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
@@ -55,7 +34,7 @@
                                         <p class="text-amber-900/80 leading-relaxed whitespace-pre-wrap">{{ $inlineEdit->original_text }}</p>
                                     </div>
                                     <div class="bg-green-50 rounded-2xl p-6 border border-green-100">
-                                        <h4 class="text-sm font-bold text-green-900/50 uppercase tracking-wider mb-3">Suggested</h4>
+                                        <h4 class="text-sm font-bold text-green-900/50 uppercase tracking-wider mb-3">Reader suggested</h4>
                                         <p class="text-green-900 leading-relaxed font-medium whitespace-pre-wrap">{{ $inlineEdit->suggested_text }}</p>
                                     </div>
                                 </div>
@@ -65,19 +44,22 @@
                                         <p class="text-blue-900 font-bold text-sm">{{ $inlineEdit->reason }}</p>
                                     </div>
                                 @endif
-                                <div class="flex flex-wrap gap-4 pt-6 border-t border-amber-50">
-                                    <form action="{{ route('admin.inline-edits.approve', $inlineEdit) }}" method="POST" class="inline">
+                                <div class="space-y-4 pt-6 border-t border-amber-100">
+                                    <form action="{{ route('admin.inline-edits.approve', $inlineEdit) }}" method="POST" class="space-y-4">
                                         @csrf
-                                        <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
-                                            Accept Full (2 pts)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.inline-edits.approve', $inlineEdit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="partial" value="1">
-                                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
-                                            Accept Partial (1 pt)
-                                        </button>
+                                        <div>
+                                            <label class="block text-sm font-extrabold text-amber-900 mb-1">Text that will merge into the chapter</label>
+                                            <p class="text-xs font-bold text-amber-700/70 mb-2">Pre-filled with the reader’s suggestion. Change it here before accepting if you want different wording in the manuscript and in the green merge preview.</p>
+                                            <textarea name="merged_text" rows="6" class="w-full rounded-2xl border-2 border-emerald-200 bg-white px-4 py-3 text-amber-900 font-medium whitespace-pre-wrap">{{ $inlineEdit->suggested_text }}</textarea>
+                                        </div>
+                                        <div class="flex flex-wrap gap-4">
+                                            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
+                                                Accept full (2 pts)
+                                            </button>
+                                            <button type="submit" name="partial" value="1" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
+                                                Accept partial (1 pt)
+                                            </button>
+                                        </div>
                                     </form>
                                     <form action="{{ route('admin.inline-edits.reject', $inlineEdit) }}" method="POST" class="inline">
                                         @csrf
@@ -95,66 +77,45 @@
 
                 <section aria-labelledby="heading-full-chapter">
                     <h3 id="heading-full-chapter" class="text-lg font-extrabold text-amber-900 mb-2">Full-chapter / phrase (paid checkout)</h3>
-                    <p class="text-amber-800/50 text-sm font-bold mb-6">Whole-chapter replacement text from the $2 flow.</p>
+                    <p class="text-amber-800/50 text-sm font-bold mb-6">Whole-chapter / phrase suggestions from the $2 flow. You can <strong class="text-amber-900">edit the merge text</strong> before accepting so the stored replacement matches house style; the green preview on Manage Chapters uses that text.</p>
                     <div class="grid gap-8">
                         @forelse($edits as $edit)
                             <div class="bg-white border border-amber-100 shadow-sm rounded-3xl p-8">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
                                     <div>
-                                        <h3 class="text-xl font-bold text-amber-900">Suggestion for {{ $edit->chapter->title }}</h3>
+                                        <h3 class="text-xl font-bold text-amber-900">Suggestion for {{ $edit->chapter->displayTitle() }}</h3>
                                         <p class="text-amber-800/70 font-medium">By {{ $edit->user->name }} • {{ $edit->type }}</p>
                                     </div>
                                     <span class="px-4 py-1 bg-amber-100 text-amber-800 text-sm font-bold rounded-full">Pending Review</span>
                                 </div>
 
-                                <div class="flex flex-wrap gap-4 pb-6 mb-6 border-b border-amber-100">
-                                    <form action="{{ route('admin.edits.approve', $edit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="accepted_full">
-                                        <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
-                                            Accept Full (2 pts)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.edits.approve', $edit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="accepted_partial">
-                                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
-                                            Accept Partial (1 pt)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.edits.reject', $edit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="px-6 py-2 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20">
-                                            Reject
-                                        </button>
-                                    </form>
-                                </div>
-
                                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                                     <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-                                        <h4 class="text-sm font-bold text-amber-900/50 uppercase tracking-wider mb-3">Original Text</h4>
+                                        <h4 class="text-sm font-bold text-amber-900/50 uppercase tracking-wider mb-3">Original text</h4>
                                         <p class="text-amber-900/80 leading-relaxed whitespace-pre-wrap">{{ $edit->original_text }}</p>
                                     </div>
                                     <div class="bg-green-50 rounded-2xl p-6 border border-green-100">
-                                        <h4 class="text-sm font-bold text-green-900/50 uppercase tracking-wider mb-3">Suggested Edit</h4>
+                                        <h4 class="text-sm font-bold text-green-900/50 uppercase tracking-wider mb-3">Reader suggested</h4>
                                         <p class="text-green-900 leading-relaxed font-medium whitespace-pre-wrap">{{ $edit->edited_text }}</p>
                                     </div>
                                 </div>
 
-                                <div class="flex flex-wrap gap-4 pt-6 border-t border-amber-50">
-                                    <form action="{{ route('admin.edits.approve', $edit) }}" method="POST" class="inline">
+                                <div class="space-y-4 pt-6 border-t border-amber-100">
+                                    <form action="{{ route('admin.edits.approve', $edit) }}" method="POST" class="space-y-4">
                                         @csrf
-                                        <input type="hidden" name="status" value="accepted_full">
-                                        <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
-                                            Accept Full (2 pts)
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.edits.approve', $edit) }}" method="POST" class="inline">
-                                        @csrf
-                                        <input type="hidden" name="status" value="accepted_partial">
-                                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
-                                            Accept Partial (1 pt)
-                                        </button>
+                                        <div>
+                                            <label class="block text-sm font-extrabold text-amber-900 mb-1">Text that will replace the original span</label>
+                                            <p class="text-xs font-bold text-amber-700/70 mb-2">Pre-filled with the reader’s suggestion. Edit before accepting if needed (must still replace the same passage in the chapter when you publish).</p>
+                                            <textarea name="merged_text" rows="8" class="w-full rounded-2xl border-2 border-amber-200 bg-white px-4 py-3 text-amber-900 font-medium whitespace-pre-wrap">{{ $edit->edited_text }}</textarea>
+                                        </div>
+                                        <div class="flex flex-wrap gap-4">
+                                            <button type="submit" name="status" value="accepted_full" class="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-colors shadow-lg shadow-green-600/20">
+                                                Accept full (2 pts)
+                                            </button>
+                                            <button type="submit" name="status" value="accepted_partial" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20">
+                                                Accept partial (1 pt)
+                                            </button>
+                                        </div>
                                     </form>
                                     <form action="{{ route('admin.edits.reject', $edit) }}" method="POST" class="inline">
                                         @csrf

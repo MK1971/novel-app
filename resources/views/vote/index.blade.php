@@ -10,6 +10,9 @@
                     Peter Trull Solitary Detective
                 </h1>
                 <p class="text-amber-800/60 font-bold mt-1">Part 2: Vote on the final versions of each chapter.</p>
+                <p class="text-amber-800/50 text-sm font-bold mt-2 max-w-2xl leading-relaxed">
+                    Each pair has a voting deadline (same 30-day calendar as paid edits on The Book With No Name). Vote credits come from completed $2 edits there. The author can still lock a version early.
+                </p>
             </div>
             <div class="flex items-center gap-4">
                 @auth
@@ -84,25 +87,59 @@
                         $votesA = (int) ($voteCounts[$versionA->id] ?? 0);
                         $votesB = (int) ($voteCounts[$versionB->id] ?? 0);
                         $totalVotes = $votesA + $votesB;
-                        $voteADisabled = $userHasVoted || $lockA;
-                        $voteBDisabled = $userHasVoted || $lockB;
+                        $votePeriodEnded = $versionA->editing_closes_at && $versionA->isPastEditingWindow();
+                        $voteADisabled = $userHasVoted || $lockA || $votePeriodEnded;
+                        $voteBDisabled = $userHasVoted || $lockB || $votePeriodEnded;
+                        $caLocked = $versionA->lockedAtForDisplay();
+                        $cbLocked = $versionB->lockedAtForDisplay();
+                        $pairClosedAt = $pairFullyClosed
+                            ? (($caLocked && $cbLocked) ? ($caLocked->greaterThan($cbLocked) ? $caLocked : $cbLocked) : ($caLocked ?? $cbLocked))
+                            : null;
                     @endphp
-                    <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
-                        <div class="bg-amber-50/50 px-10 py-6 border-b border-amber-100 flex items-center justify-between">
-                            <h3 class="text-2xl font-extrabold text-amber-900">{{ $versionA->headingPrefix() }}: {{ $versionA->title }}</h3>
-                            <div class="flex items-center gap-4">
-                                @if($pairFullyClosed)
-                                    <span class="px-4 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">🔒</span> Locked</span>
-                                @elseif($userHasVoted)
-                                    <span class="px-4 py-1 bg-green-100 text-green-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">✓</span> Voted</span>
-                                @else
-                                    <span class="px-4 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full uppercase tracking-widest animate-pulse">Voting open</span>
-                                @endif
-                                <div class="text-sm font-bold text-amber-900/40">
-                                    Total Votes: <span class="text-amber-900">{{ $totalVotes }}</span>
+                    <details
+                        @if($chapterNum === ($latestPtVotePairKey ?? null)) open @endif
+                        class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden group"
+                    >
+                        <summary class="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
+                            <div class="bg-amber-50/50 px-10 py-6 border-b border-amber-100 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div class="min-w-0 text-left">
+                                    <h3 class="text-2xl font-extrabold text-amber-900">{{ $versionA->headingPrefix() }}: {{ $versionA->displayTitle() }}</h3>
+                                    @if($pairFullyClosed)
+                                        @if($pairClosedAt)
+                                            <p class="text-sm font-bold text-amber-800/80 mt-2">Voting closed on {{ $pairClosedAt->timezone(config('app.timezone'))->format('M j, Y') }}.</p>
+                                        @else
+                                            <p class="text-sm font-bold text-amber-800/80 mt-2">Voting is closed for this pair.</p>
+                                        @endif
+                                    @elseif($versionA->editing_closes_at)
+                                        @if($votePeriodEnded)
+                                            <p class="text-sm font-bold text-amber-800/80 mt-2">Voting period ended {{ $versionA->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }}.</p>
+                                        @else
+                                            <p class="text-sm font-black text-amber-700 mt-2">Voting open until {{ $versionA->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }} ({{ $versionA->editing_closes_at->diffForHumans() }}).</p>
+                                        @endif
+                                    @endif
+                                    <p class="text-xs font-bold text-amber-700/70 mt-2 md:hidden">Tap header to expand or collapse this pair.</p>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-4 shrink-0">
+                                    @if($chapterNum !== ($latestPtVotePairKey ?? null))
+                                        <span class="px-3 py-1 bg-amber-100/80 text-amber-800 text-[10px] font-black rounded-full uppercase tracking-widest group-open:hidden">Older round — tap to open</span>
+                                        <span class="px-3 py-1 bg-amber-100/80 text-amber-800 text-[10px] font-black rounded-full uppercase tracking-widest hidden group-open:inline">Older round</span>
+                                    @endif
+                                    @if($pairFullyClosed)
+                                        <span class="px-4 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">🔒</span> Locked</span>
+                                    @elseif($votePeriodEnded)
+                                        <span class="px-4 py-1 bg-amber-200 text-amber-900 text-xs font-black rounded-full uppercase tracking-widest">Period ended</span>
+                                    @elseif($userHasVoted)
+                                        <span class="px-4 py-1 bg-green-100 text-green-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">✓</span> Voted</span>
+                                    @else
+                                        <span class="px-4 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full uppercase tracking-widest animate-pulse">Voting open</span>
+                                    @endif
+                                    <div class="text-sm font-bold text-amber-900/40">
+                                        Total Votes: <span class="text-amber-900">{{ $totalVotes }}</span>
+                                    </div>
+                                    <svg class="w-6 h-6 text-amber-800/50 shrink-0 transition-transform group-open:rotate-180 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
-                        </div>
+                        </summary>
                         <div class="grid md:grid-cols-2 divide-x divide-amber-50">
                             <div class="p-10 flex flex-col">
                                 <div class="flex items-center justify-between mb-8">
@@ -117,7 +154,7 @@
                                     <form action="{{ route('vote.store', $versionA) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full px-8 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900 disabled:hover:translate-y-0" {{ $voteADisabled ? 'disabled' : '' }}>
-                                            @if($lockA) 🔒 Voting closed for A @elseif($userHasVoted) ✓ Already Voted @else Vote for Version A @endif
+                                            @if($lockA) 🔒 Voting closed for A @elseif($votePeriodEnded) ⏱ Voting period ended @elseif($userHasVoted) ✓ Already Voted @else Vote for Version A @endif
                                         </button>
                                     </form>
                                 @endif
@@ -135,13 +172,13 @@
                                     <form action="{{ route('vote.store', $versionB) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full px-8 py-4 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-500 disabled:hover:translate-y-0" {{ $voteBDisabled ? 'disabled' : '' }}>
-                                            @if($lockB) 🔒 Voting closed for B @elseif($userHasVoted) ✓ Already Voted @else Vote for Version B @endif
+                                            @if($lockB) 🔒 Voting closed for B @elseif($votePeriodEnded) ⏱ Voting period ended @elseif($userHasVoted) ✓ Already Voted @else Vote for Version B @endif
                                         </button>
                                     </form>
                                 @endif
                             </div>
                         </div>
-                    </div>
+                    </details>
                 @endif
             @empty
                 <div class="text-center py-32 bg-white border border-amber-100 rounded-[3rem] shadow-sm">
@@ -152,6 +189,27 @@
                     <p class="text-amber-800/50 text-lg font-bold">No chapter pairs have been uploaded for voting yet. Check back soon!</p>
                 </div>
             @endforelse
+
+            @if(isset($archiveChapters) && $archiveChapters->isNotEmpty())
+                <details class="border-t-2 border-amber-200/60 pt-16 mt-8 group">
+                    <summary class="list-none cursor-pointer [&::-webkit-details-marker]:hidden flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-extrabold text-amber-900 mb-2">Previous voting rounds</h2>
+                            <p class="text-amber-800/60 font-bold text-sm max-w-2xl">Read-only archived A/B text from earlier rounds.</p>
+                        </div>
+                        <svg class="w-8 h-8 text-amber-700/40 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </summary>
+                    <ul class="space-y-3 mt-8">
+                        @foreach($archiveChapters as $arch)
+                            <li>
+                                <a href="{{ route('chapters.show', $arch) }}" class="inline-flex items-center gap-2 text-amber-800 font-extrabold hover:text-amber-950 underline decoration-amber-300">
+                                    {{ $arch->headingPrefix() }}: {{ $arch->displayTitle() }} ({{ $arch->version }})
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endif
         </div>
     </div>
 </x-dynamic-component>

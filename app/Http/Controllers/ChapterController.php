@@ -7,6 +7,7 @@ use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\ReadingProgress;
 use App\Support\AchievementUnlock;
+use App\Support\ChapterLifecycle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,7 +15,9 @@ class ChapterController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->has('resume') && Auth::check()) {
+        // Optional deep link only: ?resume=1 sends the reader to their most recently updated chapter.
+        // Main "Chapters" nav must NOT use this, or every visit skips the full chapter list.
+        if ($request->boolean('resume') && Auth::check()) {
             $lastProgress = ReadingProgress::where('user_id', Auth::id())
                 ->orderByDesc('updated_at')
                 ->first();
@@ -27,13 +30,16 @@ class ChapterController extends Controller
         // Automatic locking: only for the main manuscript book — not Peter Trull (A/B pairs).
         // Otherwise visiting /chapters would lock Version A (lower id) and break voting on both columns.
         $bookIdsToAutoLock = Book::query()
-            ->where('name', '!=', 'Peter Trull Solitary Detective')
+            ->where('name', '!=', Book::NAME_PETER_TRULL)
             ->pluck('id');
 
         if ($bookIdsToAutoLock->isNotEmpty()) {
+            // Only non-archived rows count as the live manuscript; archived slots can have higher ids and
+            // must not steal "latest" or every new chapter appears locked on the reader index.
             $latestChapterIds = Chapter::query()
                 ->selectRaw('book_id, MAX(id) as max_id')
                 ->whereIn('book_id', $bookIdsToAutoLock)
+                ->where('is_archived', false)
                 ->groupBy('book_id')
                 ->pluck('max_id');
 
@@ -41,17 +47,35 @@ class ChapterController extends Controller
                 ->whereIn('book_id', $bookIdsToAutoLock)
                 ->whereNotIn('id', $latestChapterIds)
                 ->where('is_locked', false)
-                ->update(['is_locked' => true]);
+                ->update(['is_locked' => true, 'locked_at' => now()]);
 
             Chapter::query()
                 ->whereIn('id', $latestChapterIds)
-                ->update(['is_locked' => false]);
+                ->update(['is_locked' => false, 'locked_at' => null]);
         }
 
+        // Manuscript is single-stream Version A (admin); exclude stray B rows from the reader list.
         $chapters = Chapter::with('statistics')
             ->whereHas('book', function ($query) {
-                $query->where('name', 'The Book With No Name');
+                $query->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME);
             })
+            ->where('is_archived', false)
+            ->where(function ($q) {
+                $q->whereNull('version')
+                    ->orWhere('version', '')
+                    ->orWhereRaw('LOWER(TRIM(version)) = ?', ['a']);
+            })
+            ->orderByRaw(Chapter::listSectionOrderSql())
+            ->orderBy('number')
+            ->orderBy('id')
+            ->get();
+
+        $archiveChapters = Chapter::with('statistics')
+            ->whereHas('book', function ($query) {
+                $query->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME);
+            })
+            ->where('is_archived', true)
+            ->where('is_reader_archive_link', true)
             ->orderByRaw(Chapter::listSectionOrderSql())
             ->orderBy('number')
             ->orderBy('id')
@@ -71,22 +95,39 @@ class ChapterController extends Controller
         }
 
         $progress = [];
+        $resumeReading = null;
         if (Auth::check()) {
             $progress = ReadingProgress::where('user_id', Auth::id())
                 ->whereIn('chapter_id', $chapters->pluck('id'))
                 ->get()
                 ->pluck('scroll_position', 'chapter_id')
                 ->toArray();
+
+            if ($chapters->isNotEmpty()) {
+                $resume = ReadingProgress::query()
+                    ->where('user_id', Auth::id())
+                    ->whereIn('chapter_id', $chapters->pluck('id'))
+                    ->where('scroll_position', '>', 0)
+                    ->orderByDesc('updated_at')
+                    ->first();
+
+                if ($resume) {
+                    $resumeReading = [
+                        'chapter_id' => (int) $resume->chapter_id,
+                        'scroll_position' => (int) $resume->scroll_position,
+                    ];
+                }
+            }
         }
 
-        return view('chapters.index', compact('chapters', 'progress'));
+        return view('chapters.index', compact('chapters', 'archiveChapters', 'progress', 'resumeReading'));
     }
 
     public function show(Chapter $chapter)
     {
         $chapter->loadMissing('book');
-        if ($chapter->is_locked && $chapter->book->name !== 'Peter Trull Solitary Detective') {
-            return redirect()->route('chapters.index');
+        if ($chapter->is_archived && ! $chapter->is_reader_archive_link) {
+            abort(404);
         }
 
         $progress = 0;
@@ -112,7 +153,10 @@ class ChapterController extends Controller
                 ->first();
         }
 
-        return view('chapters.show', compact('chapter', 'progress', 'stats', 'pendingPaymentEdit'));
+        $suggestionsClosed = ChapterLifecycle::suggestionsClosedForTbwChapter($chapter);
+        $editingWindowEndsAt = $chapter->editing_closes_at;
+
+        return view('chapters.show', compact('chapter', 'progress', 'stats', 'pendingPaymentEdit', 'suggestionsClosed', 'editingWindowEndsAt'));
     }
 
     public function trackProgress(Request $request, Chapter $chapter)
