@@ -1,3 +1,7 @@
+@props([
+    'pageTitle' => null,
+    'metaDescription' => null,
+])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -5,7 +9,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'What\'s My Book Name') }}</title>
+        <title>{{ $pageTitle ?? config('app.name', 'What\'s My Book Name') }}</title>
+        @include('layouts.partials.seo-head', ['pageTitle' => $pageTitle, 'metaDescription' => $metaDescription])
+        {{ $headMeta ?? '' }}
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

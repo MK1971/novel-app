@@ -14,11 +14,6 @@
         </div>
     </x-slot>
 
-    {{-- Reading progress: below sticky nav (P3-7) --}}
-    <div class="fixed left-0 right-0 w-full h-1.5 bg-amber-100/90 z-[35] pointer-events-none" style="top: var(--app-shell-nav-h, 4.5rem)">
-        <div id="reading-progress" class="h-full bg-amber-600 transition-all duration-200" style="width: 0%"></div>
-    </div>
-
     <div class="py-12">
         @if (session('success'))
             <div class="mb-8 p-4 bg-green-100 text-green-700 rounded-2xl border border-green-200 shadow-sm font-bold">{{ session('success') }}</div>
@@ -109,7 +104,40 @@
                             </div>
                         </div>
 
-                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-4' : 'mb-8' }}">{{ $chapter->displayTitle() }}</h3>
+                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-3' : 'mb-4' }}">{{ $chapter->displayTitle() }}</h3>
+                        @php
+                            $cardWordCount = $chapter->wordCount();
+                            $cardReadMins = $chapter->estimatedReadingMinutes();
+                            $cardProgress = auth()->check() ? $readingProgressByChapter->get($chapter->id) : null;
+                            $cardReadPct = $cardProgress?->scrollProgressPercent();
+                        @endphp
+                        <div class="mb-6 space-y-3">
+                            <p class="text-sm font-bold text-amber-800/70 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                <span>{{ number_format($cardWordCount) }} words</span>
+                                <span class="text-amber-800/40" aria-hidden="true">·</span>
+                                <span>~{{ $cardReadMins }} min read</span>
+                            </p>
+                            @auth
+                                <div class="w-full max-w-lg rounded-2xl border border-amber-100 bg-amber-50/50 px-4 py-3">
+                                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                                        <span class="text-[10px] font-black uppercase tracking-widest text-amber-800/50">Your progress</span>
+                                        @if($cardReadPct !== null)
+                                            <span class="text-xs font-black text-amber-900 tabular-nums">{{ $cardReadPct }}%</span>
+                                        @elseif($cardProgress)
+                                            <span class="text-xs font-bold text-amber-800/60">Syncing after you read this chapter</span>
+                                        @else
+                                            <span class="text-xs font-bold text-amber-800/60">Not started</span>
+                                        @endif
+                                    </div>
+                                    @if($cardReadPct !== null)
+                                        <span class="sr-only">{{ $cardReadPct }} percent read on this chapter</span>
+                                    @endif
+                                    <div class="h-2 rounded-full bg-amber-100 overflow-hidden" aria-hidden="true">
+                                        <div class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width: {{ $cardReadPct ?? 0 }}%"></div>
+                                    </div>
+                                </div>
+                            @endauth
+                        </div>
 
                         @if($chapter->is_locked)
                             <div
@@ -264,9 +292,6 @@
     @endauth
 
     <script>
-        const progressBar = document.getElementById('reading-progress');
-        let lastSavedProgress = 0;
-        let currentChapterId = null;
         let selectionButton = null;
 
         // Text Selection Logic
@@ -369,51 +394,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Reading Progress Logic
-        window.addEventListener('scroll', function() {
-            const height = document.documentElement.scrollHeight - window.innerHeight;
-            if (height <= 0) return;
-            
-            const scrollTop = window.scrollY;
-            const progress = (scrollTop / height) * 100;
-            progressBar.style.width = progress + '%';
-
-            // Identify which chapter is in view
-            const chapters = document.querySelectorAll('.chapter-container');
-            let activeChapterId = null;
-            
-            chapters.forEach(chapter => {
-                const rect = chapter.getBoundingClientRect();
-                if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
-                    activeChapterId = chapter.dataset.chapterId;
-                }
-            });
-
-            if (activeChapterId && (activeChapterId !== currentChapterId || Math.abs(scrollTop - lastSavedProgress) >= 500)) {
-                saveProgress(activeChapterId, scrollTop);
-                currentChapterId = activeChapterId;
-                lastSavedProgress = scrollTop;
-            }
-        });
-
-        function saveProgress(chapterId, scrollTop) {
-            fetch(`/chapters/${chapterId}/track-progress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ scroll_position: scrollTop })
-            });
-        }
-
-        @if(is_array($resumeReading ?? null) && (int) ($resumeReading['scroll_position'] ?? 0) > 0)
-        window.addEventListener('load', function () {
-            var y = {{ (int) $resumeReading['scroll_position'] }};
-            if (y <= 0) return;
-            window.scrollTo(0, y);
-        });
-        @endif
         @endauth
     </script>
 </x-dynamic-component>

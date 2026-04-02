@@ -1,4 +1,7 @@
-<x-guest-layout>
+<x-guest-layout
+    page-title="Privacy Policy — What's My Book Name"
+    meta-description="Privacy policy for What's My Book Name: how we handle account data, contributions, payments, and contact options."
+>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl sm:rounded-2xl border border-amber-100">

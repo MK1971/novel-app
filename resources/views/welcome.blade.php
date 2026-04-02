@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>{{ config('app.name', 'WhatsMyBookName') }}</title>
+        @include('layouts.partials.seo-head', [
+            'pageTitle' => config('app.name', 'WhatsMyBookName'),
+            'metaDescription' => config('seo.default_description'),
+        ])
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=nunito:400,500,600,700,800,900&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -499,34 +503,69 @@
                 </div>
             </section>
 
-            {{-- Community Stats — live counts + configurable prize goal (UX #14); cream band + borders (UX #23) --}}
+            {{-- Community Stats — live counts + configurable fund goal display (UX #14); cream band + borders (UX #23) --}}
             <section id="landing-stats-strip" class="py-32 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-stats-heading">
                 <h2 id="landing-stats-heading" class="sr-only">Community statistics</h2>
                 <div class="max-w-7xl mx-auto px-6">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div class="text-center">
-                            <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['contributors'] }}</div>
-                            <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Contributors</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">With an accepted edit</div>
+                    @if (! empty($landingStatsQuiet))
+                        <p id="landing-stats-quiet-lead" class="text-center text-lg md:text-xl font-black text-amber-900 max-w-2xl mx-auto leading-snug">
+                            Early days — be among the first on the living manuscript.
+                        </p>
+                        <p class="mt-3 text-center text-sm font-bold text-amber-800/70 max-w-xl mx-auto">
+                            Contributor counts, accepted edits, and live chapters will appear here as the community grows. The fund goal below is already set for the campaign.
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 opacity-70">
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Contributors</div>
+                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">With an accepted edit</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Edits Accepted</div>
+                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">Story and inline</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Chapters Live</div>
+                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">On the chapter list</div>
+                            </div>
+                            <div class="text-center opacity-100">
+                                <div class="text-5xl font-black text-amber-900 mb-2">
+                                    <a href="{{ route('prizes') }}" class="rounded-xl outline-none hover:text-amber-700 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">{{ $landingStats['prize_pool'] }}</a>
+                                </div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Fund goal</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced target · not a live balance</div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['edits_accepted'] }}</div>
-                            <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Edits Accepted</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Story and inline</div>
+                    @else
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['contributors'] }}</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Contributors</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">With an accepted edit</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['edits_accepted'] }}</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Edits Accepted</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Story and inline</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['chapters_live'] }}</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Chapters Live</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">On the chapter list</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-5xl font-black text-amber-900 mb-2">
+                                    <a href="{{ route('prizes') }}" class="rounded-xl outline-none hover:text-amber-700 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">{{ $landingStats['prize_pool'] }}</a>
+                                </div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Fund goal</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced target · not a live balance</div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['chapters_live'] }}</div>
-                            <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Chapters Live</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">On the chapter list</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['prize_pool'] }}</div>
-                            <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Prize goal</div>
-                            <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced fund · not a live balance</div>
-                        </div>
-                    </div>
+                    @endif
                     <p id="landing-stats-footnote" class="mt-10 text-center text-xs font-bold text-amber-800/60 max-w-2xl mx-auto leading-relaxed">
-                        Community figures update as people contribute. The prize line is the announced campaign goal, not a live tally.
+                        Community figures update as people contribute. The fund goal is an announced campaign figure, not a live tally.
                     </p>
                 </div>
             </section>

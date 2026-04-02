@@ -71,7 +71,9 @@ class VoteController extends Controller
                 ->get();
         }
 
-        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts', 'voteCreditsRemaining', 'archiveChapters', 'latestPtVotePairKey'));
+        $firstOpenTbwChapter = ChapterLifecycle::latestOpenTbwChapter();
+
+        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts', 'voteCreditsRemaining', 'archiveChapters', 'latestPtVotePairKey', 'firstOpenTbwChapter'));
     }
 
     public function store(Request $request, Chapter $chapter)

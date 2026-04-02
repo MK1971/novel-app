@@ -26,4 +26,13 @@ class LegalPagesTest extends TestCase
             ->assertSee('Privacy Policy', false)
             ->assertSee('Terms of Service', false);
     }
+
+    public function test_public_legal_pages_include_meta_description(): void
+    {
+        foreach ([route('about'), route('privacy'), route('terms'), route('prizes')] as $url) {
+            $this->get($url)
+                ->assertOk()
+                ->assertSee('<meta name="description"', false);
+        }
+    }
 }

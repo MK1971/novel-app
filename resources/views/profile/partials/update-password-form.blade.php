@@ -5,19 +5,37 @@
 
         <div>
             <x-input-label for="update_password_current_password" :value="__('Current Password')" class="text-amber-900 font-extrabold mb-2" />
-            <x-text-input id="update_password_current_password" name="current_password" type="password" class="mt-1 block w-full border-amber-200 focus:border-amber-500 focus:ring-amber-500 rounded-xl" autocomplete="current-password" />
+            <x-password-reveal-field
+                id="update_password_current_password"
+                name="current_password"
+                autocomplete="current-password"
+                required
+                class="mt-1 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
+            />
             <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
         </div>
 
         <div>
             <x-input-label for="update_password_password" :value="__('New Password')" class="text-amber-900 font-extrabold mb-2" />
-            <x-text-input id="update_password_password" name="password" type="password" class="mt-1 block w-full border-amber-200 focus:border-amber-500 focus:ring-amber-500 rounded-xl" autocomplete="new-password" />
+            <x-password-reveal-field
+                id="update_password_password"
+                name="password"
+                autocomplete="new-password"
+                required
+                class="mt-1 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
+            />
             <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
         </div>
 
         <div>
             <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" class="text-amber-900 font-extrabold mb-2" />
-            <x-text-input id="update_password_password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full border-amber-200 focus:border-amber-500 focus:ring-amber-500 rounded-xl" autocomplete="new-password" />
+            <x-password-reveal-field
+                id="update_password_password_confirmation"
+                name="password_confirmation"
+                autocomplete="new-password"
+                required
+                class="mt-1 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
+            />
             <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
         </div>
 

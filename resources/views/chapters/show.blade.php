@@ -16,6 +16,25 @@
                         {{ $chapter->headingPrefix() }}: {{ $chapter->displayTitle() }}
                     </h2>
                     <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ ($chapter->published_at ?? $chapter->created_at)->timezone(config('app.timezone'))->format('M j, Y') }}</p>
+                    @if(! $isPeterTrullBook)
+                        <p class="text-sm font-bold text-amber-800/70 mt-1">{{ number_format($chapter->wordCount()) }} words · ~{{ $chapter->estimatedReadingMinutes() }} min read</p>
+                    @endif
+                    @if(! $isPeterTrullBook && (($prevChapter ?? null) || ($nextChapter ?? null)))
+                        <div class="flex flex-wrap items-center gap-3 mt-4">
+                            @if($prevChapter ?? null)
+                                <a href="{{ route('chapters.show', $prevChapter) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-100 text-amber-900 font-extrabold text-sm border border-amber-200 hover:bg-amber-200 transition-colors">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    Previous chapter
+                                </a>
+                            @endif
+                            @if($nextChapter ?? null)
+                                <a href="{{ route('chapters.show', $nextChapter) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-100 text-amber-900 font-extrabold text-sm border border-amber-200 hover:bg-amber-200 transition-colors">
+                                    Next chapter
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </a>
+                            @endif
+                        </div>
+                    @endif
                     @if(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
                         @php $editingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
                         @if($chapter->is_locked)
@@ -99,12 +118,18 @@
                 @endif
             </div>
         </div>
-    </x-slot>
 
-    {{-- Reading progress: below sticky nav (P3-7) --}}
-    <div class="fixed left-0 right-0 w-full h-1.5 bg-amber-100/90 z-[35] pointer-events-none" style="top: var(--app-shell-nav-h, 4.5rem)">
-        <div id="reading-progress" class="h-full bg-amber-600 transition-all duration-200" style="width: 0%"></div>
-    </div>
+        {{-- Read progress: in page header (same visual language as chapter cards on /chapters; avoids fixed strip vs sidebar) --}}
+        <div class="mt-8 w-full max-w-3xl rounded-2xl border border-amber-100 bg-amber-50/50 px-4 py-3" aria-live="polite">
+            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-amber-800/50">Reading this page</span>
+                <span id="chapter-read-pct-label" class="text-xs font-black text-amber-900 tabular-nums">0%</span>
+            </div>
+            <div class="h-2 w-full min-w-0 overflow-hidden rounded-full bg-amber-100">
+                <div id="chapter-read-inline-progress" class="h-full max-w-full rounded-full bg-amber-500 transition-all duration-300 ease-out" style="width: 0%"></div>
+            </div>
+        </div>
+    </x-slot>
 
     <div class="py-12">
         @php
@@ -436,9 +461,6 @@
     <script>
         const modal = document.getElementById('inline-edit-modal');
         const form = document.getElementById('inline-edit-form');
-        const progressBar = document.getElementById('reading-progress');
-        const chapterId = {{ $chapter->id }};
-        let lastSavedProgress = 0;
 
         function openInlineEdit(number, text) {
             document.getElementById('paragraph-number').value = number;
@@ -453,37 +475,102 @@
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
-
-        // Restore scroll position
-        const savedProgress = {{ $progress ?? 0 }};
-        if (savedProgress > 0) {
-            window.scrollTo(0, savedProgress);
-        }
-
-        window.addEventListener('scroll', function() {
-            const height = document.documentElement.scrollHeight - window.innerHeight;
-            if (height <= 0) return;
-            
-            const scrollTop = window.scrollY;
-            const progress = (scrollTop / height) * 100;
-            progressBar.style.width = progress + '%';
-
-            if (Math.abs(scrollTop - lastSavedProgress) >= 500 || progress >= 99) {
-                saveProgress(scrollTop);
-                lastSavedProgress = scrollTop;
-            }
-        });
-
-        function saveProgress(scrollTop) {
-            fetch(`/chapters/${chapterId}/track-progress`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ scroll_position: scrollTop })
-            });
-        }
     </script>
     @endauth
+
+    <script>
+        (function () {
+            const progressFill = document.getElementById('chapter-read-inline-progress');
+            const progressLabel = document.getElementById('chapter-read-pct-label');
+            const chapterId = {{ $chapter->id }};
+            const canTrackProgress = @json(auth()->check());
+            let lastSavedScrollTop = null;
+
+            function readMetrics() {
+                const root = document.scrollingElement || document.documentElement;
+                const scrollTop = window.scrollY;
+                const maxScroll = Math.max(0, root.scrollHeight - window.innerHeight);
+                const extentForSave = Math.max(1, maxScroll);
+                let stripPct;
+                let positionForSave;
+                if (maxScroll <= 0) {
+                    stripPct = 100;
+                    positionForSave = 1;
+                } else {
+                    stripPct = (scrollTop / maxScroll) * 100;
+                    positionForSave = scrollTop;
+                }
+                return {
+                    scrollTop,
+                    maxScroll,
+                    extentForSave,
+                    stripPct: Math.min(100, Math.max(0, stripPct)),
+                    positionForSave,
+                };
+            }
+
+            function paintStrip(m) {
+                if (! progressFill) return;
+                progressFill.style.width = m.stripPct + '%';
+                if (progressLabel) {
+                    progressLabel.textContent = Math.round(m.stripPct) + '%';
+                }
+            }
+
+            function saveProgress(m) {
+                if (! canTrackProgress) return;
+                const token = document.querySelector('meta[name="csrf-token"]');
+                if (! token) return;
+                fetch(`/chapters/${chapterId}/track-progress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token.content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        scroll_position: m.positionForSave,
+                        scroll_extent_max: m.extentForSave,
+                    }),
+                }).catch(function () {});
+            }
+
+            const savedProgress = {{ (int) ($progress ?? 0) }};
+            if (savedProgress > 0) {
+                window.scrollTo(0, savedProgress);
+            }
+
+            function syncAfterLayout() {
+                const m = readMetrics();
+                paintStrip(m);
+                saveProgress(m);
+                lastSavedScrollTop = m.maxScroll <= 0 ? 0 : m.scrollTop;
+            }
+
+            function scheduleInitialSync() {
+                function run() {
+                    requestAnimationFrame(function () {
+                        requestAnimationFrame(syncAfterLayout);
+                    });
+                }
+                if (document.readyState === 'complete') {
+                    run();
+                } else {
+                    window.addEventListener('load', run);
+                }
+            }
+            scheduleInitialSync();
+
+            window.addEventListener('scroll', function () {
+                const m = readMetrics();
+                paintStrip(m);
+                if (! canTrackProgress || lastSavedScrollTop === null) return;
+                const delta = Math.abs(m.scrollTop - lastSavedScrollTop);
+                if (delta >= 120 || m.stripPct >= 98) {
+                    saveProgress(m);
+                    lastSavedScrollTop = m.maxScroll <= 0 ? 0 : m.scrollTop;
+                }
+            }, { passive: true });
+        })();
+    </script>
 </x-dynamic-component>

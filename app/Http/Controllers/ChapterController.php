@@ -54,28 +54,15 @@ class ChapterController extends Controller
                 ->update(['is_locked' => false, 'locked_at' => null]);
         }
 
-        // Manuscript is single-stream Version A (admin); exclude stray B rows from the reader list.
         $chapters = Chapter::with('statistics')
-            ->whereHas('book', function ($query) {
-                $query->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME);
-            })
-            ->where('is_archived', false)
-            ->where(function ($q) {
-                $q->whereNull('version')
-                    ->orWhere('version', '')
-                    ->orWhereRaw('LOWER(TRIM(version)) = ?', ['a']);
-            })
+            ->forTbwReaderManuscript()
             ->orderByRaw(Chapter::listSectionOrderSql())
             ->orderBy('number')
             ->orderBy('id')
             ->get();
 
         $archiveChapters = Chapter::with('statistics')
-            ->whereHas('book', function ($query) {
-                $query->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME);
-            })
-            ->where('is_archived', true)
-            ->where('is_reader_archive_link', true)
+            ->forTbwReaderArchive()
             ->orderByRaw(Chapter::listSectionOrderSql())
             ->orderBy('number')
             ->orderBy('id')
@@ -94,33 +81,16 @@ class ChapterController extends Controller
             }
         }
 
-        $progress = [];
-        $resumeReading = null;
+        $readingProgressByChapter = collect();
         if (Auth::check()) {
-            $progress = ReadingProgress::where('user_id', Auth::id())
+            $readingProgressByChapter = ReadingProgress::query()
+                ->where('user_id', Auth::id())
                 ->whereIn('chapter_id', $chapters->pluck('id'))
                 ->get()
-                ->pluck('scroll_position', 'chapter_id')
-                ->toArray();
-
-            if ($chapters->isNotEmpty()) {
-                $resume = ReadingProgress::query()
-                    ->where('user_id', Auth::id())
-                    ->whereIn('chapter_id', $chapters->pluck('id'))
-                    ->where('scroll_position', '>', 0)
-                    ->orderByDesc('updated_at')
-                    ->first();
-
-                if ($resume) {
-                    $resumeReading = [
-                        'chapter_id' => (int) $resume->chapter_id,
-                        'scroll_position' => (int) $resume->scroll_position,
-                    ];
-                }
-            }
+                ->keyBy('chapter_id');
         }
 
-        return view('chapters.index', compact('chapters', 'archiveChapters', 'progress', 'resumeReading'));
+        return view('chapters.index', compact('chapters', 'archiveChapters', 'readingProgressByChapter'));
     }
 
     public function show(Chapter $chapter)
@@ -156,19 +126,42 @@ class ChapterController extends Controller
         $suggestionsClosed = ChapterLifecycle::suggestionsClosedForTbwChapter($chapter);
         $editingWindowEndsAt = $chapter->editing_closes_at;
 
-        return view('chapters.show', compact('chapter', 'progress', 'stats', 'pendingPaymentEdit', 'suggestionsClosed', 'editingWindowEndsAt'));
+        [$prevChapter, $nextChapter] = $this->adjacentTbwChapters($chapter);
+
+        return view('chapters.show', compact(
+            'chapter',
+            'progress',
+            'stats',
+            'pendingPaymentEdit',
+            'suggestionsClosed',
+            'editingWindowEndsAt',
+            'prevChapter',
+            'nextChapter',
+        ));
     }
 
     public function trackProgress(Request $request, Chapter $chapter)
     {
         if (Auth::check()) {
-            $progress = ReadingProgress::updateOrCreate(
-                ['user_id' => Auth::id(), 'chapter_id' => $chapter->id],
-                ['scroll_position' => $request->input('scroll_position', 0)]
+            $incomingPos = max(0, (int) $request->input('scroll_position', 0));
+
+            $progress = ReadingProgress::firstOrNew(
+                ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
             );
+            $wasNew = ! $progress->exists;
+
+            $progress->scroll_position = max((int) $progress->scroll_position, $incomingPos);
+            $progress->last_read_at = now();
+
+            if ($request->filled('scroll_extent_max')) {
+                $incomingExt = max(1, min((int) $request->input('scroll_extent_max'), 50_000_000));
+                $progress->scroll_extent_max = max((int) ($progress->scroll_extent_max ?? 0), $incomingExt);
+            }
+
+            $progress->save();
 
             // Only increment total_reads if this is a new progress record (first time reading)
-            if ($progress->wasRecentlyCreated) {
+            if ($wasNew) {
                 $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
                 $stats->increment('total_reads');
                 AchievementUnlock::syncForUser(Auth::user());
@@ -176,6 +169,46 @@ class ChapterController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * @return array{0: ?Chapter, 1: ?Chapter} Previous and next in TBWNN reader order (manuscript or archive stream).
+     */
+    private function adjacentTbwChapters(Chapter $chapter): array
+    {
+        $chapter->loadMissing('book');
+        if (! $chapter->book || $chapter->book->name !== Book::NAME_THE_BOOK_WITH_NO_NAME) {
+            return [null, null];
+        }
+
+        if ($chapter->is_archived) {
+            if (! $chapter->is_reader_archive_link) {
+                return [null, null];
+            }
+            $stream = Chapter::query()
+                ->forTbwReaderArchive()
+                ->orderByRaw(Chapter::listSectionOrderSql())
+                ->orderBy('number')
+                ->orderBy('id')
+                ->get();
+        } else {
+            $stream = Chapter::query()
+                ->forTbwReaderManuscript()
+                ->orderByRaw(Chapter::listSectionOrderSql())
+                ->orderBy('number')
+                ->orderBy('id')
+                ->get();
+        }
+
+        $idx = $stream->search(fn (Chapter $c) => $c->id === $chapter->id);
+        if ($idx === false) {
+            return [null, null];
+        }
+
+        $prev = $idx > 0 ? $stream[$idx - 1] : null;
+        $next = $idx < $stream->count() - 1 ? $stream[$idx + 1] : null;
+
+        return [$prev, $next];
     }
 
     public function getProgress(Chapter $chapter)

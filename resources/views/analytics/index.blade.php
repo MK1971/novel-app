@@ -42,7 +42,7 @@
                     <div class="space-y-8">
                         @foreach($voteStats->groupBy('chapter_group_key') as $groupKey => $stats)
                             <div class="bg-amber-50/50 p-8 rounded-[2rem] border border-amber-100">
-                                <h3 class="text-lg font-black text-amber-900 mb-6 uppercase tracking-widest">{{ $stats->first()->chapter_heading }}</h3>
+                                <h3 class="text-lg font-black text-amber-900 mb-6">{{ $stats->first()->chapter_heading }}</h3>
                                 <div class="space-y-6">
                                     @php
                                         $totalVotes = $stats->sum('total');
@@ -86,8 +86,10 @@
                         @foreach($chapterStats as $chapter)
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-amber-50/50 rounded-2xl border border-amber-100 hover:bg-amber-50 transition-all">
                                 <div class="flex flex-col min-w-0">
-                                    <span class="font-black text-amber-900">{{ $chapter->headingPrefix() }}</span>
-                                    <span class="text-xs font-bold text-amber-800/40 truncate">{{ $chapter->displayTitle() }}</span>
+                                    <span class="font-black text-amber-900 truncate">{{ $chapter->insightDisplayLabel() }}</span>
+                                    @if(filled(trim((string) ($chapter->title ?? ''))))
+                                        <span class="text-xs font-bold text-amber-800/40">Chapter {{ $chapter->number }}</span>
+                                    @endif
                                 </div>
                                 <div class="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
                                     @if($chapter->insight_pending > 0)

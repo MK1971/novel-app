@@ -81,6 +81,50 @@ class Chapter extends Model
             ELSE 2 END";
     }
 
+    /** The Book With No Name — live manuscript rows (reader index / prev-next). */
+    public function scopeForTbwReaderManuscript(Builder $query): Builder
+    {
+        return $query
+            ->whereHas('book', fn (Builder $b) => $b->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME))
+            ->where('is_archived', false)
+            ->where(function (Builder $q) {
+                $q->whereNull('version')
+                    ->orWhere('version', '')
+                    ->orWhereRaw('LOWER(TRIM(version)) = ?', ['a']);
+            });
+    }
+
+    /** TBWNN archived slots surfaced to readers as “previous versions.” */
+    public function scopeForTbwReaderArchive(Builder $query): Builder
+    {
+        return $query
+            ->whereHas('book', fn (Builder $b) => $b->where('name', Book::NAME_THE_BOOK_WITH_NO_NAME))
+            ->where('is_archived', true)
+            ->where('is_reader_archive_link', true);
+    }
+
+    public function wordCount(): int
+    {
+        $plain = trim(preg_replace('/\s+/u', ' ', strip_tags((string) $this->content)) ?? '');
+
+        if ($plain === '') {
+            return 0;
+        }
+
+        return str_word_count($plain);
+    }
+
+    /** Reading-time estimate at default adult fiction WPM. */
+    public function estimatedReadingMinutes(int $wordsPerMinute = 200): int
+    {
+        $words = $this->wordCount();
+        if ($words < 1) {
+            return 1;
+        }
+
+        return max(1, (int) ceil($words / $wordsPerMinute));
+    }
+
     public function listSectionLabel(): string
     {
         return match ($this->list_section ?? self::LIST_SECTION_CHAPTER) {
@@ -130,6 +174,19 @@ class Chapter extends Model
         $t = trim((string) ($this->title ?? ''));
 
         return $t !== '' ? $t : 'Untitled';
+    }
+
+    /**
+     * Insights / analytics: prefer the chapter title; if missing, use numeric slot (no cold open / prolog type labels).
+     */
+    public function insightDisplayLabel(): string
+    {
+        $t = trim((string) ($this->title ?? ''));
+        if ($t !== '') {
+            return $t;
+        }
+
+        return 'Chapter '.(string) $this->number;
     }
 
     /** Group A/B vote pairs (same section + number, different version). */

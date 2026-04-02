@@ -21,12 +21,13 @@
             <div class="mt-6">
                 <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
 
-                <x-text-input
+                <x-password-reveal-field
                     id="password"
                     name="password"
-                    type="password"
-                    class="mt-1 block w-full border-red-200 focus:border-red-500 focus:ring-red-500 rounded-xl"
+                    autocomplete="current-password"
+                    required
                     placeholder="{{ __('Password') }}"
+                    class="mt-1 border-red-200 focus:border-red-500 focus:ring-red-500"
                 />
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />

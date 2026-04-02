@@ -60,7 +60,15 @@ Route::get('/', function () {
         'prize_pool' => config('marketing.landing_prize_pool_display'),
     ];
 
-    return view('welcome', ['landingStats' => $landingStats]);
+    $landingStatsQuiet = (bool) config('marketing.landing_soft_stats_when_empty', true)
+        && $contributorsCount === 0
+        && $editsAcceptedCount === 0
+        && $chaptersLiveCount === 0;
+
+    return view('welcome', [
+        'landingStats' => $landingStats,
+        'landingStatsQuiet' => $landingStatsQuiet,
+    ]);
 })->name('home');
 
 Route::get('/dev/landing-ux-suggestions', function () {
@@ -82,6 +90,10 @@ Route::get('/privacy', function () {
 Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
+
+Route::get('/prizes', function () {
+    return view('prizes');
+})->name('prizes');
 
 Route::get('/chapters', [ChapterController::class, 'index'])->name('chapters.index');
 Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');

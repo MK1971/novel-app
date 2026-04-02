@@ -13,9 +13,9 @@
                 <p class="text-amber-800/60 font-bold mt-1">The top contributors shaping the narrative.</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="px-4 py-2 bg-amber-500 text-black text-sm font-black rounded-2xl shadow-lg shadow-amber-500/20">
+                <a href="{{ route('prizes') }}" class="px-4 py-2 bg-amber-500 text-black text-sm font-black rounded-2xl shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-colors">
                     🏆 Grand Prize: Name on the Cover
-                </div>
+                </a>
             </div>
         </div>
     </x-slot>
@@ -28,13 +28,22 @@
                 </div>
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No contributors on the board yet</h3>
                 <p class="text-amber-800/70 font-bold leading-relaxed mb-8">{{ $pointsExplainer }}</p>
-                <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
-                    Read chapters &amp; suggest an edit
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                </a>
-                @guest
-                    <p class="mt-6 text-sm text-amber-800/50 font-bold">Have an account? <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="text-amber-700 underline font-extrabold hover:text-amber-900">Sign in</button> to track your points.</p>
-                @endguest
+                @auth
+                    <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                        Read chapters &amp; suggest an edit
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    </a>
+                @else
+                    <p class="text-sm font-bold text-amber-800/80 mb-4">Sign in or create an account to contribute and appear on the leaderboard.</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                            Sign in
+                        </button>
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-10 py-4 border-2 border-amber-300 text-amber-900 text-lg font-extrabold rounded-full hover:bg-amber-50 transition-all">
+                            Create account
+                        </button>
+                    </div>
+                @endauth
             </div>
         @else
             <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
@@ -84,10 +93,22 @@
             </div>
             <h3 class="text-3xl font-extrabold text-amber-900 mb-4">Want to see your name here?</h3>
             <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.</p>
-            <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                Start Contributing Now
-                <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-            </a>
+            @auth
+                <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                    Start Contributing Now
+                    <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
+            @else
+                <p class="text-amber-800/80 font-bold mb-6 max-w-lg mx-auto">Sign in or create a free account to read chapters, suggest edits, and earn points.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                        Sign in to contribute
+                    </button>
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-12 py-5 border-2 border-amber-400 text-amber-900 text-xl font-extrabold rounded-full hover:bg-amber-50 transition-all">
+                        Create account
+                    </button>
+                </div>
+            @endauth
         </div>
     </div>
 </x-dynamic-component>

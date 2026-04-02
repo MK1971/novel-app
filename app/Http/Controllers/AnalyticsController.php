@@ -40,7 +40,7 @@ class AnalyticsController extends Controller
                 $stat->chapter_number = $chapter?->number;
                 $stat->chapter_title = $chapter ? $chapter->displayTitle() : null;
                 $stat->chapter_group_key = $chapter ? $chapter->votePairGroupKey() : 'unknown';
-                $stat->chapter_heading = $chapter ? $chapter->headingPrefix() : 'Chapter';
+                $stat->chapter_heading = $chapter ? $chapter->insightDisplayLabel() : 'Chapter';
 
                 return $stat;
             });

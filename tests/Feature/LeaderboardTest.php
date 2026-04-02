@@ -20,7 +20,9 @@ class LeaderboardTest extends TestCase
         $this->get(route('leaderboard'))
             ->assertOk()
             ->assertSee('No contributors on the board yet', false)
-            ->assertSee('Read chapters', false);
+            ->assertSee('Sign in', false)
+            ->assertSee('Create account', false)
+            ->assertDontSee('Read chapters', false);
     }
 
     public function test_leaderboard_shows_table_when_non_admin_has_points(): void

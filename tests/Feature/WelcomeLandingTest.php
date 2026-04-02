@@ -33,6 +33,8 @@ class WelcomeLandingTest extends TestCase
         $this->assertStringContainsString('id="landing-social-proof"', $html);
         $this->assertStringContainsString('id="landing-stats-footnote"', $html);
         $this->assertStringContainsString('id="landing-stats-strip"', $html);
+        $this->assertStringContainsString('id="landing-stats-quiet-lead"', $html);
+        $this->assertStringContainsString('og:description', $html);
         $this->assertStringContainsString('© '.date('Y').' WhatsMyBookName', $html);
         $this->assertStringContainsString('id="landing-how-steps"', $html);
         $this->assertStringContainsString('id="landing-how-heading"', $html);

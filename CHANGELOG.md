@@ -2,6 +2,30 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.23 - P1 reader UX, landing & auth polish, SEO, leaderboard & insights copy
+### Added
+- **TBWNN chapter read**: **Previous / Next** navigation (`ChapterController::adjacentTbwChapters`, manuscript and archive order); **in-header “Reading this page”** progress strip with server **`track-progress`** (`scroll_extent_max` on **`reading_progress`**); **furthest-scroll** persistence (position never decreases).
+- **Chapter list (`/chapters`)**: per-card **word count** and **~reading time**; logged-in **Your progress** card (percent from **`ReadingProgress::scrollProgressPercent()`**); migration **`scroll_extent_max`** on **`reading_progress`**.
+- **`GET /prizes`** (**`route('prizes')`**) and **`resources/views/prizes.blade.php`**; **leaderboard** grand-prize chip and **landing fund goal** figure link there; default **fund goal** display **`$50k`** (**`config/marketing.php`**, **`LANDING_PRIZE_POOL_DISPLAY`**).
+- **Vote hub**: when voting is restricted, secondary CTA **Open the live TBWNN chapter** via **`ChapterLifecycle::latestOpenTbwChapter()`** (**`VoteController`**, **`vote/index`**).
+- **`config/seo.php`**, **`layouts/partials/seo-head.blade.php`**, **`page-title` / `meta-description`** on **guest** and **app** layouts; **welcome** head meta; static pages **about**, **privacy**, **terms**, **prizes**.
+- **`x-password-reveal-field`** (show/hide password): auth **modals**, **login** / **register** / **reset** / **confirm**, **profile** update & delete flows.
+- **Tests**: **`ReaderTbwP1EnhancementsTest`**; **`LegalPagesTest`** meta check; **`WelcomeLandingTest`** quiet strip + OG; **`LeaderboardTest`** guest empty state.
+- **`docs/enhancement-roadmap-prioritized.md`** (priority plan from source reports).
+
+### Changed
+- **Landing**: **“Fund goal”** label (was prize goal); **quiet stats strip** when contributors, accepted edits, and live chapters are all zero (**`LANDING_SOFT_STATS_WHEN_EMPTY`**); **`.env.example`** marketing/SEO hints.
+- **Auth modals**: branded header, amber overlay, **`x-modal`** rounded panel; password toggle **beside** the field (no overlap with **Remember me**).
+- **Leaderboard**: **guests** see **Sign in** / **Create account** instead of direct **chapters** links (empty state and bottom CTA); **logged-in** users unchanged.
+- **Community insights (`/analytics`)**: chapter labels use **`Chapter::insightDisplayLabel()`** (title or **Chapter N**, not cold open / prolog type); **Peter Trull** group headings match; manuscript rows simplified.
+- **`.env.example`**: **`LANDING_PRIZE_POOL_DISPLAY="$50k"`**, soft-stats and SEO vars.
+
+### Fixed
+- **Reading progress**: initial **`load`** sync when document already **`complete`**; short-page extent handling; index no longer overwrites per-chapter progress with whole-page scroll.
+
+### Repository
+- **Snapshot tag**: **`snapshot-20260402-v1923`** (annotated) on the **Development** branch commit for this batch.
+
 ## Version 1.9.22 - Chapter lifecycle, TBWNN admin workflow, merge preview fix, stats and profile UX
 ### Added
 - **`ChapterLifecycle`** and related gates for TBWNN suggestions, publish/close-without-merge, and Peter Trull pair handling; **`AdminNotifier`** for admin-facing email when the editing window ends with pending work.
