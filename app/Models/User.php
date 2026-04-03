@@ -16,6 +16,7 @@ class User extends Authenticatable
         'password',
         'points',
         'is_admin',
+        'onboarding_completed_at',
     ];
 
     protected $hidden = [
@@ -29,6 +30,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
         ];
     }
 

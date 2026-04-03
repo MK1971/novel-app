@@ -1,0 +1,25 @@
+---
+description: After app changes, tell the user how to verify manually
+alwaysApply: false
+---
+# Manual testing directions after application changes
+
+Whenever you **change runtime behavior** of this app (PHP, Blade, routes, front-end assets, config read at runtime, migrations, etc.), **end your reply** with a short **Manual testing** section unless the user said not to.
+
+## What to include
+
+- **Environment**: e.g. `php artisan migrate` if schema changed; `php artisan serve` and open `http://127.0.0.1:8000` (or note Vite/`npm run dev` if you touched built assets).
+- **Who**: call out **guest** vs **logged-in reader** vs **admin** when permissions differ.
+- **Steps**: numbered or bulleted **URLs or nav paths** (use real route names or paths from the change).
+- **Expect**: what should appear, toggle, or redirect on success; mention one **negative or edge** check when it matters (e.g. empty state, validation error).
+
+## Scope
+
+- **Proportional**: a tiny fix gets 2–4 bullets; a feature gets a fuller checklist.
+- **Skip** when the change is **non-runtime only** (comments-only, pure docs with no app behavior, `.cursor` meta) unless the user still wants verification steps.
+- **Do not** replace automated tests with manual steps—manual directions **complement** tests.
+
+## Style
+
+- Plain language; no filler (“enjoy testing!”).
+- Prefer **full URLs** or paths like `/dashboard`, `/leaderboard` for copy-paste clarity.

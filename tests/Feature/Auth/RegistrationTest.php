@@ -28,4 +28,18 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
+    public function test_registration_always_redirects_to_dashboard_even_with_redirect_to(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Redirect Test',
+            'email' => 'redirect-test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'redirect_to' => url('/chapters'),
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
 }

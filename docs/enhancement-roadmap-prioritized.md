@@ -139,3 +139,5 @@ These were either folded into a broader item, deferred to P4, or **intentionally
 ## Maintenance
 
 Update this file when you ship or descope items. Re-run a pass on the two `.docx` reports if new versions appear in the repo.
+
+- **Shipped (P2 #10–13):** Post-signup onboarding card on the reader dashboard (dismiss + `users.onboarding_completed_at`, existing users backfilled on migration); reader and admin stat tiles shortened with `title` + “?” tooltips; achievements index/show show numeric progress, clearer requirement copy, `<details>` “How to earn”, focus-visible rings on tiles; leaderboard uses `LeaderboardController` with **Your rank** banner, **You** row highlight, and note when outside top 20.

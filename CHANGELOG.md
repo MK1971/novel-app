@@ -2,6 +2,32 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.24 - Reading progress, achievements clarity, onboarding, leaderboard rank, admin mail
+### Added
+- **Dashboard onboarding**: dismissible **Welcome — get started** card with links to chapters, live chapter, leaderboard, vote; **`users.onboarding_completed_at`** migration and **`POST /onboarding/dismiss`**; factory support.
+- **Achievements (P2-12)**: **`AchievementUnlock::ensureDefinitionsExist()`** before listing so an empty catalog hydrates from **`config/achievements.php`**; **`Achievement::requirementLabel()`** and **`currentProgressToward()`**-backed progress on **`/achievements`**; **`achievements/index`** uses **`x-dynamic-component`** layout (fixes Blade compile error from split app/guest layout).
+- **Dashboard achievements**: **How it works** modal (requirement, progress bar, link to full page); **earned vs not** at a glance (**amber** vs **grayed `opacity-40`**, hover to clarify).
+- **Chapter list reading progress**: authed **scroll** posts **`read_percent`** to **`track-progress`**; **`ChapterController::trackProgress`** accepts **`read_percent`** (ratio encoding with **`scroll_extent_max = 1000`**) and merges monotonically with pixel scroll; list card bars use **absolute** fill.
+- **Chapter show reading bar**: **sticky** strip; **session peak** % so UI does not drop when focus/scroll jumps (e.g. suggest UI); **restore scroll** when progress stored as ratio; **`flushProgress`** on **visibility** / **pagehide**; fill via **absolute width** + **`min-width`** when &gt; 0.
+- **Leaderboard**: **`LeaderboardController`** computes **your rank** and points for logged-in users; **`leaderboard`** view shows **Your rank** when present.
+- **Admin mail**: **`AdminNotifier`** resolves recipient from **`AppSetting::KEY_ADMIN_NOTIFICATION_EMAIL`** then **`ADMIN_EMAIL`**; paid-suggestion email uses **reader chapter label** (**`headingPrefix()`** + title) plus **row id**, not only numeric id as “chapter number.”
+- **Artisan** **`mail:test`** (**`SendTestMailCommand`**) for smoke-testing the configured mailer.
+- **Tests**: **`OnboardingDismissTest`**, **`MailTestCommandTest`**, **`AdminNotifierRecipientTest`**, **`AchievementRequirementLabelTest`**, **`ReadingProgressDisplayTest`**, **`ReaderTbwP1EnhancementsTest`** **`read_percent`** case; **`AchievementShowTest`** empty-catalog hydration; **`LeaderboardTest`** rank; **`RegistrationTest`** always dashboard after register.
+- **`.cursor/rules/manual-test-directions.mdc`** for manual QA notes.
+
+### Changed
+- **Registration**: always **redirect to dashboard** after signup (ignore modal **`redirect_to`**); removed hidden **`redirect_to`** from auth modals.
+- **`ReadingProgress`**: integer casts; **`displayProgressPercent()`** when extent missing; **`trackProgress`** monotonic merge for pixel and ratio saves.
+- **`PaymentController`**: admin notification line for new paid edits uses **`Chapter`** display fields.
+- **`.env.example`**: admin notification / mail hints where applicable.
+- **`docs/enhancement-roadmap-prioritized.md`**: minor roadmap touch-ups.
+
+### Fixed
+- **Achievements index 500**: invalid Blade around conditional **`<x-app-layout>`** / **`<x-guest-layout>`** pairs.
+
+### Repository
+- **Snapshot tag**: **`snapshot-20260403-v1924`** (annotated) on the **Development** branch commit for this batch.
+
 ## Version 1.9.23 - P1 reader UX, landing & auth polish, SEO, leaderboard & insights copy
 ### Added
 - **TBWNN chapter read**: **Previous / Next** navigation (`ChapterController::adjacentTbwChapters`, manuscript and archive order); **in-header “Reading this page”** progress strip with server **`track-progress`** (`scroll_extent_max` on **`reading_progress`**); **furthest-scroll** persistence (position never decreases).

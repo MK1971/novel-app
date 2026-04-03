@@ -72,4 +72,24 @@ class AchievementUnlock
             default => false,
         };
     }
+
+    /**
+     * Current numeric progress toward an achievement (same metrics as {@see userMeetsRequirement}).
+     */
+    public static function currentProgressToward(User $user, Achievement $achievement): int
+    {
+        return match ($achievement->requirement_type) {
+            'edits_accepted' => $user->edits()
+                ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+                ->count(),
+            'votes_cast' => $user->votes()->count(),
+            'points_earned' => (int) $user->points,
+            'chapters_read' => $user->readingProgress()->count(),
+            'completed_payments' => Payment::query()
+                ->where('user_id', $user->id)
+                ->where('status', 'completed')
+                ->count(),
+            default => 0,
+        };
+    }
 }

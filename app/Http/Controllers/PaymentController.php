@@ -363,10 +363,12 @@ class PaymentController extends Controller
                 AchievementUnlock::syncForUser($request->user());
 
                 $chapterForMail = Chapter::with('book')->find($chapterId);
-                if ($chapterForMail && ChapterLifecycle::isTbwChapter($chapterForMail)) {
+                if ($chapterForMail) {
                     $label = $edit->type === 'inline_edit' ? 'Paragraph suggestion' : 'Full-chapter suggestion';
+                    $bookName = $chapterForMail->book?->name ?? 'Unknown book';
+                    $readerLabel = $chapterForMail->headingPrefix().': '.$chapterForMail->displayTitle();
                     AdminNotifier::notifyNewPaidSuggestion(
-                        "{$label} pending review for chapter #{$chapterId} (edit #{$edit->id}) by {$request->user()->name}."
+                        "{$label} pending review — {$bookName}, {$readerLabel} (row id {$chapterForMail->id}, edit #{$edit->id}) by {$request->user()->name}."
                     );
                 }
             } catch (QueryException $e) {

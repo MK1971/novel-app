@@ -26,32 +26,14 @@
 
             <div class="bg-amber-50 rounded-2xl border border-amber-200 p-8 mb-8">
                 <p class="text-xs text-amber-900/60 font-bold uppercase tracking-widest mb-3">Requirement</p>
-                <p class="text-2xl font-extrabold text-amber-900">
-                    @switch($achievement->requirement_type)
-                        @case('edits_accepted')
-                            {{ $achievement->requirement_value }} accepted edits
-                            @break
-                        @case('votes_cast')
-                            {{ $achievement->requirement_value }} votes cast
-                            @break
-                        @case('points_earned')
-                            {{ $achievement->requirement_value }} points
-                            @break
-                        @case('chapters_read')
-                            {{ $achievement->requirement_value }} chapters read
-                            @break
-                        @case('completed_payments')
-                            {{ $achievement->requirement_value }} completed $2 edit payment(s)
-                            @break
-                        @default
-                            {{ $achievement->requirement_value }} ({{ $achievement->requirement_type }})
-                    @endswitch
-                </p>
+                <p class="text-2xl font-extrabold text-amber-900">{{ $achievement->requirementLabel() }}</p>
             </div>
 
             @auth
                 @php
                     $userAchievement = auth()->user()->achievements()->where('achievements.id', $achievement->id)->first();
+                    $targetShow = max(1, (int) $achievement->requirement_value);
+                    $barPctShow = $userAchievement ? 100 : ($currentProgress !== null ? min(100, (int) round(((int) $currentProgress / $targetShow) * 100)) : 0);
                 @endphp
                 @if($userAchievement)
                     <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center">
@@ -59,6 +41,14 @@
                         @if($userAchievement->pivot->unlocked_at)
                             <p class="text-green-700/80 font-bold text-sm mt-2">{{ \Carbon\Carbon::parse($userAchievement->pivot->unlocked_at)->toFormattedDateString() }}</p>
                         @endif
+                    </div>
+                @elseif($currentProgress !== null)
+                    <div class="rounded-2xl border-2 border-amber-200 bg-amber-50/80 p-8 text-center">
+                        <p class="text-sm font-extrabold text-amber-900">Progress: {{ (int) $currentProgress }} / {{ $targetShow }}</p>
+                        <div class="relative mx-auto mt-4 max-w-md h-3 w-full overflow-hidden rounded-full bg-amber-100" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $barPctShow }}">
+                            <div class="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-300" style="width: {{ $barPctShow }}%"></div>
+                        </div>
+                        <p class="mt-6 text-amber-900 font-extrabold">Locked — keep contributing to unlock this badge.</p>
                     </div>
                 @else
                     <div class="bg-amber-100 border-2 border-amber-200 rounded-2xl p-8 text-center">

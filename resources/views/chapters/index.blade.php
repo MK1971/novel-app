@@ -109,7 +109,7 @@
                             $cardWordCount = $chapter->wordCount();
                             $cardReadMins = $chapter->estimatedReadingMinutes();
                             $cardProgress = auth()->check() ? $readingProgressByChapter->get($chapter->id) : null;
-                            $cardReadPct = $cardProgress?->scrollProgressPercent();
+                            $cardReadPct = $cardProgress?->displayProgressPercent();
                         @endphp
                         <div class="mb-6 space-y-3">
                             <p class="text-sm font-bold text-amber-800/70 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -123,8 +123,6 @@
                                         <span class="text-[10px] font-black uppercase tracking-widest text-amber-800/50">Your progress</span>
                                         @if($cardReadPct !== null)
                                             <span class="text-xs font-black text-amber-900 tabular-nums">{{ $cardReadPct }}%</span>
-                                        @elseif($cardProgress)
-                                            <span class="text-xs font-bold text-amber-800/60">Syncing after you read this chapter</span>
                                         @else
                                             <span class="text-xs font-bold text-amber-800/60">Not started</span>
                                         @endif
@@ -132,9 +130,13 @@
                                     @if($cardReadPct !== null)
                                         <span class="sr-only">{{ $cardReadPct }} percent read on this chapter</span>
                                     @endif
-                                    <div class="h-2 rounded-full bg-amber-100 overflow-hidden" aria-hidden="true">
-                                        <div class="h-full bg-amber-500 rounded-full transition-all duration-300" style="width: {{ $cardReadPct ?? 0 }}%"></div>
+                                    <div class="relative h-2 w-full min-w-0 overflow-hidden rounded-full bg-amber-200/80" aria-hidden="true">
+                                        <div
+                                            class="absolute inset-y-0 left-0 rounded-full bg-amber-600 transition-all duration-300 ease-out"
+                                            style="width: {{ max(0, min(100, (int) ($cardReadPct ?? 0))) }}%;"
+                                        ></div>
                                     </div>
+                                    <p class="mt-2 text-[10px] font-bold text-amber-800/50">Updates when you scroll this list or the full chapter page.</p>
                                 </div>
                             @endauth
                         </div>
@@ -394,6 +396,62 @@
             document.body.style.overflow = 'auto';
         }
 
+        @endauth
+
+        @auth
+        (function () {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (! csrf) {
+                return;
+            }
+            let timer = null;
+            function percentReadThrough(el) {
+                const rect = el.getBoundingClientRect();
+                const h = el.offsetHeight;
+                if (h < 1) {
+                    return 0;
+                }
+                const viewportBottom = window.scrollY + window.innerHeight;
+                const blockTop = rect.top + window.scrollY;
+                const readThrough = Math.min(Math.max(viewportBottom - blockTop, 0), h);
+                return Math.min(100, Math.round((100 * readThrough) / h));
+            }
+            function flush() {
+                document.querySelectorAll('.chapter-container[data-chapter-id]').forEach(function (wrap) {
+                    const id = wrap.getAttribute('data-chapter-id');
+                    const content = document.getElementById('content-' + id);
+                    if (! content || content.classList.contains('hidden')) {
+                        return;
+                    }
+                    const pct = percentReadThrough(content);
+                    if (pct < 1) {
+                        return;
+                    }
+                    fetch('/chapters/' + encodeURIComponent(id) + '/track-progress', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrf,
+                            Accept: 'application/json',
+                        },
+                        body: JSON.stringify({ read_percent: pct }),
+                        keepalive: true,
+                    }).catch(function () {});
+                });
+            }
+            function scheduleFlush() {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(flush, 450);
+            }
+            window.addEventListener('scroll', scheduleFlush, { passive: true });
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'hidden') {
+                    flush();
+                }
+            });
+            window.addEventListener('pagehide', flush);
+        })();
         @endauth
     </script>
 </x-dynamic-component>

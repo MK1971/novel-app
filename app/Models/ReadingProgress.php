@@ -23,15 +23,39 @@ class ReadingProgress extends Model
     /** Approximate read-through on the chapter page (0–100). Null until scroll extent has been saved at least once. */
     public function scrollProgressPercent(): ?int
     {
-        if (! $this->scroll_extent_max || $this->scroll_extent_max < 1) {
+        $ext = (int) ($this->scroll_extent_max ?? 0);
+        if ($ext < 1) {
             return null;
         }
 
-        if ($this->scroll_position <= 0) {
+        $pos = (int) ($this->scroll_position ?? 0);
+        if ($pos <= 0) {
             return 0;
         }
 
-        return (int) min(100, max(0, round(100 * $this->scroll_position / $this->scroll_extent_max)));
+        return (int) min(100, max(0, round(100 * $pos / $ext)));
+    }
+
+    /**
+     * Percent for UI (chapter list, SSR bar). Uses stored extent when present; otherwise estimates from
+     * scroll depth so label and fill stay in sync when extent was missing from older saves.
+     */
+    public function displayProgressPercent(): ?int
+    {
+        $strict = $this->scrollProgressPercent();
+        if ($strict !== null) {
+            return $strict;
+        }
+
+        $pos = (int) ($this->scroll_position ?? 0);
+        if ($pos <= 0) {
+            return null;
+        }
+
+        $ext = (int) ($this->scroll_extent_max ?? 0);
+        $denom = $ext >= 1 ? $ext : (int) max(ceil($pos * 1.12), $pos + 100);
+
+        return (int) min(100, max(1, round(100 * $pos / $denom)));
     }
 
     protected function casts(): array
@@ -39,6 +63,8 @@ class ReadingProgress extends Model
         return [
             'completed' => 'boolean',
             'last_read_at' => 'datetime',
+            'scroll_position' => 'integer',
+            'scroll_extent_max' => 'integer',
         ];
     }
 

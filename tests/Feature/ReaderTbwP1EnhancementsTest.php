@@ -129,6 +129,39 @@ class ReaderTbwP1EnhancementsTest extends TestCase
         $this->assertSame(100, $row->scrollProgressPercent());
     }
 
+    public function test_track_progress_stores_read_percent_as_ratio_encoding(): void
+    {
+        $book = Book::create(['name' => Book::NAME_THE_BOOK_WITH_NO_NAME, 'status' => 'in_progress']);
+        $chapter = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'One',
+            'number' => 1,
+            'list_section' => Chapter::LIST_SECTION_CHAPTER,
+            'content' => 'Body.',
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => false,
+            'is_archived' => false,
+        ]);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->postJson(route('chapters.track-progress', $chapter), [
+                'read_percent' => 55,
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $row = ReadingProgress::query()
+            ->where('user_id', $user->id)
+            ->where('chapter_id', $chapter->id)
+            ->first();
+        $this->assertNotNull($row);
+        $this->assertSame(1000, (int) $row->scroll_extent_max);
+        $this->assertSame(550, (int) $row->scroll_position);
+        $this->assertSame(55, $row->scrollProgressPercent());
+    }
+
     public function test_vote_hub_shows_live_tbwnn_link_when_chapter_is_open(): void
     {
         Book::create(['name' => Book::NAME_PETER_TRULL, 'status' => 'in_progress']);

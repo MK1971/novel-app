@@ -42,4 +42,28 @@ class LeaderboardTest extends TestCase
             ->assertSee('Casey Writer', false)
             ->assertDontSee('No contributors on the board yet', false);
     }
+
+    public function test_leaderboard_shows_authenticated_user_rank_and_you_label(): void
+    {
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'points' => 0,
+        ]);
+        User::factory()->create([
+            'name' => 'Top Contributor',
+            'points' => 200,
+        ]);
+        $viewer = User::factory()->create([
+            'name' => 'Mid Contributor',
+            'points' => 50,
+        ]);
+
+        $this->actingAs($viewer)
+            ->get(route('leaderboard'))
+            ->assertOk()
+            ->assertSee('Your rank', false)
+            ->assertSee('#2', false)
+            ->assertSee('Mid Contributor', false)
+            ->assertSee('You', false);
+    }
 }

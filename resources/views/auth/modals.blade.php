@@ -15,7 +15,6 @@
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
 
             <div>
                 <x-input-label for="login-email" :value="__('Email')" class="text-sm" />
@@ -81,7 +80,6 @@
     <div class="p-6">
         <form method="POST" action="{{ route('register') }}">
             @csrf
-            <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
 
             <div>
                 <x-input-label for="register-name" :value="__('Name')" class="text-sm" />

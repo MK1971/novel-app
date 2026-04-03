@@ -10,6 +10,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\EditController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InlineEditController;
+use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParagraphReactionController;
@@ -22,6 +23,7 @@ use App\Models\InlineEdit;
 use App\Models\Payment;
 use App\Models\User;
 use App\Support\AchievementUnlock;
+use App\Support\ChapterLifecycle;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -100,15 +102,7 @@ Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('cha
 Route::post('/chapters/{chapter}/track-progress', [ChapterController::class, 'trackProgress'])->middleware('auth')->name('chapters.track-progress');
 Route::get('/chapters/{chapter}/get-progress', [ChapterController::class, 'getProgress'])->middleware('auth')->name('chapters.get-progress');
 
-Route::get('/leaderboard', function () {
-    $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-    $users = User::where('email', '!=', $adminEmail)
-        ->orderByDesc('points')
-        ->limit(20)
-        ->get();
-
-    return view('leaderboard', compact('users'));
-})->name('leaderboard');
+Route::get('/leaderboard', LeaderboardController::class)->name('leaderboard');
 
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
@@ -127,13 +121,25 @@ Route::middleware('auth')->group(function () {
 
         $achievements = \App\Models\Achievement::all();
         $userAchievements = $user->achievements()->pluck('achievement_id')->toArray();
+        $progressByAchievementId = [];
+        foreach ($achievements as $achievement) {
+            $progressByAchievementId[$achievement->id] = AchievementUnlock::currentProgressToward($user, $achievement);
+        }
         $canVote = Payment::query()
             ->where('user_id', $user->id)
             ->withAvailableVoteCredit()
             ->exists();
 
-        return view('dashboard', compact('achievements', 'userAchievements', 'canVote'));
+        $firstOpenTbwChapter = ChapterLifecycle::latestOpenTbwChapter();
+
+        return view('dashboard', compact('achievements', 'userAchievements', 'progressByAchievementId', 'canVote', 'firstOpenTbwChapter'));
     })->name('dashboard');
+
+    Route::post('/onboarding/dismiss', function () {
+        auth()->user()->update(['onboarding_completed_at' => now()]);
+
+        return redirect()->route('dashboard');
+    })->name('onboarding.dismiss');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');

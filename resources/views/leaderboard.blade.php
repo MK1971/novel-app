@@ -46,6 +46,24 @@
                 @endauth
             </div>
         @else
+            @auth
+                @if($yourRank !== null)
+                    <div class="mb-8 rounded-[2rem] border-2 border-amber-400/60 bg-amber-50 px-8 py-6 shadow-sm" role="status">
+                        <p class="text-lg font-extrabold text-amber-950">
+                            Your rank: <span class="text-amber-700">#{{ $yourRank }}</span>
+                            @if(($totalRanked ?? 0) > 0)
+                                <span class="text-amber-800/70 font-bold text-base"> of {{ $totalRanked }} on the board</span>
+                            @endif
+                        </p>
+                        <p class="mt-1 text-sm font-bold text-amber-900/80">
+                            {{ number_format($yourPoints ?? 0) }} points
+                            @if($yourRank > 20)
+                                <span class="block mt-2 text-amber-800/70">You’re outside the top 20 shown in the table — keep contributing to move up.</span>
+                            @endif
+                        </p>
+                    </div>
+                @endif
+            @endauth
             <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] overflow-hidden">
                 <table class="min-w-full divide-y divide-amber-100">
                     <thead class="bg-amber-50/50">
@@ -56,8 +74,11 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-amber-50">
-                        @foreach($users as $index => $user)
-                            <tr class="hover:bg-amber-50/30 transition-all group">
+                        @foreach($users as $index => $leaderboardUser)
+                            <tr @class([
+                                'hover:bg-amber-50/30 transition-all group',
+                                'bg-amber-100/40 ring-2 ring-inset ring-amber-400/50' => auth()->check() && auth()->id() === $leaderboardUser->id,
+                            ])>
                                 <td class="px-10 py-8">
                                     <div class="flex items-center">
                                         @if($index === 0)
@@ -72,12 +93,17 @@
                                     </div>
                                 </td>
                                 <td class="px-10 py-8">
-                                    <div class="text-xl font-extrabold text-amber-900 group-hover:text-amber-600 transition-colors">{{ $user->name }}</div>
-                                    <div class="text-sm text-amber-800/40 font-bold mt-1">Member since {{ $user->created_at->format('M Y') }}</div>
+                                    <div class="text-xl font-extrabold text-amber-900 group-hover:text-amber-600 transition-colors">
+                                        {{ $leaderboardUser->name }}
+                                        @if(auth()->check() && auth()->id() === $leaderboardUser->id)
+                                            <span class="ml-2 align-middle text-xs font-black uppercase tracking-wider text-amber-700">You</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-sm text-amber-800/40 font-bold mt-1">Member since {{ $leaderboardUser->created_at->format('M Y') }}</div>
                                 </td>
                                 <td class="px-10 py-8 text-right">
                                     <span class="inline-flex items-center px-6 py-2 bg-amber-100 text-amber-900 text-lg font-black rounded-full border border-amber-200/50">
-                                        {{ number_format($user->points) }} <span class="ml-2 text-xs uppercase tracking-widest opacity-40">pts</span>
+                                        {{ number_format($leaderboardUser->points) }} <span class="ml-2 text-xs uppercase tracking-widest opacity-40">pts</span>
                                     </span>
                                 </td>
                             </tr>

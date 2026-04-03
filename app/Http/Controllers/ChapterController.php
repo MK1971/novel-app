@@ -101,14 +101,18 @@ class ChapterController extends Controller
         }
 
         $progress = 0;
+        $progressBarPercent = null;
+        $progressExtentMax = 0;
         if (Auth::check()) {
             $readingProgress = ReadingProgress::firstOrCreate(
                 ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
             );
-            $progress = $readingProgress->scroll_position;
+            $progress = (int) $readingProgress->scroll_position;
+            $progressExtentMax = (int) ($readingProgress->scroll_extent_max ?? 0);
             if ($readingProgress->wasRecentlyCreated) {
                 AchievementUnlock::syncForUser(Auth::user());
             }
+            $progressBarPercent = $readingProgress->displayProgressPercent();
         }
 
         $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
@@ -131,6 +135,8 @@ class ChapterController extends Controller
         return view('chapters.show', compact(
             'chapter',
             'progress',
+            'progressBarPercent',
+            'progressExtentMax',
             'stats',
             'pendingPaymentEdit',
             'suggestionsClosed',
@@ -142,30 +148,58 @@ class ChapterController extends Controller
 
     public function trackProgress(Request $request, Chapter $chapter)
     {
-        if (Auth::check()) {
+        if (! Auth::check()) {
+            return response()->json(['success' => true]);
+        }
+
+        $progress = ReadingProgress::firstOrNew(
+            ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
+        );
+        $wasNew = ! $progress->exists;
+
+        $existingPct = 0;
+        if ($progress->exists) {
+            $existingPct = $progress->displayProgressPercent() ?? 0;
+        }
+
+        if ($request->has('read_percent')) {
+            $incoming = max(0.0, min(100.0, (float) $request->input('read_percent')));
+            $targetPct = max($existingPct, $incoming);
+            $progress->scroll_position = (int) round($targetPct * 10);
+            $progress->scroll_extent_max = 1000;
+        } else {
             $incomingPos = max(0, (int) $request->input('scroll_position', 0));
 
-            $progress = ReadingProgress::firstOrNew(
-                ['user_id' => Auth::id(), 'chapter_id' => $chapter->id]
-            );
-            $wasNew = ! $progress->exists;
-
-            $progress->scroll_position = max((int) $progress->scroll_position, $incomingPos);
-            $progress->last_read_at = now();
+            if (! $request->filled('scroll_extent_max') && $incomingPos === 0) {
+                return response()->json(['success' => true]);
+            }
 
             if ($request->filled('scroll_extent_max')) {
                 $incomingExt = max(1, min((int) $request->input('scroll_extent_max'), 50_000_000));
-                $progress->scroll_extent_max = max((int) ($progress->scroll_extent_max ?? 0), $incomingExt);
+            } else {
+                $incomingExt = max(1, (int) ceil($incomingPos * 1.08));
             }
 
-            $progress->save();
+            $ext = max((int) ($progress->scroll_extent_max ?? 0), $incomingExt);
+            $pixelPct = min(100.0, 100.0 * $incomingPos / max(1, $incomingExt));
+            $targetPct = max($existingPct, $pixelPct);
+            $minPosForTarget = (int) ceil($targetPct / 100.0 * $ext);
 
-            // Only increment total_reads if this is a new progress record (first time reading)
-            if ($wasNew) {
-                $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
-                $stats->increment('total_reads');
-                AchievementUnlock::syncForUser(Auth::user());
-            }
+            $progress->scroll_position = max(
+                (int) ($progress->scroll_position ?? 0),
+                $incomingPos,
+                $minPosForTarget
+            );
+            $progress->scroll_extent_max = $ext;
+        }
+
+        $progress->last_read_at = now();
+        $progress->save();
+
+        if ($wasNew) {
+            $stats = $chapter->statistics()->firstOrCreate(['chapter_id' => $chapter->id]);
+            $stats->increment('total_reads');
+            AchievementUnlock::syncForUser(Auth::user());
         }
 
         return response()->json(['success' => true]);
