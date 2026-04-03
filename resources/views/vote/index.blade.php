@@ -76,7 +76,7 @@
                 @if (($voteCreditsRemaining ?? 0) > 0)
                     <p class="mb-4 text-amber-900 font-black text-sm uppercase tracking-widest">Unused vote credits: {{ $voteCreditsRemaining }}</p>
                 @endif
-                <p class="text-amber-800/60 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Casting a vote uses one paid edit credit. You can vote only once per chapter pair.</p>
+                <p class="text-amber-800/85 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Casting a vote uses one paid edit credit. You can vote only once per chapter pair.</p>
             </div>
         @endif
 
@@ -141,8 +141,8 @@
                                     @else
                                         <span class="px-4 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full uppercase tracking-widest animate-pulse">Voting open</span>
                                     @endif
-                                    <div class="text-sm font-bold text-amber-900/40">
-                                        Total Votes: <span class="text-amber-900">{{ $totalVotes }}</span>
+                                    <div class="text-sm font-bold text-amber-800">
+                                        Total Votes: <span class="text-amber-950">{{ $totalVotes }}</span>
                                     </div>
                                     <svg class="w-6 h-6 text-amber-800/50 shrink-0 transition-transform group-open:rotate-180 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
@@ -157,7 +157,7 @@
                                         <span class="px-4 py-1 bg-amber-100 text-amber-800 text-xs font-black rounded-full uppercase tracking-widest">Option 1</span>
                                     </div>
                                 </div>
-                                <p class="text-amber-900/70 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionA->content }}</p>
+                                <p class="text-amber-900 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionA->content }}</p>
                                 @if($canVote ?? false)
                                     <form action="{{ route('vote.store', $versionA) }}" method="POST">
                                         @csrf
@@ -175,7 +175,7 @@
                                         <span class="px-4 py-1 bg-amber-500 text-black text-xs font-black rounded-full uppercase tracking-widest">Option 2</span>
                                     </div>
                                 </div>
-                                <p class="text-amber-900/70 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionB->content }}</p>
+                                <p class="text-amber-900 text-lg leading-relaxed mb-12 flex-grow whitespace-pre-wrap">{{ $versionB->content }}</p>
                                 @if($canVote ?? false)
                                     <form action="{{ route('vote.store', $versionB) }}" method="POST">
                                         @csrf
@@ -186,6 +186,38 @@
                                 @endif
                             </div>
                         </div>
+                        @if($versionA->content !== $versionB->content)
+                            @php
+                                $pairDiffUi = \App\Support\TextDiff::linesForDisplay($versionA->content, $versionB->content);
+                            @endphp
+                            <div class="border-t border-amber-100 px-6 sm:px-10 py-5 bg-slate-50/60">
+                                @if($pairDiffUi !== null)
+                                    <details class="group">
+                                        <summary class="cursor-pointer text-sm font-black text-amber-950 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg px-1 -mx-1">
+                                            What changed between A and B?
+                                        </summary>
+                                        <p class="mt-3 text-xs font-bold text-amber-900/90 leading-relaxed max-w-3xl">
+                                            <span class="inline-flex items-center gap-1.5 mr-3"><span class="inline-block w-3 h-3 rounded-sm bg-rose-200 border border-rose-400" aria-hidden="true"></span> Removed from A</span>
+                                            <span class="inline-flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm bg-emerald-200 border border-emerald-500" aria-hidden="true"></span> Added in B</span>
+                                            <span class="block sm:inline sm:ml-3 mt-1 sm:mt-0 text-amber-800/90 font-semibold">Pale <strong class="text-neutral-800">white</strong> rows (on the sand track) = unchanged context.</span>
+                                        </p>
+                                        <div class="mt-3 max-h-96 overflow-auto rounded-2xl border-2 border-neutral-300/80 bg-neutral-200/90 shadow-inner" role="region" aria-label="Text differences">
+                                            @foreach($pairDiffUi['lines'] as $row)
+                                                <div @class([
+                                                    'px-3 py-1.5 whitespace-pre-wrap break-words text-sm leading-relaxed border-b border-neutral-300/60 last:border-b-0',
+                                                    'bg-rose-100 text-rose-950 border-l-4 border-l-rose-600 pl-2' => $row['kind'] === 'removed',
+                                                    'bg-emerald-100 text-emerald-950 border-l-4 border-l-emerald-600 pl-2' => $row['kind'] === 'added',
+                                                    'bg-white text-neutral-900 border-l-4 border-l-neutral-500 pl-2 shadow-[inset_0_1px_0_rgba(0,0,0,0.04)]' => $row['kind'] === 'same',
+                                                    'bg-amber-100 text-amber-950 font-bold text-xs py-2 border-l-4 border-l-amber-500' => $row['kind'] === 'warning',
+                                                ])>{{ $row['text'] }}</div>
+                                            @endforeach
+                                        </div>
+                                    </details>
+                                @else
+                                    <p class="text-sm font-bold text-amber-900">These versions differ; the comparison view is omitted because the combined text is very long.</p>
+                                @endif
+                            </div>
+                        @endif
                     </details>
                 @endif
             @empty

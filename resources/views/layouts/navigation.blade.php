@@ -13,9 +13,11 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @if($topLeader)
-                        <div class="inline-flex items-center px-1 pt-1 text-sm font-bold text-amber-700">
-                            🏆 Leader: {{ $topLeader->name }} ({{ $topLeader->points }} pts)
-                        </div>
+                        <a href="{{ route('leaderboard') }}" class="inline-flex items-center px-1 pt-1 text-sm font-bold text-amber-900 hover:text-amber-700 underline-offset-2 hover:underline" title="Open full leaderboard">
+                            <span aria-hidden="true">🏆</span>
+                            <span class="sr-only">Top contributor — </span>
+                            <span class="ml-1">Top contributor: {{ $topLeader->name }} ({{ $topLeader->points }} pts)</span>
+                        </a>
                     @endif
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                         {{ __('Dashboard') }}

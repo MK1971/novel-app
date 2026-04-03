@@ -423,6 +423,10 @@
                     if (! content || content.classList.contains('hidden')) {
                         return;
                     }
+                    // Locked chapters only show a short placeholder here; real progress is saved on the full chapter page.
+                    if (! content.classList.contains('chapter-content')) {
+                        return;
+                    }
                     const pct = percentReadThrough(content);
                     if (pct < 1) {
                         return;

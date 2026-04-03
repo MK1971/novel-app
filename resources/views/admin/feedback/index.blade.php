@@ -17,14 +17,14 @@
                                 <div class="bg-amber-50 p-6 rounded-xl border border-amber-100 shadow-sm">
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
-                                            <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider mr-2">
-                                                {{ $item->type }}
+                                            <span class="px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full tracking-wide mr-2">
+                                                {{ $item->typeLabel() }}
                                             </span>
-                                            <span class="text-sm text-amber-600">
+                                            <span class="text-sm text-amber-800">
                                                 From: {{ $item->user ? $item->user->name : ($item->email ?? 'Anonymous') }}
                                             </span>
                                         </div>
-                                        <span class="text-xs text-amber-500">{{ $item->created_at->diffForHumans() }}</span>
+                                        <span class="text-xs text-amber-800">{{ $item->created_at->diffForHumans() }}</span>
                                     </div>
                                     <p class="text-amber-900 leading-relaxed">{{ $item->content }}</p>
                                     @if($item->chapter)

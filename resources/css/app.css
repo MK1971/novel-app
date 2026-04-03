@@ -7,4 +7,9 @@
     :where(a, button, input:not([type="hidden"]), select, textarea, summary):focus-visible {
         @apply outline-none ring-2 ring-amber-500 ring-offset-2 ring-offset-[#fff9f0];
     }
+
+    /* P2 reader: literary body text (stack + kerning; Tailwind font-serif on #chapter-content) */
+    .novel-reader-body {
+        font-feature-settings: "kern" 1, "liga" 1;
+    }
 }

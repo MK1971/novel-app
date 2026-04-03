@@ -61,14 +61,14 @@
                             What's My Book Name
                         </a>
                         @if($topLeader)
-                            <div class="hidden lg:flex items-center px-4 py-1.5 bg-amber-100 text-amber-900 text-sm font-bold rounded-full border border-amber-200/50">
+                            <a href="{{ route('leaderboard') }}" class="hidden lg:inline-flex items-center px-4 py-1.5 bg-amber-100 text-amber-950 text-sm font-bold rounded-full border border-amber-200/50 hover:bg-amber-200/80 transition-colors" title="Open full leaderboard">
                                 <span class="mr-2" aria-hidden="true">🏆</span>
-                                <span class="sr-only">Top leaderboard: </span>
-                                <span class="opacity-60 mr-1">Leader:</span>
+                                <span class="sr-only">Top contributor — open leaderboard: </span>
+                                <span class="text-amber-900/85 mr-1">Top contributor:</span>
                                 <span>{{ $topLeader->name }}</span>
-                                <span class="mx-2 opacity-20" aria-hidden="true">|</span>
+                                <span class="mx-2 text-amber-900/35" aria-hidden="true">|</span>
                                 <span>{{ $topLeader->points }} pts</span>
-                            </div>
+                            </a>
                         @endif
                     </div>
                     

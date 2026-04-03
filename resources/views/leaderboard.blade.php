@@ -10,7 +10,22 @@
                 <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
                     Leaderboard
                 </h2>
-                <p class="text-amber-800/60 font-bold mt-1">The top contributors shaping the narrative.</p>
+                <p class="text-amber-800/80 font-bold mt-1">The top contributors shaping the narrative.</p>
+                <div class="flex flex-wrap gap-2 mt-4" role="tablist" aria-label="Leaderboard time range">
+                    <a
+                        href="{{ route('leaderboard', ['period' => 'all']) }}"
+                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-black border-2 transition-colors focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 {{ ($period ?? 'all') === 'all' ? 'bg-amber-500 text-black border-amber-600' : 'bg-white text-amber-900 border-amber-200 hover:bg-amber-50' }}"
+                        @if(($period ?? 'all') === 'all') aria-current="page" @endif
+                    >All-time</a>
+                    <a
+                        href="{{ route('leaderboard', ['period' => '30d']) }}"
+                        class="inline-flex items-center px-4 py-2 rounded-full text-sm font-black border-2 transition-colors focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 {{ ($period ?? 'all') === '30d' ? 'bg-amber-500 text-black border-amber-600' : 'bg-white text-amber-900 border-amber-200 hover:bg-amber-50' }}"
+                        @if(($period ?? 'all') === '30d') aria-current="page" @endif
+                    >Last 30 days</a>
+                </div>
+                @if(($period ?? 'all') === '30d')
+                    <p class="text-sm font-bold text-amber-800/90 mt-3 max-w-2xl">Ranks by points from paid suggestions approved in the last 30 days (full-chapter and paragraph edits).</p>
+                @endif
             </div>
             <div class="flex items-center gap-4">
                 <a href="{{ route('prizes') }}" class="px-4 py-2 bg-amber-500 text-black text-sm font-black rounded-2xl shadow-lg shadow-amber-500/20 hover:bg-amber-400 transition-colors">
@@ -26,15 +41,25 @@
                 <div class="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
                     <svg class="w-10 h-10 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
-                <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No contributors on the board yet</h3>
-                <p class="text-amber-800/70 font-bold leading-relaxed mb-8">{{ $pointsExplainer }}</p>
-                @auth
-                    <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
-                        Read chapters &amp; suggest an edit
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                @if(($period ?? 'all') === '30d')
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No points in the last 30 days</h3>
+                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">No paid suggestions were approved in this window yet, or scores are still syncing. Try the all-time board for cumulative ranks.</p>
+                    <a href="{{ route('leaderboard', ['period' => 'all']) }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25 mb-8">
+                        View all-time leaderboard
                     </a>
                 @else
-                    <p class="text-sm font-bold text-amber-800/80 mb-4">Sign in or create an account to contribute and appear on the leaderboard.</p>
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No contributors on the board yet</h3>
+                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">{{ $pointsExplainer }}</p>
+                @endif
+                @auth
+                    @if(($period ?? 'all') !== '30d')
+                        <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                            Read chapters &amp; suggest an edit
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </a>
+                    @endif
+                @else
+                    <p class="text-sm font-bold text-amber-800 mb-4">Sign in or create an account to contribute and appear on the leaderboard.</p>
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
                             Sign in
@@ -68,9 +93,15 @@
                 <table class="min-w-full divide-y divide-amber-100">
                     <thead class="bg-amber-50/50">
                         <tr>
-                            <th class="px-10 py-6 text-left text-xs font-extrabold text-amber-900/40 uppercase tracking-[0.2em]">Rank</th>
-                            <th class="px-10 py-6 text-left text-xs font-extrabold text-amber-900/40 uppercase tracking-[0.2em]">Contributor</th>
-                            <th class="px-10 py-6 text-right text-xs font-extrabold text-amber-900/40 uppercase tracking-[0.2em]">Points</th>
+                            <th class="px-10 py-6 text-left text-xs font-extrabold text-amber-900/70 uppercase tracking-[0.2em]">Rank</th>
+                            <th class="px-10 py-6 text-left text-xs font-extrabold text-amber-900/70 uppercase tracking-[0.2em]">Contributor</th>
+                            <th class="px-10 py-6 text-right text-xs font-extrabold text-amber-900/70 uppercase tracking-[0.2em]">
+                                @if(($period ?? 'all') === '30d')
+                                    Points (30d)
+                                @else
+                                    Points
+                                @endif
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-amber-50">
@@ -99,11 +130,11 @@
                                             <span class="ml-2 align-middle text-xs font-black uppercase tracking-wider text-amber-700">You</span>
                                         @endif
                                     </div>
-                                    <div class="text-sm text-amber-800/40 font-bold mt-1">Member since {{ $leaderboardUser->created_at->format('M Y') }}</div>
+                                    <div class="text-sm text-amber-800/75 font-bold mt-1">Member since {{ $leaderboardUser->created_at->format('M Y') }}</div>
                                 </td>
                                 <td class="px-10 py-8 text-right">
                                     <span class="inline-flex items-center px-6 py-2 bg-amber-100 text-amber-900 text-lg font-black rounded-full border border-amber-200/50">
-                                        {{ number_format($leaderboardUser->points) }} <span class="ml-2 text-xs uppercase tracking-widest opacity-40">pts</span>
+                                        {{ number_format($leaderboardUser->display_points ?? $leaderboardUser->points) }} <span class="ml-2 text-xs uppercase tracking-widest text-amber-900/55">pts</span>
                                     </span>
                                 </td>
                             </tr>
@@ -118,7 +149,7 @@
                 <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             </div>
             <h3 class="text-3xl font-extrabold text-amber-900 mb-4">Want to see your name here?</h3>
-            <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.</p>
+            <p class="text-amber-800/85 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.@if(($period ?? 'all') === '30d') <span class="block mt-2 text-base">The <strong>Last 30 days</strong> view only includes points from suggestions approved in that window; the grand prize uses the <strong>all-time</strong> board unless stated otherwise.</span>@endif</p>
             @auth
                 <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
                     Start Contributing Now

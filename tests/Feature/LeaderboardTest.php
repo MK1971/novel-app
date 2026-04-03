@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Book;
+use App\Models\Chapter;
+use App\Models\Edit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -65,5 +68,43 @@ class LeaderboardTest extends TestCase
             ->assertSee('#2', false)
             ->assertSee('Mid Contributor', false)
             ->assertSee('You', false);
+    }
+
+    public function test_leaderboard_last_30_days_lists_points_from_recent_approved_edits(): void
+    {
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'points' => 0,
+        ]);
+        $writer = User::factory()->create([
+            'name' => 'Recent Earner',
+            'points' => 0,
+        ]);
+        $book = Book::create(['name' => 'The Book With No Name', 'status' => 'in_progress']);
+        $chapter = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Ch1',
+            'number' => 1,
+            'content' => 'Hello',
+            'version' => 'A',
+            'status' => 'published',
+        ]);
+        Edit::create([
+            'user_id' => $writer->id,
+            'chapter_id' => $chapter->id,
+            'type' => 'writing',
+            'original_text' => 'Hello',
+            'edited_text' => 'Hi',
+            'status' => 'accepted_full',
+            'points_awarded' => 2,
+        ]);
+
+        $html = $this->get(route('leaderboard', ['period' => '30d']))
+            ->assertOk()
+            ->assertSee('Recent Earner', false)
+            ->assertSee('Points (30d)', false)
+            ->getContent();
+
+        $this->assertMatchesRegularExpression('/Recent Earner[\s\S]{0,800}?\b2\b[\s\S]{0,200}?pts/', $html);
     }
 }

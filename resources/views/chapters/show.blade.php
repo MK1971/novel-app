@@ -172,20 +172,20 @@
                                 <div class="text-[20rem] font-black rotate-[-35deg] whitespace-nowrap">LOCKED</div>
                             </div>
                         @endif
-                        <div id="chapter-content" class="max-w-none text-amber-900/80 leading-[2.2] font-medium text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
+                        <div id="chapter-content" class="novel-reader-body max-w-none text-amber-950 text-[1.0625rem] sm:text-lg leading-[1.88] tracking-[0.01em] font-serif font-normal text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
                             @php
                                 $paragraphs = explode("\n", $chapter->content);
                             @endphp
                             @foreach($paragraphs as $index => $paragraph)
                                 @if(trim($paragraph))
-                                    <p class="mb-6 relative group">
+                                    <p class="mb-7 last:mb-0 relative group">
                                         {{ $paragraph }}
                                         @auth
                                             @if(! $chapter->is_locked && $manuscriptEditsAllowed)
                                                 <button 
                                                     type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
-                                                    class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-400 hover:text-amber-600"
+                                                    class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-700 hover:text-amber-900 focus-visible:opacity-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg"
                                                     title="Paragraph edit ($2): suggest a change to this paragraph only. Whole-chapter rewrites use the sidebar form."
                                                 >
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -539,8 +539,9 @@
 
             function saveProgress(m, options) {
                 if (! canTrackProgress) return;
-                const token = document.querySelector('meta[name="csrf-token"]');
-                if (! token) return;
+                const tokenEl = document.querySelector('meta[name="csrf-token"]');
+                const csrf = tokenEl ? tokenEl.getAttribute('content') : '';
+                if (! csrf) return;
                 const opts = options || {};
                 const payload = JSON.stringify({
                     scroll_position: m.positionForSave,
@@ -552,7 +553,7 @@
                         credentials: 'same-origin',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': token.content,
+                            'X-CSRF-TOKEN': csrf,
                             'Accept': 'application/json',
                         },
                         body: payload,
@@ -565,7 +566,7 @@
                     credentials: 'same-origin',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': token.content,
+                        'X-CSRF-TOKEN': csrf,
                         'Accept': 'application/json',
                     },
                     body: payload,

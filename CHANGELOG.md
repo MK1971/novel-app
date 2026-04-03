@@ -2,6 +2,24 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.26 - Vote diff readability
+### Changed
+- **Peter Trull vote comparison**: **What changed between A and B?** uses **color-coded line rows** (rose / emerald / **unchanged on white over a neutral track**) via **`TextDiff::linesForDisplay()`** instead of a monospace unified-diff terminal block.
+- **Vote diff context rows**: **neutral/sand panel** behind the list so **unchanged** lines read as **white strips** with a **neutral left bar** (replacing low-contrast gray-on-white).
+
+## Version 1.9.25 - P2 roadmap remainder (#14–#20)
+### Added
+- **Leaderboard time scope**: **`GET /leaderboard?period=30d`** ranks by points from **paid** full-chapter approvals (**`edits.points_awarded`**, `updated_at` in window) plus **paid** paragraph approvals (**`inline_edits`** + **`payments`**); **All-time** unchanged; UI pills + **Points (30d)** column; **`App\Support\LeaderboardScoring`**, **`LeaderboardController`** `Request` + **`$period`**.
+- **Peter Trull A/B diff**: collapsible **unified diff** under each vote pair (**`sebastian/diff`**, **`App\Support\TextDiff`**); skips diff when combined text exceeds a byte cap.
+- **Feedback types**: **accessibility**, **account**, **payment**, **content_issue**; **`Feedback::typeLabel()`**; admin list shows readable labels.
+- **Docs**: **`docs/P2-manual-testing.md`** (step-by-step QA for this batch).
+### Changed
+- **Reader chapter body** (**`#chapter-content`**): serif stack, size/leading/tracking, **`novel-reader-body`** kerning in **`resources/css/app.css`**; paragraph edit control **darker + focus-visible**.
+- **WCAG-oriented contrast**: leaderboard table/header copy, vote meta, insights summary/empty panels, admin feedback timestamps; **Top contributor** header chip (**app** / **guest**) is a **link** to **`leaderboard`** with clearer copy; **navigation** top line links the same.
+- **Insights**: empty voting/contribution panels use **icon + heading + CTA** instead of italic one-liners.
+### Tests
+- **`LeaderboardTest`**: **last 30 days** uses recent **`Edit`** **`points_awarded`**.
+
 ## Version 1.9.24 - Reading progress, achievements clarity, onboarding, leaderboard rank, admin mail
 ### Added
 - **Dashboard onboarding**: dismissible **Welcome — get started** card with links to chapters, live chapter, leaderboard, vote; **`users.onboarding_completed_at`** migration and **`POST /onboarding/dismiss`**; factory support.

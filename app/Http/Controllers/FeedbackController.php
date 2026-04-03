@@ -11,12 +11,14 @@ class FeedbackController extends Controller
     public function index()
     {
         $feedbacks = Feedback::latest()->limit(10)->get();
+
         return view('feedback.index', compact('feedbacks'));
     }
 
     public function adminIndex()
     {
         $feedback = Feedback::with(['user', 'chapter'])->latest()->paginate(20);
+
         return view('admin.feedback.index', compact('feedback'));
     }
 
@@ -24,7 +26,7 @@ class FeedbackController extends Controller
     {
         $request->validate([
             'content' => 'required|string|max:1000',
-            'type' => 'required|string|in:general,chapter,bug,suggestion,site_suggestion',
+            'type' => 'required|string|in:general,chapter,bug,suggestion,site_suggestion,accessibility,account,payment,content_issue',
             'chapter_id' => 'nullable|exists:chapters,id',
             'email' => 'nullable|email|max:255',
         ]);

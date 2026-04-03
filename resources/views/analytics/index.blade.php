@@ -18,14 +18,14 @@
         {{-- MVP summary strip --}}
         <div class="grid sm:grid-cols-2 gap-6 mb-12 max-w-3xl">
             <div class="bg-white border border-amber-100 rounded-3xl p-6 shadow-sm">
-                <p class="text-xs font-black uppercase tracking-widest text-amber-800/50 mb-1">Votes cast</p>
+                <p class="text-xs font-black uppercase tracking-widest text-amber-800/70 mb-1">Votes cast</p>
                 <p class="text-3xl font-black text-amber-900">{{ number_format($insightSummary['total_votes']) }}</p>
-                <p class="text-xs font-bold text-amber-800/50 mt-1">All Peter Trull Solitary Detective ballots</p>
+                <p class="text-xs font-bold text-amber-800/75 mt-1">All Peter Trull Solitary Detective ballots</p>
             </div>
             <div class="bg-white border border-amber-100 rounded-3xl p-6 shadow-sm">
-                <p class="text-xs font-black uppercase tracking-widest text-amber-800/50 mb-1">Edits in review</p>
+                <p class="text-xs font-black uppercase tracking-widest text-amber-800/70 mb-1">Edits in review</p>
                 <p class="text-3xl font-black text-amber-900">{{ number_format($insightSummary['pending_edits']) }}</p>
-                <p class="text-xs font-bold text-amber-800/50 mt-1">Full-chapter + paragraph suggestions awaiting moderation</p>
+                <p class="text-xs font-bold text-amber-800/75 mt-1">Full-chapter + paragraph suggestions awaiting moderation</p>
             </div>
         </div>
 
@@ -66,8 +66,13 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-20 bg-amber-50/50 rounded-[2rem] border border-dashed border-amber-200">
-                        <p class="text-amber-800/40 font-bold italic">No voting data available yet.</p>
+                    <div class="text-center py-16 px-8 bg-amber-50/80 rounded-[2rem] border border-dashed border-amber-200">
+                        <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6" aria-hidden="true">
+                            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-black text-amber-900 mb-2">No voting chart yet</h3>
+                        <p class="text-amber-800 font-bold max-w-md mx-auto mb-6">Once readers cast ballots on Peter Trull pairs, breakdowns by chapter will appear here.</p>
+                        <a href="{{ route('vote.index') }}" class="inline-flex items-center px-6 py-3 bg-amber-500 text-black text-sm font-black rounded-full hover:bg-amber-600 transition-colors">Open the vote page</a>
                     </div>
                 @endif
             </div>
@@ -79,7 +84,7 @@
                     </svg>
                     Manuscript contributions by chapter
                 </h2>
-                <p class="text-sm font-bold text-amber-800/50 mb-6 -mt-4">Counts come from chapter statistics (updated when payments complete and moderators act) plus live pending queue.</p>
+                <p class="text-sm font-bold text-amber-800/80 mb-6 -mt-4">Counts come from chapter statistics (updated when payments complete and moderators act) plus live pending queue.</p>
 
                 @if($chapterStats->count() > 0)
                     <div class="space-y-4">
@@ -113,8 +118,13 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="text-center py-20 bg-amber-50/50 rounded-[2rem] border border-dashed border-amber-200">
-                        <p class="text-amber-800/40 font-bold italic">No contribution data available yet.</p>
+                    <div class="text-center py-16 px-8 bg-amber-50/80 rounded-[2rem] border border-dashed border-amber-200">
+                        <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-6" aria-hidden="true">
+                            <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-black text-amber-900 mb-2">No contribution breakdown yet</h3>
+                        <p class="text-amber-800 font-bold max-w-md mx-auto mb-6">When chapters have paid submissions and moderation activity, per-chapter stats will show here.</p>
+                        <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-6 py-3 bg-amber-500 text-black text-sm font-black rounded-full hover:bg-amber-600 transition-colors">Browse chapters</a>
                     </div>
                 @endif
             </div>
