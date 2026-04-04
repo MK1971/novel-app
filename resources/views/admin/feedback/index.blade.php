@@ -30,7 +30,7 @@
                                     @if($item->chapter)
                                         <div class="mt-4 pt-4 border-t border-amber-100">
                                             <span class="text-xs font-bold text-amber-600 uppercase">Related Chapter:</span>
-                                            <a href="{{ route('chapters.show', $item->chapter) }}" class="text-sm text-amber-900 hover:underline ml-1">{{ $item->chapter->displayTitle() }}</a>
+                                            <a href="{{ route('chapters.show', $item->chapter) }}" class="text-sm text-amber-900 hover:underline ml-1">{{ $item->chapter->readerHeadingLine() }}</a>
                                         </div>
                                     @endif
                                 </div>

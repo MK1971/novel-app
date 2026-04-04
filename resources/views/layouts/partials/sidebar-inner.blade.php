@@ -74,6 +74,9 @@
                 <x-sidebar-link :href="route('profile.show')" :active="request()->routeIs('profile.show')" icon="user">
                     My Profile
                 </x-sidebar-link>
+                <x-sidebar-link :href="route('profile.payments')" :active="request()->routeIs('profile.payments')" icon="user">
+                    Payments &amp; votes
+                </x-sidebar-link>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full flex items-center px-4 py-3 text-sm font-bold text-amber-900/60 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all group">

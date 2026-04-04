@@ -13,7 +13,7 @@
                 </a>
                 <div>
                     <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                        {{ $chapter->headingPrefix() }}: {{ $chapter->displayTitle() }}
+                        {{ $chapter->readerHeadingLine() }}
                     </h2>
                     <p class="text-amber-800/60 font-bold mt-1">Version {{ $chapter->version }} • Published {{ ($chapter->published_at ?? $chapter->created_at)->timezone(config('app.timezone'))->format('M j, Y') }}</p>
                     @if(! $isPeterTrullBook)
@@ -28,7 +28,7 @@
                                 </a>
                             @endif
                             @if($nextChapter ?? null)
-                                <a href="{{ route('chapters.show', $nextChapter) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-100 text-amber-900 font-extrabold text-sm border border-amber-200 hover:bg-amber-200 transition-colors">
+                                <a href="{{ route('chapters.show', $nextChapter) }}#chapter-suggest-edit-sidebar" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-100 text-amber-900 font-extrabold text-sm border border-amber-200 hover:bg-amber-200 transition-colors">
                                     Next chapter
                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </a>
@@ -167,6 +167,12 @@
                     </div>
                     
                     <div class="relative z-10">
+                        @include('chapters.partials.tbw-version-nav', [
+                            'chapter' => $chapter,
+                            'tbwArchiveSiblings' => $tbwArchiveSiblings ?? collect(),
+                            'tbwLiveForNav' => $tbwLiveForNav ?? null,
+                            'tbwOtherArchiveSiblings' => $tbwOtherArchiveSiblings ?? collect(),
+                        ])
                         @if($chapter->is_locked)
                             <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.04] select-none overflow-hidden">
                                 <div class="text-[20rem] font-black rotate-[-35deg] whitespace-nowrap">LOCKED</div>
@@ -242,9 +248,15 @@
                                 <p class="text-amber-800/60 text-lg font-bold mb-10 leading-relaxed">
                                     This chapter is now part of the permanent record. Suggestions are closed, but you can still read and enjoy the community-shaped narrative.
                                 </p>
-                                <a href="{{ route('chapters.index') }}" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
-                                    Read Next Chapter
-                                </a>
+                                @if($nextChapter ?? null)
+                                    <a href="{{ route('chapters.show', $nextChapter) }}#chapter-suggest-edit-sidebar" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
+                                        Read next chapter
+                                    </a>
+                                @else
+                                    <a href="{{ route('chapters.index') }}" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
+                                        Browse chapters
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @elseif(! $manuscriptEditsAllowed && ! $chapter->is_locked)
@@ -314,6 +326,15 @@
                                             @error('edited_text')
                                                 <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
                                             @enderror
+                                            <div class="mt-4 flex flex-wrap gap-3">
+                                                <button type="button" id="novel-btn-preview-edit-diff" class="px-4 py-2 rounded-xl bg-white/15 border border-white/30 text-white text-sm font-black hover:bg-white/20 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-300">
+                                                    Preview changes vs published
+                                                </button>
+                                                <button type="button" id="novel-btn-clear-edit-draft" class="px-4 py-2 rounded-xl bg-transparent border border-white/20 text-amber-200 text-sm font-bold hover:bg-white/10">
+                                                    Discard local draft
+                                                </button>
+                                            </div>
+                                            <div id="novel-edit-diff-preview" class="hidden mt-4 rounded-2xl border-2 border-white/20 bg-black/30 p-4 text-left flex flex-col gap-3" aria-live="polite"></div>
                                         </div>
                                         
                                         <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
@@ -456,9 +477,12 @@
                 </div>
 
                 <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph suggestions use the same <strong class="text-amber-900">$2</strong> PayPal checkout. Points apply only after payment succeeds and a moderator accepts your edit.</p>
-                <div class="flex items-center gap-4 pt-4">
+                <div class="flex flex-wrap items-center gap-4 pt-4">
                     <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
                         Continue to PayPal ($2)
+                    </button>
+                    <button type="button" onclick="discardInlineParagraphDraft()" class="px-10 py-4 bg-white border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-50 transition-all">
+                        Discard saved draft
                     </button>
                     <button type="button" onclick="closeInlineEdit()" class="px-10 py-4 bg-amber-50 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-100 transition-all">
                         Cancel
@@ -471,12 +495,18 @@
     <script>
         const modal = document.getElementById('inline-edit-modal');
         const form = document.getElementById('inline-edit-form');
+        const chapterIdForInline = {{ $chapter->id }};
+        let inlineDraftTimer;
 
         function openInlineEdit(number, text) {
             document.getElementById('paragraph-number').value = number;
             document.getElementById('original-text-input').value = text;
             document.getElementById('original-text-display').innerText = text;
-            document.getElementById('suggested-text').value = text;
+            const st = document.getElementById('suggested-text');
+            const ikey = 'novel-inline-draft-' + chapterIdForInline + '-' + number;
+            let saved = null;
+            try { saved = localStorage.getItem(ikey); } catch (e) {}
+            st.value = (saved !== null && saved.length > 0) ? saved : text;
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
         }
@@ -485,6 +515,39 @@
             modal.classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+
+        function discardInlineParagraphDraft() {
+            const num = document.getElementById('paragraph-number')?.value;
+            const origEl = document.getElementById('original-text-input');
+            const st = document.getElementById('suggested-text');
+            const orig = origEl ? origEl.value : '';
+            if (num !== undefined && num !== '') {
+                try {
+                    localStorage.removeItem('novel-inline-draft-' + chapterIdForInline + '-' + num);
+                } catch (e) {}
+            }
+            if (st) {
+                st.value = orig;
+            }
+        }
+
+        document.getElementById('suggested-text')?.addEventListener('input', function () {
+            const num = document.getElementById('paragraph-number')?.value;
+            if (num === undefined || num === '') return;
+            clearTimeout(inlineDraftTimer);
+            inlineDraftTimer = setTimeout(function () {
+                try {
+                    localStorage.setItem('novel-inline-draft-' + chapterIdForInline + '-' + num, document.getElementById('suggested-text').value);
+                } catch (e) {}
+            }, 800);
+        });
+
+        form?.addEventListener('submit', function () {
+            const num = document.getElementById('paragraph-number')?.value;
+            if (num !== undefined && num !== '') {
+                try { localStorage.removeItem('novel-inline-draft-' + chapterIdForInline + '-' + num); } catch (e) {}
+            }
+        });
     </script>
     @endauth
 
@@ -636,4 +699,23 @@
             window.addEventListener('pagehide', flushProgress);
         })();
     </script>
+
+    @auth
+        @php
+            $preferServerDraft = ($pendingPaymentEdit ?? null)
+                && ($pendingPaymentEdit->type ?? '') !== 'inline_edit'
+                && strlen(trim((string) ($pendingPaymentEdit->edited_text ?? ''))) > 0;
+            $wholeChapterEditedDefault = (($pendingPaymentEdit ?? null) && ($pendingPaymentEdit->type ?? '') !== 'inline_edit')
+                ? (string) ($pendingPaymentEdit->edited_text ?? '')
+                : '';
+            $editedTextBaseline = old('edited_text', $wholeChapterEditedDefault);
+        @endphp
+        @if($chapterSuggestFabVisible)
+            @include('chapters.partials.whole-edit-draft-preview-script', [
+                'chapter' => $chapter,
+                'preferServerDraft' => $preferServerDraft,
+                'editedTextBaseline' => $editedTextBaseline,
+            ])
+        @endif
+    @endauth
 </x-dynamic-component>

@@ -58,7 +58,7 @@
                     <div class="grid gap-6 md:grid-cols-3">
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">Title <span class="text-amber-600 font-bold normal-case">(optional)</span></label>
-                            <input type="text" name="title" value="{{ old('title', $tbDraft['title'] ?? '') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Leave blank to show “Untitled” on the site">
+                            <input type="text" name="title" value="{{ old('title', $tbDraft['title'] ?? '') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Optional — blank shows chapter number only (e.g. Chapter 3)">
                         </div>
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">List section</label>
@@ -105,7 +105,7 @@
                         @foreach($storyChapters->where('is_locked', false) as $openCh)
                             <div class="p-6 bg-white border border-amber-100 rounded-xl space-y-4">
                                 <div>
-                                    <p class="font-extrabold text-amber-900">{{ $openCh->displayTitle() }}</p>
+                                    <p class="font-extrabold text-amber-900">{{ $openCh->readerHeadingLine() }}</p>
                                     <p class="text-xs font-bold text-amber-700/70">Sort #{{ $openCh->number }} · id {{ $openCh->id }}</p>
                                     @if($openCh->editing_closes_at)
                                         <p class="text-xs font-bold text-amber-800 mt-1">Editing window closes: {{ $openCh->editing_closes_at->format('M j, Y g:i A') }}</p>
@@ -118,7 +118,7 @@
                                         : $openCh->content;
                                 @endphp
                                 <div class="rounded-xl border-2 border-amber-300/80 bg-amber-50 px-4 py-3 text-xs font-bold text-amber-900 leading-relaxed">
-                                    <strong class="font-extrabold">This form replaces text for this row only</strong> (sort #{{ $openCh->number }}, id {{ $openCh->id }} — {{ $openCh->displayTitle() }}). It does <strong>not</strong> create the next chapter.
+                                    <strong class="font-extrabold">This form replaces text for this row only</strong> (sort #{{ $openCh->number }}, id {{ $openCh->id }} — {{ $openCh->readerHeadingLine() }}). It does <strong>not</strong> create the next chapter.
                                     Adding the next chapter is always the <strong>Upload & Lock Previous</strong> section above. Pasting the wrong file here can overwrite an earlier chapter’s body in the database.
                                 </div>
                                 @php $confirmPublishMsg = 'Replace stored text for sort #'.$openCh->number.' (id '.$openCh->id.') and lock this chapter? This does not add a new chapter row.'; @endphp
@@ -178,7 +178,7 @@
                                     <div class="flex items-center gap-4">
                                         <span class="shrink-0 px-3 py-2 bg-amber-200 rounded-xl font-extrabold text-amber-900 text-[10px] uppercase tracking-wider text-center max-w-[8rem] leading-tight">{{ $ch->listSectionBadge() }}</span>
                                         <div>
-                                            <p class="font-extrabold text-amber-900">{{ $ch->displayTitle() }}</p>
+                                            <p class="font-extrabold text-amber-900">{{ $ch->readerHeadingLine() }}</p>
                                             <p class="text-xs font-bold text-amber-700/60">Sort #{{ $ch->number }}</p>
                                             <p class="text-xs font-bold {{ $ch->is_locked ? 'text-red-500' : 'text-green-500' }}">
                                                 {{ $ch->is_locked ? '🔒 Locked' : '🔓 Open for Edits' }}
@@ -236,7 +236,7 @@
                     <div class="grid gap-6 md:grid-cols-3">
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">Title <span class="text-amber-600 font-bold normal-case">(optional)</span></label>
-                            <input type="text" name="title" value="{{ old('title', $ptDraft['title'] ?? '') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Leave blank for “Untitled”">
+                            <input type="text" name="title" value="{{ old('title', $ptDraft['title'] ?? '') }}" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Optional — blank uses chapter number in lists">
                         </div>
                         <div>
                             <label class="block text-amber-900 font-extrabold mb-2">List section</label>
@@ -295,7 +295,7 @@
                                         <div class="flex items-center gap-4">
                                             <span class="shrink-0 px-3 py-2 bg-amber-200 rounded-xl font-extrabold text-amber-900 text-[10px] uppercase tracking-wider text-center max-w-[8rem] leading-tight">{{ $ptRep->listSectionBadge() }}</span>
                                             <div>
-                                                <p class="font-extrabold text-amber-900">{{ $ptRep->displayTitle() }}</p>
+                                                <p class="font-extrabold text-amber-900">{{ $ptRep->readerHeadingLine() }}</p>
                                                 <p class="text-xs font-bold text-amber-700/60">Sort #{{ $ptRep->number }}</p>
                                                 <p class="text-xs font-bold {{ $vers->every(fn ($v) => $v->is_locked) ? 'text-red-500' : 'text-green-500' }}">
                                                     {{ $vers->every(fn ($v) => $v->is_locked) ? '🔒 Locked' : '🔓 Open for Voting' }}

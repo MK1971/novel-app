@@ -15,3 +15,4 @@
 ## Database
 
 - Copy **`.env.example`** to **`.env`**, set **`APP_KEY`**, run migrations and seeders as documented for this project. Local and deployed environments each use their own database; data does not sync between them.
+- To **wipe application data** and keep **only the admin user** (for a clean manual test pass), see **[Reset database for testing](development/reset-database-for-testing.md)**.

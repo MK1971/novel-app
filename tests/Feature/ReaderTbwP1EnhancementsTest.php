@@ -57,6 +57,60 @@ class ReaderTbwP1EnhancementsTest extends TestCase
             ->assertSee(route('chapters.show', $first), false);
     }
 
+    public function test_locked_chapter_sidebar_read_next_links_to_next_chapter_not_index(): void
+    {
+        $book = Book::create(['name' => Book::NAME_THE_BOOK_WITH_NO_NAME, 'status' => 'in_progress']);
+        $locked = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Closed slot',
+            'number' => 1,
+            'list_section' => Chapter::LIST_SECTION_CHAPTER,
+            'content' => str_repeat('word ', 50),
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => true,
+            'is_archived' => false,
+        ]);
+        $next = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Still open',
+            'number' => 2,
+            'list_section' => Chapter::LIST_SECTION_CHAPTER,
+            'content' => str_repeat('word ', 50),
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => false,
+            'is_archived' => false,
+        ]);
+
+        $this->get(route('chapters.show', $locked))
+            ->assertOk()
+            ->assertSee('Read next chapter', false)
+            ->assertSee(route('chapters.show', $next).'#chapter-suggest-edit-sidebar', false);
+    }
+
+    public function test_locked_chapter_last_in_series_sidebar_offers_browse_chapters(): void
+    {
+        $book = Book::create(['name' => Book::NAME_THE_BOOK_WITH_NO_NAME, 'status' => 'in_progress']);
+        $only = Chapter::create([
+            'book_id' => $book->id,
+            'title' => 'Solo locked',
+            'number' => 1,
+            'list_section' => Chapter::LIST_SECTION_CHAPTER,
+            'content' => str_repeat('word ', 50),
+            'version' => 'A',
+            'status' => 'published',
+            'is_locked' => true,
+            'is_archived' => false,
+        ]);
+
+        $this->get(route('chapters.show', $only))
+            ->assertOk()
+            ->assertSee('Browse chapters', false)
+            ->assertSee(route('chapters.index'), false)
+            ->assertDontSee('Read next chapter', false);
+    }
+
     public function test_track_progress_stores_scroll_extent_max(): void
     {
         $book = Book::create(['name' => Book::NAME_THE_BOOK_WITH_NO_NAME, 'status' => 'in_progress']);

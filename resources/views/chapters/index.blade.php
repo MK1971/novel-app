@@ -104,7 +104,7 @@
                             </div>
                         </div>
 
-                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-3' : 'mb-4' }}">{{ $chapter->displayTitle() }}</h3>
+                        <h3 class="text-4xl font-extrabold text-amber-900 {{ $chapter->is_locked ? 'mb-3' : 'mb-4' }}">{{ $chapter->readerHeadingLine() }}</h3>
                         @php
                             $cardWordCount = $chapter->wordCount();
                             $cardReadMins = $chapter->estimatedReadingMinutes();
@@ -241,7 +241,7 @@
                         @foreach($archiveChapters as $arch)
                             <li>
                                 <a href="{{ route('chapters.show', $arch) }}" class="inline-flex items-center gap-2 text-amber-800 font-extrabold hover:text-amber-950 underline decoration-amber-300">
-                                    {{ $arch->headingPrefix() }}: {{ $arch->displayTitle() }}
+                                    {{ $arch->readerHeadingLine() }}
                                 </a>
                             </li>
                         @endforeach

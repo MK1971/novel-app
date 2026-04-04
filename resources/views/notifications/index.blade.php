@@ -31,6 +31,15 @@
                                             @case('edit_accepted')
                                                 Edit accepted
                                                 @break
+                                            @case('edit_rejected')
+                                                Edit declined
+                                                @break
+                                            @case('paragraph_accepted')
+                                                Paragraph accepted
+                                                @break
+                                            @case('paragraph_rejected')
+                                                Paragraph declined
+                                                @break
                                             @case('achievement_unlocked')
                                                 Achievement
                                                 @break

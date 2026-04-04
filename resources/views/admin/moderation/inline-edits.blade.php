@@ -21,7 +21,7 @@
                         <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] p-10 hover:shadow-lg transition-all">
                             <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
                                 <div>
-                                    <h3 class="text-2xl font-extrabold text-amber-900">Suggestion for {{ $edit->chapter->displayTitle() }}</h3>
+                                    <h3 class="text-2xl font-extrabold text-amber-900">Suggestion for {{ $edit->chapter->readerHeadingLine() }}</h3>
                                     <p class="text-amber-800/60 font-bold mt-1">By {{ $edit->user->name }} • Paragraph #{{ $edit->paragraph_number }} • {{ $edit->created_at->diffForHumans() }}</p>
                                 </div>
                                 <span class="px-4 py-1 bg-amber-100 text-amber-800 text-xs font-black rounded-full uppercase tracking-widest">Pending Review</span>

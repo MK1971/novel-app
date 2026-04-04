@@ -33,7 +33,7 @@ class SendChapterEditingDeadlineReminders extends Command
         foreach ($chapters as $chapter) {
             AdminNotifier::notify(
                 config('app.name').': chapter edit window ending soon',
-                "The editing window for \"{$chapter->displayTitle()}\" (chapter id {$chapter->id}) closes at ".
+                "The editing window for \"{$chapter->readerHeadingLine()}\" (chapter id {$chapter->id}) closes at ".
                 $chapter->editing_closes_at->toIso8601String().". Review or upload the next chapter as needed.\n\n".
                 url('/admin/chapters')
             );

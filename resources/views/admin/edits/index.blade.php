@@ -23,7 +23,7 @@
                             <div class="bg-white border-2 border-emerald-100 shadow-sm rounded-3xl p-8">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
                                     <div>
-                                        <h3 class="text-xl font-bold text-amber-900">{{ $inlineEdit->chapter->displayTitle() }}</h3>
+                                        <h3 class="text-xl font-bold text-amber-900">{{ $inlineEdit->chapter->readerHeadingLine() }}</h3>
                                         <p class="text-amber-800/70 font-medium">By {{ $inlineEdit->user->name }} • Paragraph #{{ $inlineEdit->paragraph_number }} • {{ $inlineEdit->created_at->diffForHumans() }}</p>
                                     </div>
                                     <span class="px-4 py-1 bg-emerald-100 text-emerald-900 text-xs font-black rounded-full uppercase tracking-widest">Paragraph</span>
@@ -83,7 +83,7 @@
                             <div class="bg-white border border-amber-100 shadow-sm rounded-3xl p-8">
                                 <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
                                     <div>
-                                        <h3 class="text-xl font-bold text-amber-900">Suggestion for {{ $edit->chapter->displayTitle() }}</h3>
+                                        <h3 class="text-xl font-bold text-amber-900">Suggestion for {{ $edit->chapter->readerHeadingLine() }}</h3>
                                         <p class="text-amber-800/70 font-medium">By {{ $edit->user->name }} • {{ $edit->type }}</p>
                                     </div>
                                     <span class="px-4 py-1 bg-amber-100 text-amber-800 text-sm font-bold rounded-full">Pending Review</span>

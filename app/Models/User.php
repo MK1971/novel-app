@@ -13,6 +13,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'avatar_path',
         'password',
         'points',
         'is_admin',
@@ -32,6 +33,13 @@ class User extends Authenticatable
             'is_admin' => 'boolean',
             'onboarding_completed_at' => 'datetime',
         ];
+    }
+
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path
+            ? asset('storage/'.$this->avatar_path)
+            : null;
     }
 
     public function edits()

@@ -91,7 +91,7 @@
                                                 <span class="font-extrabold text-amber-900">{{ $edit->user->name }}</span>
                                                 <span class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded">{{ ucfirst($edit->type) }}</span>
                                             </div>
-                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->displayTitle() }}</p>
+                                            <p class="text-sm text-amber-900/60 font-bold mb-2">{{ $edit->chapter->readerHeadingLine() }}</p>
                                             <p class="text-xs text-amber-800/60 font-bold">{{ $edit->created_at->diffForHumans() }}</p>
                                         </div>
                                         <a href="{{ route('admin.edits.index') }}" class="px-4 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700 transition-colors text-sm flex-shrink-0">

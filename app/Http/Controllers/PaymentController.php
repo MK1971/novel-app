@@ -14,6 +14,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends Controller
@@ -45,6 +46,10 @@ class PaymentController extends Controller
 
     public function checkout(Request $request)
     {
+        if ($response = $this->throttleCheckoutAttempts($request)) {
+            return $response;
+        }
+
         if ($request->filled('resume_edit_id')) {
             return $this->checkoutResume($request);
         }
@@ -108,6 +113,10 @@ class PaymentController extends Controller
 
     private function checkoutResume(Request $request): RedirectResponse
     {
+        if ($response = $this->throttleCheckoutAttempts($request)) {
+            return $response;
+        }
+
         $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
             'resume_edit_id' => 'required|exists:edits,id',
@@ -234,7 +243,7 @@ class PaymentController extends Controller
                 ],
                 'purchase_units' => [
                     [
-                        'description' => 'Suggest Edit - '.$chapter->displayTitle().' - The Book With No Name',
+                        'description' => 'Suggest Edit - '.$chapter->readerHeadingLine().' - The Book With No Name',
                         'amount' => [
                             'currency_code' => 'USD',
                             'value' => '2.00',
@@ -366,7 +375,7 @@ class PaymentController extends Controller
                 if ($chapterForMail) {
                     $label = $edit->type === 'inline_edit' ? 'Paragraph suggestion' : 'Full-chapter suggestion';
                     $bookName = $chapterForMail->book?->name ?? 'Unknown book';
-                    $readerLabel = $chapterForMail->headingPrefix().': '.$chapterForMail->displayTitle();
+                    $readerLabel = $chapterForMail->readerHeadingLine();
                     AdminNotifier::notifyNewPaidSuggestion(
                         "{$label} pending review — {$bookName}, {$readerLabel} (row id {$chapterForMail->id}, edit #{$edit->id}) by {$request->user()->name}."
                     );
@@ -502,5 +511,18 @@ class PaymentController extends Controller
         }
 
         return substr($message, 0, 217).'…';
+    }
+
+    private function throttleCheckoutAttempts(Request $request): ?RedirectResponse
+    {
+        $key = 'payment-checkout:'.$request->user()->id;
+        if (RateLimiter::tooManyAttempts($key, 25)) {
+            $s = RateLimiter::availableIn($key);
+
+            return back()->with('error', 'Too many checkout attempts. Please wait '.$s.' seconds before trying again.');
+        }
+        RateLimiter::hit($key, 60);
+
+        return null;
     }
 }

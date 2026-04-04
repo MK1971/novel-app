@@ -73,7 +73,11 @@
                     </div>
                     
                     <div class="flex items-center gap-2 sm:gap-4">
-                        @include('layouts.partials.nav-account-menu')
+                        @auth
+                            @include('layouts.partials.nav-account-menu')
+                        @else
+                            <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-4 sm:px-6 py-2 bg-amber-500 text-black text-sm sm:text-base font-bold rounded-full hover:bg-amber-600 transition-all shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">Sign In</button>
+                        @endauth
                     </div>
                 </div>
             </nav>

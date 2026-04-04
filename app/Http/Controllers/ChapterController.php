@@ -132,6 +132,19 @@ class ChapterController extends Controller
 
         [$prevChapter, $nextChapter] = $this->adjacentTbwChapters($chapter);
 
+        $chapter->loadMissing('book');
+        $tbwArchiveSiblings = collect();
+        $tbwLiveForNav = null;
+        $tbwOtherArchiveSiblings = collect();
+        if ($chapter->book && $chapter->book->name === Book::NAME_THE_BOOK_WITH_NO_NAME) {
+            if (! $chapter->is_archived) {
+                $tbwArchiveSiblings = $chapter->tbwArchiveSiblingsForReader();
+            } else {
+                $tbwLiveForNav = $chapter->tbwLiveManuscriptForSameSlot();
+                $tbwOtherArchiveSiblings = $chapter->tbwOtherArchiveSiblingsForReader();
+            }
+        }
+
         return view('chapters.show', compact(
             'chapter',
             'progress',
@@ -143,6 +156,9 @@ class ChapterController extends Controller
             'editingWindowEndsAt',
             'prevChapter',
             'nextChapter',
+            'tbwArchiveSiblings',
+            'tbwLiveForNav',
+            'tbwOtherArchiveSiblings',
         ));
     }
 

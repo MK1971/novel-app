@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Edit;
 use App\Models\Payment;
 use App\Support\AchievementUnlock;
+use App\Support\EditOutcomeNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -46,6 +47,11 @@ class EditApprovalController extends Controller
 
         AchievementUnlock::syncForUser($edit->user);
 
+        $edit->load(['user', 'chapter']);
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditAccepted($edit->user, $edit->chapter, $status, $points > 0);
+        }
+
         $message = 'Edit approved.';
         if (! $hasCompletedPayment) {
             $message .= ' No leaderboard points were awarded because there is no completed payment linked to this suggestion.';
@@ -57,7 +63,12 @@ class EditApprovalController extends Controller
     public function reject(Edit $edit)
     {
         Gate::authorize('admin');
+        $edit->load(['user', 'chapter']);
         $edit->update(['status' => 'rejected']);
+
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditRejected($edit->user, $edit->chapter);
+        }
 
         return back()->with('success', 'Edit rejected.');
     }

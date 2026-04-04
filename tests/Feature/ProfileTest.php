@@ -7,6 +7,8 @@ use App\Models\Chapter;
 use App\Models\ReadingProgress;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -109,6 +111,27 @@ class ProfileTest extends TestCase
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
         $this->assertNull($user->email_verified_at);
+    }
+
+    public function test_profile_avatar_upload_is_persisted_to_public_disk(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $file = UploadedFile::fake()->image('avatar.jpg', 120, 120);
+
+        $this->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar' => $file,
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $user->refresh();
+        $this->assertNotNull($user->avatar_path);
+        Storage::disk('public')->assertExists($user->avatar_path);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged(): void

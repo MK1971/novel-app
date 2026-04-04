@@ -7,6 +7,7 @@ use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
 use App\Support\AchievementUnlock;
+use App\Support\EditOutcomeNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -73,6 +74,11 @@ class ModerationController extends Controller
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
         $stats->increment('accepted_edits');
 
+        $edit->load(['user', 'chapter']);
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditAccepted($edit->user, $edit->chapter, $status, $points > 0);
+        }
+
         $message = 'Edit approved.';
         if (! $hasCompletedPayment) {
             $message .= ' No leaderboard points were awarded because there is no completed payment linked to this suggestion.';
@@ -84,10 +90,15 @@ class ModerationController extends Controller
     public function reject(Edit $edit)
     {
         Gate::authorize('admin');
+        $edit->load(['user', 'chapter']);
         $edit->update(['status' => 'rejected']);
 
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
         $stats->increment('rejected_edits');
+
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditRejected($edit->user, $edit->chapter);
+        }
 
         return back()->with('success', 'Edit rejected.');
     }
@@ -136,6 +147,11 @@ class ModerationController extends Controller
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('accepted_edits');
 
+        $inlineEdit->load(['user', 'chapter']);
+        if ($inlineEdit->user && $inlineEdit->chapter) {
+            EditOutcomeNotifier::paragraphAccepted($inlineEdit->user, $inlineEdit->chapter, $partial, $hasPaid);
+        }
+
         if (! $hasPaid) {
             $message = 'Paragraph suggestion recorded as accepted, but no completed payment was on file — no points awarded.';
         } elseif ($partial) {
@@ -154,10 +170,15 @@ class ModerationController extends Controller
     public function rejectInlineEdit(InlineEdit $inlineEdit)
     {
         Gate::authorize('admin');
+        $inlineEdit->load(['user', 'chapter']);
         $inlineEdit->update(['status' => 'rejected']);
 
         $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $inlineEdit->chapter_id]);
         $stats->increment('rejected_edits');
+
+        if ($inlineEdit->user && $inlineEdit->chapter) {
+            EditOutcomeNotifier::paragraphRejected($inlineEdit->user, $inlineEdit->chapter);
+        }
 
         if (request()->wantsJson()) {
             return response()->json(['success' => true]);

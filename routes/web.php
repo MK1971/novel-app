@@ -8,6 +8,7 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\EditController;
+use App\Http\Controllers\EditDiffPreviewController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\InlineEditController;
 use App\Http\Controllers\LeaderboardController;
@@ -15,7 +16,9 @@ use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ParagraphReactionController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\VoteController;
 use App\Models\Chapter;
 use App\Models\Edit;
@@ -97,6 +100,8 @@ Route::get('/prizes', function () {
     return view('prizes');
 })->name('prizes');
 
+Route::get('/feed/chapters.xml', [RssFeedController::class, 'tbwChapters'])->name('feed.chapters');
+
 Route::get('/chapters', [ChapterController::class, 'index'])->name('chapters.index');
 Route::get('/chapters/{chapter}', [ChapterController::class, 'show'])->name('chapters.show');
 Route::post('/chapters/{chapter}/track-progress', [ChapterController::class, 'trackProgress'])->middleware('auth')->name('chapters.track-progress');
@@ -142,9 +147,12 @@ Route::middleware('auth')->group(function () {
     })->name('onboarding.dismiss');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/payments', PaymentHistoryController::class)->name('profile.payments');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/edits/preview-diff', EditDiffPreviewController::class)->name('edits.preview-diff');
 
     Route::post('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');

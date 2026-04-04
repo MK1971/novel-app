@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class Chapter extends Model
 {
@@ -168,12 +169,24 @@ class Chapter extends Model
         };
     }
 
-    /** Title for display when `title` is empty (optional in admin upload). */
+    /**
+     * Custom title only. When the admin left the title blank, returns the chapter **number** only
+     * (no "Untitled") — pair with {@see headingPrefix()} or use {@see readerHeadingLine()}.
+     */
     public function displayTitle(): string
     {
         $t = trim((string) ($this->title ?? ''));
 
-        return $t !== '' ? $t : 'Untitled';
+        return $t !== '' ? $t : (string) $this->number;
+    }
+
+    /** Full reader-facing heading: "Chapter 3: Working title" or "Chapter 3" when title is blank. */
+    public function readerHeadingLine(): string
+    {
+        $t = trim((string) ($this->title ?? ''));
+        $p = $this->headingPrefix();
+
+        return $t !== '' ? $p.': '.$t : $p;
     }
 
     /**
@@ -294,5 +307,91 @@ class Chapter extends Model
         }
 
         return ! $this->isPastEditingWindow();
+    }
+
+    /**
+     * Normalized list_section for matching manuscript slots (TBWNN).
+     */
+    public function manuscriptListSectionKey(): string
+    {
+        return (string) ($this->list_section ?? self::LIST_SECTION_CHAPTER);
+    }
+
+    /**
+     * Reader-visible archived rows for the same slot as this live TBWNN chapter.
+     *
+     * @return Collection<int, self>
+     */
+    public function tbwArchiveSiblingsForReader(): Collection
+    {
+        $this->loadMissing('book');
+        if (! $this->book || $this->book->name !== Book::NAME_THE_BOOK_WITH_NO_NAME || $this->is_archived) {
+            return collect();
+        }
+
+        $norm = $this->manuscriptListSectionKey();
+
+        return static::query()
+            ->where('book_id', $this->book_id)
+            ->where('number', $this->number)
+            ->whereRaw('COALESCE(list_section, ?) = ?', [self::LIST_SECTION_CHAPTER, $norm])
+            ->where('is_archived', true)
+            ->where('is_reader_archive_link', true)
+            ->where('id', '!=', $this->id)
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /**
+     * Live manuscript row for the same slot (for readers on an archived chapter page).
+     */
+    public function tbwLiveManuscriptForSameSlot(): ?self
+    {
+        $this->loadMissing('book');
+        if (! $this->book || $this->book->name !== Book::NAME_THE_BOOK_WITH_NO_NAME) {
+            return null;
+        }
+
+        $norm = $this->manuscriptListSectionKey();
+
+        return static::query()
+            ->where('book_id', $this->book_id)
+            ->where('number', $this->number)
+            ->whereRaw('COALESCE(list_section, ?) = ?', [self::LIST_SECTION_CHAPTER, $norm])
+            ->where('is_archived', false)
+            ->where(function (Builder $q) {
+                $q->whereNull('version')
+                    ->orWhere('version', '')
+                    ->orWhereRaw('LOWER(TRIM(version)) = ?', ['a']);
+            })
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
+     * Other archive reader links for the same slot (when viewing an archived TBWNN chapter).
+     *
+     * @return Collection<int, self>
+     */
+    public function tbwOtherArchiveSiblingsForReader(): Collection
+    {
+        $this->loadMissing('book');
+        if (! $this->book || $this->book->name !== Book::NAME_THE_BOOK_WITH_NO_NAME || ! $this->is_archived || ! $this->is_reader_archive_link) {
+            return collect();
+        }
+
+        $norm = $this->manuscriptListSectionKey();
+
+        return static::query()
+            ->where('book_id', $this->book_id)
+            ->where('number', $this->number)
+            ->whereRaw('COALESCE(list_section, ?) = ?', [self::LIST_SECTION_CHAPTER, $norm])
+            ->where('is_archived', true)
+            ->where('is_reader_archive_link', true)
+            ->where('id', '!=', $this->id)
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->get();
     }
 }

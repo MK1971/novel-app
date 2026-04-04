@@ -2,6 +2,29 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.27 - P3 roadmap (#21–#29) and reader/profile polish
+### Added
+- **Edit outcome notifications**: **`EditOutcomeNotifier`** creates **`Notification`** rows and sends mail on chapter approve/reject (**`ModerationController`**, **`EditApprovalController`**) with badges for **`edit_rejected`**, **`paragraph_accepted`**, **`paragraph_rejected`** on **`notifications/index`**.
+- **Payment & vote history**: **`GET /profile/payments`** (**`PaymentHistoryController`**, **`profile/payments`**) and sidebar **Payments & votes**.
+- **Draft autosave**: **`localStorage`** for whole-chapter and paragraph suggest text (respects server pending draft when present); scripts in **`whole-edit-draft-preview-script`** and **`chapters/show`**.
+- **Diff before submit**: **`POST /edits/preview-diff`** (**`EditDiffPreviewController`**) with **Preview changes** on suggest panel and **`edits/create`**.
+- **Profile submissions**: **`profile.show`** with **`?tab=submissions`** lists chapter and paragraph submissions; **My submissions** tab.
+- **Profile photo**: **`users.avatar_path`** migration; upload with invalid-file handling and old file cleanup (**`ProfileController`**); **`User::avatarUrl()`**; **`php artisan storage:link`** for public URLs.
+- **RSS**: **`GET /feed/chapters.xml`** (**`feed.chapters`**, **`RssFeedController`**, **`feeds/tbw-chapters`**).
+- **TBWNN version nav**: **`tbw-version-nav`** partial on chapter show; **`Chapter`** helpers (**`tbwArchiveSiblingsForReader`**, **`tbwLiveManuscriptForSameSlot`**, **`tbwOtherArchiveSiblingsForReader`**, **`manuscriptListSectionKey`**).
+- **Checkout rate limit**: **`RateLimiter`** on checkout paths (**25 / 60s** per user) with friendly flash.
+- **Docs**: **`docs/P3-manual-testing.md`**, **`docs/P4-priority-detailed.md`**; roadmap maintenance for P3/P4.
+### Changed
+- **Account menus**: **Profile** opens **`profile.show`**; **Edit profile** opens **`profile.edit`**; **`nav-account-menu`** and **`navigation`** show the user photo when **`avatar_path`** is set.
+- **Edit profile form**: current photo preview, selected filename + live preview for a newly picked image.
+- **Chapter read**: header uses **`Chapter::readerHeadingLine()`**; blank titles no longer show **Untitled** in reader copy (**`displayTitle()`**).
+- **Next chapter**: header link includes **`#chapter-suggest-edit-sidebar`**; locked-chapter sidebar **Read next chapter** goes to **`$nextChapter`** (same hash) instead of **`/chapters`**, with **Browse chapters** when there is no next row.
+- **Reader tests / diff**: incremental coverage (**`ChapterReaderHeadingTest`**, **`TextDiffLineDiffTest`**); admin copy touch-ups (deadlines, table headers).
+### Fixed
+- **Profile avatar upload**: clearer errors for oversize / failed uploads; **`ProfileUpdateRequest`** accepts **`avatar`** without **`dimensions`** blocking saves.
+### Tests
+- **`P3EnhancementsTest`**, **`ProfileTest`** (avatar persistence), **`ReaderTbwP1EnhancementsTest`** (locked sidebar next vs browse).
+
 ## Version 1.9.26 - Vote diff readability
 ### Changed
 - **Peter Trull vote comparison**: **What changed between A and B?** uses **color-coded line rows** (rose / emerald / **unchanged on white over a neutral track**) via **`TextDiff::linesForDisplay()`** instead of a monospace unified-diff terminal block.

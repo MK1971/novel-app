@@ -111,7 +111,7 @@
                         <summary class="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
                             <div class="bg-amber-50/50 px-10 py-6 border-b border-amber-100 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                 <div class="min-w-0 text-left">
-                                    <h3 class="text-2xl font-extrabold text-amber-900">{{ $versionA->headingPrefix() }}: {{ $versionA->displayTitle() }}</h3>
+                                    <h3 class="text-2xl font-extrabold text-amber-900">{{ $versionA->readerHeadingLine() }}</h3>
                                     @if($pairFullyClosed)
                                         @if($pairClosedAt)
                                             <p class="text-sm font-bold text-amber-800/80 mt-2">Voting closed on {{ $pairClosedAt->timezone(config('app.timezone'))->format('M j, Y') }}.</p>
@@ -243,7 +243,7 @@
                         @foreach($archiveChapters as $arch)
                             <li>
                                 <a href="{{ route('chapters.show', $arch) }}" class="inline-flex items-center gap-2 text-amber-800 font-extrabold hover:text-amber-950 underline decoration-amber-300">
-                                    {{ $arch->headingPrefix() }}: {{ $arch->displayTitle() }} ({{ $arch->version }})
+                                    {{ $arch->readerHeadingLine() }} ({{ $arch->version }})
                                 </a>
                             </li>
                         @endforeach

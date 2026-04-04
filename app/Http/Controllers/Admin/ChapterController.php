@@ -331,7 +331,7 @@ class ChapterController extends Controller
                     ]);
                 }
 
-                $winnerLabel = trim((string) ($winner->title ?? '')) !== '' ? $winner->title : 'Untitled';
+                $winnerLabel = trim((string) ($winner->title ?? '')) !== '' ? $winner->title : (string) $winner->number;
 
                 Chapter::create([
                     'book_id' => $book->id,

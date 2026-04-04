@@ -52,7 +52,14 @@
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-bold rounded-full text-amber-900 bg-amber-100 hover:bg-amber-200 focus:outline-none transition ease-in-out duration-150">
+                        <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-bold rounded-full text-amber-900 bg-amber-100 hover:bg-amber-200 focus:outline-none transition ease-in-out duration-150">
+                            @if(Auth::user()->avatarUrl())
+                                <img src="{{ Auth::user()->avatarUrl() }}" alt="" class="w-7 h-7 rounded-full me-2 object-cover border border-amber-300/60 shrink-0" width="28" height="28" />
+                            @else
+                                <span class="w-7 h-7 bg-amber-500 rounded-full me-2 flex items-center justify-center text-[11px] text-black shrink-0" aria-hidden="true">
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                </span>
+                            @endif
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
@@ -64,8 +71,11 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 hover:bg-amber-50">
+                        <x-dropdown-link :href="route('profile.show')" class="text-amber-900 hover:bg-amber-50">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 hover:bg-amber-50">
+                            {{ __('Edit profile') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -133,8 +143,11 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')" class="text-amber-900">
+                <x-responsive-nav-link :href="route('profile.show')" class="text-amber-900">
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.edit')" class="text-amber-900">
+                    {{ __('Edit profile') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

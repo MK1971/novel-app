@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Suggest Edit - {{ $chapter->displayTitle() }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Suggest Edit — {{ $chapter->readerHeadingLine() }}</h2>
     </x-slot>
 
     <div class="py-12">
@@ -23,14 +23,30 @@
                     </div>
                     <div class="mb-4">
                         <label class="block font-medium mb-2">Your Edited Text</label>
-                        <textarea name="edited_text" rows="10" class="border rounded px-3 py-2 w-full" required>{{ old('edited_text', $chapter->content) }}</textarea>
+                        <textarea name="edited_text" id="edited_text" rows="10" class="border rounded px-3 py-2 w-full" required>{{ old('edited_text', $chapter->content) }}</textarea>
                         @error('edited_text')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
                         @enderror
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            <button type="button" id="novel-btn-preview-edit-diff" class="px-4 py-2 rounded-lg bg-amber-100 text-amber-900 text-sm font-bold border border-amber-200 hover:bg-amber-200">
+                                Preview changes vs published
+                            </button>
+                            <button type="button" id="novel-btn-clear-edit-draft" class="px-4 py-2 rounded-lg bg-gray-100 text-gray-800 text-sm font-bold border border-gray-200">
+                                Discard local draft
+                            </button>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-500 font-medium">The same preview is available on the chapter page under <strong class="text-gray-700">Suggest an Edit</strong> (sidebar), if you prefer to work there.</p>
+                        <div id="novel-edit-diff-preview" class="hidden mt-3 rounded-lg border border-amber-200 bg-slate-900 p-4 text-left flex flex-col gap-3" aria-live="polite"></div>
                     </div>
                     <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Submit Edit</button>
                 </form>
             </div>
         </div>
     </div>
+
+    @include('chapters.partials.whole-edit-draft-preview-script', [
+        'chapter' => $chapter,
+        'preferServerDraft' => false,
+        'editedTextBaseline' => old('edited_text', $chapter->content),
+    ])
 </x-app-layout>
