@@ -1,4 +1,4 @@
-<x-modal name="login-modal" :show="($errors->has('email') || $errors->has('password')) && !old('name')" maxWidth="sm">
+<x-modal name="login-modal" :show="session('social_login_error') || (($errors->has('email') || $errors->has('password')) && !old('name'))" maxWidth="sm">
     <div class="border-b border-amber-100 bg-gradient-to-br from-amber-50/90 to-white px-6 pt-5 pb-4">
         <div class="flex items-center gap-3">
             <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black shadow-md shadow-amber-500/30" aria-hidden="true">
@@ -12,6 +12,12 @@
     </div>
     <div class="p-6">
         <x-auth-session-status class="mb-3 text-sm" :status="session('status')" />
+
+        @if(session('social_login_error'))
+            <p class="mb-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-800" role="alert">{{ session('social_login_error') }}</p>
+        @endif
+
+        @include('auth.partials.social-login-buttons', ['oauthBeforeEmail' => true])
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
@@ -78,6 +84,8 @@
         </div>
     </div>
     <div class="p-6">
+        @include('auth.partials.social-login-buttons', ['oauthBeforeEmail' => true])
+
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
@@ -137,13 +145,14 @@
                 <x-primary-button type="submit" class="w-full justify-center py-1.5 text-sm">
                     {{ __('Register') }}
                 </x-primary-button>
-                <p class="text-center text-xs text-amber-800/70">
-                    Already registered?
-                    <button type="button" x-data @click="$dispatch('close-modal', 'register-modal'); $dispatch('open-modal', 'login-modal')" class="font-black text-amber-700 hover:text-amber-900 hover:underline">
-                        Sign in
-                    </button>
-                </p>
             </div>
         </form>
+
+        <p class="mt-3 text-center text-xs text-amber-800/70">
+            Already registered?
+            <button type="button" x-data @click="$dispatch('close-modal', 'register-modal'); $dispatch('open-modal', 'login-modal')" class="font-black text-amber-700 hover:text-amber-900 hover:underline">
+                Sign in
+            </button>
+        </p>
     </div>
 </x-modal>

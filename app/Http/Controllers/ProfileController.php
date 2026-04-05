@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Requests\PublicProfileSettingsRequest;
 use App\Models\ReadingProgress;
+use App\Support\UploadFailureMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,8 +56,37 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $request->user()->load('socialAccounts'),
         ]);
+    }
+
+    /**
+     * Remove a linked Google or Apple sign-in. Blocked if it would leave no password and no other sign-in method.
+     * (Apple remains in the allow-list for deferred enablement and any legacy linked rows.)
+     */
+    public function disconnectSocial(Request $request, string $provider): RedirectResponse
+    {
+        $provider = strtolower($provider);
+        abort_unless(in_array($provider, ['google', 'apple'], true), 404);
+
+        $user = $request->user();
+        $account = $user->socialAccounts()->where('provider', $provider)->first();
+
+        if (! $account) {
+            return Redirect::route('profile.edit')->withErrors([
+                'social' => __('That sign-in method is not linked to your account.'),
+            ]);
+        }
+
+        if ($user->password === null && $user->socialAccounts()->count() <= 1) {
+            return Redirect::route('profile.edit')->withErrors([
+                'social' => __('Set a password in “Set a password” below first, so you can still sign in after disconnecting :provider.', ['provider' => ucfirst($provider)]),
+            ]);
+        }
+
+        $account->delete();
+
+        return Redirect::route('profile.edit')->with('status', 'social-disconnected');
     }
 
     /**
@@ -75,21 +106,38 @@ class ProfileController extends Controller
             $file = $request->file('avatar');
             if (! $file->isValid()) {
                 return Redirect::route('profile.edit')->withErrors([
-                    'avatar' => match ($file->getError()) {
-                        \UPLOAD_ERR_INI_SIZE, \UPLOAD_ERR_FORM_SIZE => 'That photo is too large. Please use an image under 5 MB.',
-                        default => 'The photo could not be uploaded. Try a JPG or PNG, or a smaller file.',
-                    },
+                    'avatar' => UploadFailureMessage::forInvalidUpload($file),
                 ]);
             }
             if ($user->avatar_path) {
                 Storage::disk('public')->delete($user->avatar_path);
             }
-            $user->avatar_path = $file->store('avatars', 'public');
+            try {
+                $user->avatar_path = $file->store('avatars', 'public');
+            } catch (\Throwable $e) {
+                report($e);
+
+                return Redirect::route('profile.edit')->withErrors([
+                    'avatar' => 'Could not save the photo. On the server, run php artisan storage:link and make sure storage/app/public (and the avatars folder inside it) is writable by the web server.',
+                ]);
+            }
         }
 
         $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update opt-in public contributor profile (P4-2).
+     */
+    public function updatePublicSettings(PublicProfileSettingsRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+        $user->fill($request->validated());
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'public-profile-updated');
     }
 
     /**

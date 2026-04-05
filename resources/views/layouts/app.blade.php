@@ -144,7 +144,12 @@
                     </main>
 
                     <footer class="py-8 px-8 border-t border-amber-100 text-center">
-                        <p class="text-amber-900/30 text-sm font-bold">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
+                        <p class="text-amber-900/30 text-sm font-bold mb-3">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
+                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-bold text-amber-900/45" aria-label="Legal">
+                            <a href="{{ route('legal.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70">Legal</a>
+                            <span class="text-amber-300/80 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70">Feedback</a>
+                        </nav>
                     </footer>
                 </div>
             </div>

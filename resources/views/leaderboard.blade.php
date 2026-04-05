@@ -125,7 +125,13 @@
                                 </td>
                                 <td class="px-10 py-8">
                                     <div class="text-xl font-extrabold text-amber-900 group-hover:text-amber-600 transition-colors">
-                                        {{ $leaderboardUser->name }}
+                                        @if ($leaderboardUser->public_profile_enabled && filled($leaderboardUser->public_slug))
+                                            <a href="{{ route('profile.public', ['slug' => $leaderboardUser->public_slug]) }}" class="hover:underline focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded">
+                                                {{ $leaderboardUser->name }}
+                                            </a>
+                                        @else
+                                            {{ $leaderboardUser->name }}
+                                        @endif
                                         @if(auth()->check() && auth()->id() === $leaderboardUser->id)
                                             <span class="ml-2 align-middle text-xs font-black uppercase tracking-wider text-amber-700">You</span>
                                         @endif

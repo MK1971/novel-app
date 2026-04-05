@@ -18,6 +18,7 @@ use App\Http\Controllers\ParagraphReactionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\VoteController;
 use App\Models\Chapter;
@@ -96,6 +97,11 @@ Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
 
+Route::get('/legal', fn () => view('legal.index'))->name('legal.index');
+Route::get('/legal/refunds', fn () => view('legal.refunds'))->name('legal.refunds');
+Route::get('/legal/community', fn () => view('legal.community'))->name('legal.community');
+Route::get('/legal/cookies', fn () => view('legal.cookies'))->name('legal.cookies');
+
 Route::get('/prizes', function () {
     return view('prizes');
 })->name('prizes');
@@ -108,6 +114,10 @@ Route::post('/chapters/{chapter}/track-progress', [ChapterController::class, 'tr
 Route::get('/chapters/{chapter}/get-progress', [ChapterController::class, 'getProgress'])->middleware('auth')->name('chapters.get-progress');
 
 Route::get('/leaderboard', LeaderboardController::class)->name('leaderboard');
+
+Route::get('/people/{slug}', [PublicProfileController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('profile.public');
 
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
@@ -149,7 +159,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/payments', PaymentHistoryController::class)->name('profile.payments');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    // apple: same as auth routes — useful when APPLE_SIGN_IN_ENABLED=true or legacy linked accounts.
+    Route::delete('/profile/social/{provider}', [ProfileController::class, 'disconnectSocial'])
+        ->whereIn('provider', ['google', 'apple'])
+        ->name('profile.social.disconnect');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/public-settings', [ProfileController::class, 'updatePublicSettings'])->name('profile.public-settings.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/edits/preview-diff', EditDiffPreviewController::class)->name('edits.preview-diff');

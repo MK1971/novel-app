@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        // Apple OAuth POST callback; only needed when APPLE_SIGN_IN_ENABLED=true and Apple is used.
+        $middleware->validateCsrfTokens(except: [
+            'auth/apple/callback',
+        ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);

@@ -14,9 +14,9 @@ This document **ranks** the “major initiatives” and closely related deferred
 
 | Rank | Initiative | Why this order | Dependencies / gates | Rough engineering themes |
 |------|------------|----------------|----------------------|-------------------------|
-| **P4-1** | **Social login (Google / Apple)** | Removes signup friction; does not require other P4 systems. | **Gate:** OAuth apps, privacy policy, account linking (email collision), “unlink” path. | Laravel Socialite (or equivalent), user table / `social_accounts`, session + registration flows, tests for merge edge cases. |
-| **P4-2** | **Public contributor profiles** | Builds on existing profile, leaderboard, and (if shipped) avatars; increases community recognition. | **Gate:** GDPR-style controls, visibility toggles, block/report, harassment policy. Prefer **after** or **with** P4-1 if social accounts exist. | Public slug, optional bio, “contributions” summary, privacy settings, moderation hooks. |
-| **P4-3** | **Email verification indicator (profile/settings)** | Small trust signal; often bundled with P4-1/P4-2 auth work. | Low gate; align copy with marketing. | UI on profile + optional banner after social link. |
+| **P4-1** | **Social login (Google / Apple)** | ~~Removes signup friction; does not require other P4 systems.~~ **Shipped in app (configure OAuth consoles + `.env`).** | **Optional later:** “unlink” UX polish, legal review of privacy wording. | **Done:** Socialite, **`social_accounts`**, linking, **`privacy`** OAuth section, **Apple rotation** notes in **`docs/local-development.md`**, **disconnect** on profile + **set password** without current password for OAuth-only users, tests. |
+| **P4-2** | **Public contributor profiles** | ~~Builds on existing profile, leaderboard, and avatars.~~ **Shipped (v1):** opt-in **`/people/{slug}`**, stats + bio; **`.env` / gates** for block/report still future. | **Optional later:** visibility beyond on/off, block/report, harassment workflow. | **Done:** migration **`public_profile_enabled`**, **`public_slug`**, **`profile_bio`**; **`PublicProfileController`**, **`profile.public`**, **`profile/public`**, **`PATCH profile/public-settings`**, reserved slugs, leaderboard name links when public. |
+| **P4-3** | **Email verification indicator (profile/settings)** | ~~Small trust signal.~~ **Shipped:** **`MustVerifyEmail`** on **`User`**, badges on profile + edit, dashboard banner for unverified users. | Marketing copy tweaks only. | **Done:** **`email-verification-badge`** partial, resend from dashboard. |
 
 ---
 
@@ -81,24 +81,38 @@ This document **ranks** the “major initiatives” and closely related deferred
 
 ---
 
+## Tier H — Paid edits & patron support (commerce)
+
+Extends today’s **$2 PayPal checkout** model (`edits`, `inline_edits`, `payments`) without assuming Stripe.
+
+| Rank | Initiative | Why this order | Dependencies / gates | Rough engineering themes |
+|------|------------|----------------|----------------------|-------------------------|
+| **P4-19** | **Multiple paid edit submissions ($2 each, one checkout)** | Contributors can submit **several** suggestions ( **paragraph** + **whole chapter** ) in one flow; **pricing is $2 per edit** (e.g. **2 edits → $4**) via a **single** PayPal session / one captured amount—not a separate checkout per suggestion. | **Gate:** cart or “review & pay” step showing line items + total; partial failure (payment OK but one row fails); pending review state per row; abuse caps; moderator queue volume; copy (“$2 per suggestion, total at checkout”). | Line-item amount on checkout; on success, attach **one** `payment` (or equivalent) to **N** `edits` / `inline_edits` rows; **points / vote credit** rules per accepted suggestion (product: still 1 vote credit per $2 unit vs one credit per checkout—spec explicitly). |
+| **P4-20** | **Donations (support the book)** | Revenue and goodwill **separate** from vote credit and edit fees. | **Gate:** legal/tax (donation vs tip vs merch), receipt wording, whether donations are **tax-deductible**; PayPal **Donate** vs pay link; fraud/chargebacks; optional **public thank-you** (privacy). | New **`donations`** or generic **`payments`** type; webhook or IPN; thank-you page + email; optional amount presets; admin report export; no automatic vote credit unless product explicitly ties them. |
+
+*Recommendation:* Spec **P4-19** first (reuses edit pipelines); **P4-20** can share PayPal config and ops runbooks but needs **distinct** product/legal sign-off.
+
+---
+
 ## Consolidated order (executive short list)
 
 If leadership asks “what order should we **consider** P4?”:
 
 1. **P4-1** Social login  
 2. **P4-2** Public profiles (with privacy)  
-3. **P4-4 / P4-5** Reader themes + focus (+ dark mode as one program)  
-4. **P4-6** Threaded comments + mentions  
-5. **P4-7 / P4-8** Peer review + suggestion voting (single governance spec)  
-6. **P4-10** AI pre-screen  
-7. **P4-11** Trusted scribe (only with strong audit)  
-8. **P4-12** TTS / narrations  
-9. **P4-13 / P4-14** Voter insights + countdowns  
-10. **P4-16 / P4-17** Book / wiki  
-11. **P4-15** Battle mode  
-12. **P4-18** Echo feed  
-13. **P4-9** Feedback upvotes (or fold into P4-8 generic voting)  
-14. **P4-3** Email verified badge (can move up if bundled with auth work)
+3. **P4-19 / P4-20** Batched paid edits (**$2 × count**, **one** checkout) + **donations** (if revenue/support are top priority—otherwise after reader polish)  
+4. **P4-4 / P4-5** Reader themes + focus (+ dark mode as one program)  
+5. **P4-6** Threaded comments + mentions  
+6. **P4-7 / P4-8** Peer review + suggestion voting (single governance spec)  
+7. **P4-10** AI pre-screen  
+8. **P4-11** Trusted scribe (only with strong audit)  
+9. **P4-12** TTS / narrations  
+10. **P4-13 / P4-14** Voter insights + countdowns  
+11. **P4-16 / P4-17** Book / wiki  
+12. **P4-15** Battle mode  
+13. **P4-18** Echo feed  
+14. **P4-9** Feedback upvotes (or fold into P4-8 generic voting)  
+15. **P4-3** Email verified badge (can move up if bundled with auth work)
 
 ---
 

@@ -1,4 +1,10 @@
 <x-guest-layout>
+    @if(session('social_login_error'))
+        <p class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-800" role="alert">{{ session('social_login_error') }}</p>
+    @endif
+
+    @include('auth.partials.social-login-buttons', ['oauthBeforeEmail' => true])
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

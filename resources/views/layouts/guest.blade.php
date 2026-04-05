@@ -88,9 +88,11 @@
                     <footer class="py-8 px-8 border-t border-amber-100 text-center">
                         <p class="text-amber-900/55 font-bold mb-6 text-sm">© {{ date('Y') }} What's My Book Name. All rights reserved.</p>
                         <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm font-bold text-amber-900/70" aria-label="Legal">
-                            <a href="{{ route('privacy') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Privacy Policy</a>
+                            <a href="{{ route('legal.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Legal</a>
                             <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
-                            <a href="{{ route('terms') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Terms of Service</a>
+                            <a href="{{ route('privacy') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Privacy</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('terms') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Terms</a>
                             <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
                             <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900">Feedback</a>
                         </nav>

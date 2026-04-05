@@ -24,14 +24,19 @@
                             You are responsible for your account and for content you submit. Do not misuse the Service (e.g. harassment, illegal content, attempts to break security or others’ accounts). We may suspend or remove access for violations or risk to the community.
                         </p>
 
-                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Contributions and rights</h2>
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Payments, voting credits, and fees</h2>
                         <p class="mb-6">
-                            By submitting edits, votes, or other content, you grant us the rights needed to operate, display, moderate, and incorporate that content into the project as described in the product. Specific payment or acceptance rules apply where stated in the app.
+                            Paid features (such as voting credits or suggested edits), prices, and taxes are shown in the product at purchase. Payments are processed by <strong>PayPal</strong>; their terms apply when you pay through them. Unless required by law or expressly stated otherwise at checkout, fees and digital entitlements are <strong>non-refundable</strong> once delivered. Chargebacks or payment disputes may result in suspension of access. See <a href="{{ route('legal.refunds') }}" class="text-amber-700 underline hover:text-amber-900">Refunds &amp; cancellation</a> for a short summary.
                         </p>
 
-                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Disclaimer</h2>
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Contributions, license, and IP</h2>
                         <p class="mb-6">
-                            The Service is provided “as is.” We strive for reliability but do not guarantee uninterrupted access or error-free operation. To the extent permitted by law, we limit liability for indirect or consequential damages.
+                            By submitting edits, votes, feedback, or other content, you represent you have the rights to submit it. You grant us a <strong>worldwide, non-exclusive, royalty-free license</strong> to host, reproduce, modify, display, distribute, moderate, and otherwise use that content as needed to operate, improve, and promote the Service and the collaborative project—including incorporation into manuscripts, archives, and community-facing features. You keep ownership of your content to the extent you have it; this license survives while we reasonably need it for backups, legal compliance, and ongoing publication. Specific acceptance or payment rules for edits apply where stated in the app.
+                        </p>
+
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Disclaimer and limitation of liability</h2>
+                        <p class="mb-6">
+                            The Service is provided “as is.” We strive for reliability but do not guarantee uninterrupted access or error-free operation. To the extent permitted by law, we disclaim implied warranties where allowed. <strong>Our total liability</strong> for claims arising out of or related to the Service in any twelve-month period is limited to the <strong>greater of (a) the fees you paid us in that period for the Service or (b) fifty U.S. dollars (USD 50)</strong>, except where liability cannot be limited by law (for example certain personal injury or fraud). We are not liable for indirect, incidental, special, consequential, or punitive damages, or lost profits or data, to the fullest extent permitted by law.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Contact</h2>
@@ -40,7 +45,7 @@
                         </p>
 
                         <p class="mt-10 text-sm font-bold text-amber-800/70">
-                            See also our <a href="{{ route('privacy') }}" class="text-amber-700 underline hover:text-amber-900">Privacy Policy</a>.
+                            See our <a href="{{ route('legal.index') }}" class="text-amber-700 underline hover:text-amber-900">Legal hub</a> and <a href="{{ route('privacy') }}" class="text-amber-700 underline hover:text-amber-900">Privacy Policy</a>.
                         </p>
                     </div>
                 </div>

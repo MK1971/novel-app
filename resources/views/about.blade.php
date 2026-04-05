@@ -49,6 +49,7 @@
                         <div class="not-prose rounded-2xl border border-amber-100 bg-[#fff9f0] px-6 py-5 mb-10">
                             <p class="text-xs font-black uppercase tracking-widest text-amber-800/70 mb-3">Policies &amp; feedback</p>
                             <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-bold text-amber-900" aria-label="Legal and feedback">
+                                <a href="{{ route('legal.index') }}" class="underline decoration-amber-300 hover:text-amber-600">Legal hub</a>
                                 <a href="{{ route('privacy') }}" class="underline decoration-amber-300 hover:text-amber-600">Privacy Policy</a>
                                 <a href="{{ route('terms') }}" class="underline decoration-amber-300 hover:text-amber-600">Terms of Service</a>
                                 <a href="{{ route('feedback.index') }}" class="underline decoration-amber-300 hover:text-amber-600">Feedback</a>

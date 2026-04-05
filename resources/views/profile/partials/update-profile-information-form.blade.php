@@ -21,7 +21,7 @@
             </div>
             <p id="novel-profile-avatar-file-label" class="text-xs font-bold text-amber-700 mb-2 min-h-[1.25rem]" aria-live="polite"></p>
             <input id="avatar" name="avatar" type="file" accept="image/*" class="block w-full text-sm text-amber-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-black file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200" />
-            <p class="mt-1 text-xs font-bold text-amber-800/70">Optional. JPG, PNG, WebP, or GIF — max 5&nbsp;MB. Shown on your profile and in the header instead of your initial. If the image never appears after saving, run <code class="text-amber-900">php artisan storage:link</code> on the server and ensure <code class="text-amber-900">storage/app/public</code> is writable.</p>
+            <p class="mt-1 text-xs font-bold text-amber-800/70">Optional. JPG, PNG, WebP, or GIF — max 5&nbsp;MB (not iPhone HEIC). Shown on your profile and in the header. If upload fails, the red text above explains why (file type, size, or server storage). If the image saves but never displays, run <code class="text-amber-900">php artisan storage:link</code> and ensure <code class="text-amber-900">storage/app/public</code> is writable.</p>
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 
@@ -32,7 +32,10 @@
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-amber-900 font-extrabold mb-2" />
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+                <x-input-label for="email" :value="__('Email')" class="text-amber-900 font-extrabold mb-0" />
+                @include('profile.partials.email-verification-badge', ['user' => $user])
+            </div>
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full border-amber-200 focus:border-amber-500 focus:ring-amber-500 rounded-xl" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 

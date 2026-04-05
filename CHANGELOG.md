@@ -2,6 +2,96 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.41 - Avatar upload: replace Laravel generic “failed to upload”
+### Fixed
+- **Avatar / `validation.uploaded`:** When PHP rejects an upload before the controller runs, users no longer only see **“The avatar failed to upload.”** — **`ProfileUpdateRequest::withValidator`** replaces it with **`UPLOAD_ERR_*`** detail via **`App\Support\UploadFailureMessage`**; **`ProfileController`** uses the same helper.
+
+## Version 1.9.40 - Profile photo errors + public profile 404 clarity
+### Changed
+- **Avatar upload:** Specific **PHP upload error** messages (size, partial, tmp dir, etc.), **try/catch** around **`Storage::store`** with storage/link + permissions hint; **`ProfileUpdateRequest`** friendly **mimes/size** copy (incl. **HEIC** note).
+- **Profile edit:** Red **error summary** lists all validation messages at the top of settings.
+- **`x-input-error`:** Handles **MessageBag** / empty values; **bold** + **`role="alert"`**.
+- **Public profile settings:** Callout explaining **404** until checkbox + **Save public profile**; shows **live URL** when enabled.
+
+## Version 1.9.39 - P4-2 public profiles + P4-3 email verification (Tier A)
+### Added
+- **Public contributor profiles (P4-2):** opt-in **`GET /people/{slug}`** (**`profile.public`**); fields **`public_profile_enabled`**, **`public_slug`**, **`profile_bio`**; **`PublicProfileController`**, **`profile/public`** (guest layout + meta); **`PATCH /profile/public-settings`** (**`PublicProfileSettingsRequest`**); **`ReservedPublicProfileSlugs`**; settings block on **`profile/edit`**; **`User::publicProfileUrl()`**; leaderboard contributor names link when public.
+- **Email verification UX (P4-3):** **`User`** implements **`MustVerifyEmail`**; **`profile/partials/email-verification-badge`** on **`profile/show`** and edit form; unverified banner on **dashboard** with resend + link to settings.
+### Changed
+- **`User`** **`$fillable`** / casts; **`UserFactory::withPublicProfile()`**.
+### Tests
+- **`PublicProfileTest`**, **`LeaderboardTest`** public profile link case.
+
+## Version 1.9.38 - OAuth redirect_uri_mismatch doc + .env.example note
+### Changed
+- **`docs/oauth-google-apple-setup.md`**: **`redirect_uri_mismatch`** troubleshooting (port, localhost vs 127.0.0.1, **`config:clear`**).
+- **`.env.example`**: Stronger **`APP_URL`** comment for **`php artisan serve`** and Google redirect alignment.
+
+## Version 1.9.37 - Google sign-in visibility (UX + config trim)
+### Changed
+- **OAuth on auth screens**: **Google** / **Apple** buttons moved **above** email/password on **`auth/modals`**, **`auth/login`**, **`auth/register`** with divider **Or use email & password** so the options are visible without scrolling past the form.
+- **`SocialAuthController`**: **`googleConfigured()`** trims **client id/secret** so stray whitespace in **`.env`** does not hide the button.
+### Docs
+- **`docs/local-development.md`**: **Google button missing?** troubleshooting.
+
+## Version 1.9.36 - Defer Sign in with Apple (flag + remarks)
+### Added
+- **`APPLE_SIGN_IN_ENABLED`** (**`config/services.php`**, **`.env.example`**): default **false**; Apple button and `/auth/apple/*` stay inactive until **true** and Apple credentials are set.
+### Changed
+- **`SocialAuthController`**, **`auth` routes**, **`bootstrap/app.php`**, **`AppServiceProvider`**, **`social-login-buttons`**, **`profile` disconnect route**, **`docs/oauth-google-apple-setup.md`**, **`docs/cloud-environment-setup.md`**, **`docs/local-development.md`**: comments documenting defer / later enable without removing code.
+### Tests
+- **`SocialAuthTest`**: Apple redirect **404** when flag off despite placeholder credentials.
+
+## Version 1.9.35 - Cloud environment checklist doc
+### Added
+- **`docs/cloud-environment-setup.md`**: Living checklist for **dev / staging / production** (app core, DB, sessions, mail, queue, storage, Google/Apple OAuth, PayPal, optional integrations, post-deploy commands, external consoles); blank **`.env`** template for copying per host. **README** links to it.
+
+## Version 1.9.34 - OAuth doc: rotated Google JSON / secret
+### Changed
+- **`docs/oauth-google-apple-setup.md`**: **`client_secret_2_*.json`** naming after secret reset; clarify Laravel reads **`.env`** only—copy **`web.client_secret`** into **`GOOGLE_CLIENT_SECRET`** on every environment; checklist item after rotation.
+
+## Version 1.9.33 - OAuth doc: `.env` and git
+### Changed
+- **`docs/oauth-google-apple-setup.md`**: Explain that **`.env`** is not updated via git; staging/production/CI use host or CI secrets with the same variable names as **`.env.example`**.
+
+## Version 1.9.32 - Ignore Google `client_secret*.json`
+### Added
+- **`.gitignore`**: **`client_secret*.json`** so Google OAuth Web client downloads are not committed.
+### Changed
+- **`docs/oauth-google-apple-setup.md`**: Note on the optional **`client_secret_*.json`** file and mapping **`web.*`** fields to **`.env`**.
+
+## Version 1.9.31 - OAuth doc: shared Google client ID
+### Changed
+- **`docs/oauth-google-apple-setup.md`**: Document **Novel App** **`GOOGLE_CLIENT_ID`** shared across dev/staging/production and clarify registering all origins/redirects on one Web client.
+
+## Version 1.9.30 - README and About legal links
+### Added
+- **README**: Novel App section linking **`docs/local-development.md`**, **`docs/oauth-google-apple-setup.md`**, and **`docs/legal/README.md`** (and noting **`/legal`** in the running app).
+### Changed
+- **About** page “Policies & feedback” nav: **Legal hub** link first, then Privacy, Terms, Feedback.
+
+## Version 1.9.29 - Legal hub and OAuth setup doc
+### Added
+- **Legal hub** at **`/legal`** (**`legal.index`**) with links to Terms, Privacy, **Refunds & cancellation**, **Community guidelines**, and **Cookie policy** (**`legal/*`** views); routes registered in **`web.php`**.
+- **OAuth guide** (**`docs/oauth-google-apple-setup.md`**): Google Cloud and Apple Developer steps, redirect URLs per environment, keys, and **`GOOGLE_*` / `APPLE_*`** **`.env`** reference; **`docs/local-development.md`** links to it.
+- **`docs/legal/README.md`** and moved proposal markdown into **`docs/legal/`** (**`hub-update-proposal.md`**, **`document-gap-analysis.md`**).
+### Changed
+- **Privacy** and **Terms** Blade copy: PayPal payments, GDPR/CCPA summary, retention, cookies pointer, contribution **license**, liability cap, refunds cross-links; footers (**`guest`**, **`welcome`**, **`app`**) include **Legal** plus Privacy/Terms where shown before.
+### Removed
+- Duplicate **`privacy.blade.php`** and **`terms.blade.php`** at repo root (canonical views remain under **`resources/views/`**).
+### Tests
+- **`LegalPagesTest`**: legal routes and meta descriptions.
+
+## Version 1.9.28 - Social login (P4-1)
+### Added
+- **Google & Apple sign-in**: **`laravel/socialite`** + **`socialiteproviders/apple`**; routes **`GET auth/{provider}/redirect`** and **`GET|POST auth/{provider}/callback`** (**`SocialAuthController`**); **`social_accounts`** table and nullable **`users.password`** for OAuth-only users.
+- **Auth UI**: **Continue with Google / Apple** on **`auth/modals`**, **`auth/login`**, **`auth/register`** when credentials are configured; flash errors on **`social_login_error`**; Apple callback excluded from CSRF in **`bootstrap/app.php`**.
+- **Profile**: **Connected sign-in** list with **Disconnect** (**`DELETE /profile/social/{provider}`**); OAuth-only users can **set a first password** without “current password” (**`PasswordController`** + **`update-password-form`**).
+### Changed
+- **Privacy policy** (`privacy`): **Sign in with Google or Apple** bullet under what we collect.
+### Docs
+- **`.env.example`** OAuth placeholders; **`docs/local-development.md`** — redirects, Apple POST callback, **client secret / key rotation**.
+
 ## Version 1.9.27 - P3 roadmap (#21–#29) and reader/profile polish
 ### Added
 - **Edit outcome notifications**: **`EditOutcomeNotifier`** creates **`Notification`** rows and sends mail on chapter approve/reject (**`ModerationController`**, **`EditApprovalController`**) with badges for **`edit_rejected`**, **`paragraph_accepted`**, **`paragraph_rejected`** on **`notifications/index`**.

@@ -107,4 +107,21 @@ class LeaderboardTest extends TestCase
 
         $this->assertMatchesRegularExpression('/Recent Earner[\s\S]{0,800}?\b2\b[\s\S]{0,200}?pts/', $html);
     }
+
+    public function test_leaderboard_links_name_to_public_profile_when_enabled(): void
+    {
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'points' => 0,
+        ]);
+        User::factory()->withPublicProfile('casey-on-board')->create([
+            'name' => 'Casey Public',
+            'points' => 10,
+        ]);
+
+        $this->get(route('leaderboard'))
+            ->assertOk()
+            ->assertSee(route('profile.public', ['slug' => 'casey-on-board'], false), false)
+            ->assertSee('Casey Public', false);
+    }
 }

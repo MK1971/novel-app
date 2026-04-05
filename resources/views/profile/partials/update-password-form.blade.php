@@ -3,20 +3,22 @@
         @csrf
         @method('put')
 
-        <div>
-            <x-input-label for="update_password_current_password" :value="__('Current Password')" class="text-amber-900 font-extrabold mb-2" />
-            <x-password-reveal-field
-                id="update_password_current_password"
-                name="current_password"
-                autocomplete="current-password"
-                required
-                class="mt-1 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
-            />
-            <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
-        </div>
+        @if($user->password)
+            <div>
+                <x-input-label for="update_password_current_password" :value="__('Current Password')" class="text-amber-900 font-extrabold mb-2" />
+                <x-password-reveal-field
+                    id="update_password_current_password"
+                    name="current_password"
+                    autocomplete="current-password"
+                    required
+                    class="mt-1 border-amber-200 focus:border-amber-500 focus:ring-amber-500"
+                />
+                <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+            </div>
+        @endif
 
         <div>
-            <x-input-label for="update_password_password" :value="__('New Password')" class="text-amber-900 font-extrabold mb-2" />
+            <x-input-label for="update_password_password" :value="$user->password ? __('New Password') : __('Password')" class="text-amber-900 font-extrabold mb-2" />
             <x-password-reveal-field
                 id="update_password_password"
                 name="password"
@@ -41,7 +43,7 @@
 
         <div class="flex items-center gap-4">
             <x-primary-button class="bg-amber-600 hover:bg-amber-700 text-white font-extrabold px-8 py-3 rounded-xl transition-all shadow-lg shadow-amber-600/20 border-none">
-                {{ __('Update Password') }}
+                {{ $user->password ? __('Update Password') : __('Save password') }}
             </x-primary-button>
 
             @if (session('status') === 'password-updated')

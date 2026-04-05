@@ -7,6 +7,13 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Novel App (this repository)
+
+- **[Local development](docs/local-development.md)** — URL, sessions, OAuth notes.
+- **[Google & Apple OAuth setup](docs/oauth-google-apple-setup.md)** — register apps in Google Cloud and Apple Developer, redirect URIs, keys, and `.env` per environment.
+- **[Legal docs index](docs/legal/README.md)** — policy hub in the app lives at **`/legal`** once the app is running.
+- **[Cloud environment setup](docs/cloud-environment-setup.md)** — checklist of **`.env`** / secrets for **dev, staging, and production** when you deploy.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

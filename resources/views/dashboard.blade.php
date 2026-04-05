@@ -179,6 +179,21 @@
 
             @else
                 {{-- USER DASHBOARD --}}
+                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                    <div class="mb-10 rounded-[2rem] border-2 border-amber-400/70 bg-amber-50 px-6 py-5 shadow-sm" role="status">
+                        <h3 class="text-lg font-extrabold text-amber-950">{{ __('Verify your email') }}</h3>
+                        <p class="mt-2 text-sm font-bold text-amber-900/80 max-w-2xl">{{ __('Please confirm your email address so we can reach you about your account and contributions. Check your inbox for the link, or request a new one from profile settings.') }}</p>
+                        <div class="mt-4 flex flex-wrap items-center gap-4">
+                            <form method="post" action="{{ route('verification.send') }}">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-600 text-white text-sm font-black hover:bg-amber-700 transition-colors">
+                                    {{ __('Resend verification email') }}
+                                </button>
+                            </form>
+                            <a href="{{ route('profile.edit') }}" class="text-sm font-black text-amber-800 underline hover:text-amber-950">{{ __('Open profile settings') }}</a>
+                        </div>
+                    </div>
+                @endif
                 @if(! auth()->user()->onboarding_completed_at)
                     <div class="mb-10 rounded-[2rem] border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-amber-100/80 p-8 shadow-md shadow-amber-200/30" role="region" aria-labelledby="onboarding-heading">
                         <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">

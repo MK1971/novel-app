@@ -17,8 +17,19 @@
                     @endif
                 </div>
                 <div class="flex-1 text-center md:text-left">
-                    <h1 class="text-3xl font-bold text-amber-900 mb-2">{{ $user->name }}</h1>
-                    <p class="text-amber-700 mb-4">{{ $user->email }}</p>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-2">
+                        <h1 class="text-3xl font-bold text-amber-900">{{ $user->name }}</h1>
+                        @include('profile.partials.email-verification-badge', ['user' => $user])
+                    </div>
+                    <p class="text-amber-700 mb-1">{{ $user->email }}</p>
+                    @if ($user->publicProfileUrl())
+                        <p class="mb-4 text-sm font-bold text-amber-800/80">
+                            <a href="{{ $user->publicProfileUrl() }}" class="text-amber-700 underline hover:text-amber-900">Public profile</a>
+                            <span class="text-amber-600/70"> — share this link with readers.</span>
+                        </p>
+                    @else
+                        <p class="mb-4 text-sm font-bold text-amber-800/60">Enable a public page under <a href="{{ route('profile.edit') }}" class="text-amber-700 underline">Profile settings</a> if you want a shareable contributor link.</p>
+                    @endif
                     <div class="flex flex-wrap justify-center md:justify-start gap-4">
                         <div class="bg-amber-50 px-4 py-2 rounded-lg border border-amber-100">
                             <span class="text-sm text-amber-600 block">Total Points</span>
