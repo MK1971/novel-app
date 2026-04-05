@@ -10,12 +10,49 @@ This document **ranks** the “major initiatives” and closely related deferred
 
 ---
 
+## Pass handoff: “next N” items (AI + engineers)
+
+When the user asks for the **next two** (or next N) **numbered** P4 items in **one pass** (e.g. **P4-4 and P4-5** after Tier A shipped), that request means **do the work that earlier passes explicitly deferred**—**not** to repeat a “not in this pass” disclaimer instead of building it.
+
+### 1) Tier A backlog (ship with the next P4 pair unless scoped out)
+
+Prior identity/profile work called out **block/report**, **privacy beyond a single public on/off toggle**, and **privacy-policy text updates** as future. **Implement these in the same pass** as the next numbered P4 items **unless** the user explicitly narrows scope (e.g. “P4-4/5 only, skip reporting” or “no legal copy this sprint”):
+
+- **Block / report** — minimal abuse path on public contributor surfaces (e.g. **report** on **`/people/{slug}`**, and block/hide behavior per a short product spec).
+- **Advanced privacy toggles** — beyond **`public_profile_enabled`** only, where product agrees (e.g. leaderboard visibility, indexed-by-search—exact fields TBD in spec).
+- **Privacy policy** — update **`/privacy`** (and linked legal pages if needed) for **OAuth**, **public profiles**, and any new data collection from the above.
+
+If legal or product blocks a line item, ship what is approved and **document what was cut** in the pass summary—do **not** treat the backlog as permanently optional boilerplate.
+
+### 2) The numbered items they asked for
+
+Then deliver the requested **P4-`*`** work (e.g. reader themes + dark mode). Ordering within the milestone is flexible (backlog first vs parallel), but **default expectation** = Tier A deferrals **plus** the next two ranked items in one engagement.
+
+### 3) Browser validation — end of pass
+
+Finish with **concrete browser checks** (local or staging), not only PHPUnit:
+
+1. **Run the app** — e.g. `php artisan serve` and open the site at the URL that matches **`APP_URL`** in `.env` (OAuth and absolute URLs care about `localhost` vs `127.0.0.1`).
+2. **Walk the surfaces that changed** in the pass, for example:
+   - **`/`** — home loads.
+   - **`/login`**, **`/register`** — auth; social login when configured.
+   - **`/dashboard`** (signed in) — loads; verification banner if relevant.
+   - **`/profile`**, **`/profile/edit`** — profile + settings (avatar, public profile, social accounts, **new privacy toggles** if shipped).
+   - **`/people/{slug}`** — public profile; **report/block UX** if shipped.
+   - **`/leaderboard`** — links and visibility rules if privacy shipped.
+   - **`/privacy`**, **`/legal`** — **read updated copy** when policy work shipped.
+3. **Optional CLI check** — `php artisan test` for the narrowest filters that cover the pass.
+
+Adapt paths to the actual features shipped—**always** name routes or URLs so validation is repeatable.
+
+---
+
 ## Tier A — Identity, access, and trust (usually first among P4)
 
 | Rank | Initiative | Why this order | Dependencies / gates | Rough engineering themes |
 |------|------------|----------------|----------------------|-------------------------|
 | **P4-1** | **Social login (Google / Apple)** | ~~Removes signup friction; does not require other P4 systems.~~ **Shipped in app (configure OAuth consoles + `.env`).** | **Optional later:** “unlink” UX polish, legal review of privacy wording. | **Done:** Socialite, **`social_accounts`**, linking, **`privacy`** OAuth section, **Apple rotation** notes in **`docs/local-development.md`**, **disconnect** on profile + **set password** without current password for OAuth-only users, tests. |
-| **P4-2** | **Public contributor profiles** | ~~Builds on existing profile, leaderboard, and avatars.~~ **Shipped (v1):** opt-in **`/people/{slug}`**, stats + bio; **`.env` / gates** for block/report still future. | **Optional later:** visibility beyond on/off, block/report, harassment workflow. | **Done:** migration **`public_profile_enabled`**, **`public_slug`**, **`profile_bio`**; **`PublicProfileController`**, **`profile.public`**, **`profile/public`**, **`PATCH profile/public-settings`**, reserved slugs, leaderboard name links when public. |
+| **P4-2** | **Public contributor profiles** | ~~Builds on existing profile, leaderboard, and avatars.~~ **Shipped (v1):** opt-in **`/people/{slug}`**, stats + bio. | **Follow-up:** block/report, richer privacy than on/off, privacy-policy updates—**scheduled with the next P4 pair** per **Pass handoff** below (unless the user scopes them out). | **Done:** migration **`public_profile_enabled`**, **`public_slug`**, **`profile_bio`**; **`PublicProfileController`**, **`profile.public`**, **`profile/public`**, **`PATCH profile/public-settings`**, reserved slugs, leaderboard name links when public. |
 | **P4-3** | **Email verification indicator (profile/settings)** | ~~Small trust signal.~~ **Shipped:** **`MustVerifyEmail`** on **`User`**, badges on profile + edit, dashboard banner for unverified users. | Marketing copy tweaks only. | **Done:** **`email-verification-badge`** partial, resend from dashboard. |
 
 ---

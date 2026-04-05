@@ -1,0 +1,17 @@
+---
+description: When user asks for the next N P4 items, also implement Tier A deferred backlog (block/report, privacy toggles, privacy copy) plus browser validation.
+alwaysApply: true
+---
+
+# P4 “next N” pass (e.g. P4-4 and P4-5)
+
+When the user asks for the **next two** (or **next N**) **numbered** P4 items from **`docs/P4-priority-detailed.md`** (e.g. “P4-4 and 5”) **in one pass**, they mean **implement what earlier passes said was not done**—not to end with a “not in this pass” disclaimer instead of building it.
+
+**Default scope for that request:**
+
+1. **Tier A backlog** (from P4-2 / public-profile context): **block/report** on public surfaces, **privacy controls beyond** a single public on/off, and **`/privacy` (and related) copy** for OAuth + public profiles + new practices—**unless** the user explicitly narrows the request (e.g. skip legal, or backlog only).
+2. **The numbered P4 items** they named (e.g. P4-4, P4-5).
+
+**End with browser validation:** `php artisan serve`, **`APP_URL`** match, then concrete paths for everything shipped (including **`/people/{slug}`**, **`/privacy`**, **`/profile/edit`**). Template: **`docs/P4-priority-detailed.md` → “Pass handoff: ‘next N’ items”.**
+
+If the request is **not** a “next N P4” engagement, ignore this rule.

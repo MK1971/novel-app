@@ -41,9 +41,10 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer(['layouts.app', 'layouts.guest'], function ($view) {
             $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
-            $topLeader = Cache::remember('layout.top_leader', 60, function () use ($adminEmail) {
+            $topLeader = Cache::remember('layout.top_leader.v2', 60, function () use ($adminEmail) {
                 return User::query()
                     ->where('email', '!=', $adminEmail)
+                    ->where('leaderboard_visible', true)
                     ->orderByDesc('points')
                     ->first();
             });

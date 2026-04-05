@@ -18,6 +18,8 @@
                         <ul class="list-disc pl-6 space-y-2 mb-6">
                             <li><strong>Account data</strong> — such as name and email, if you register or sign in.</li>
                             <li><strong>Sign in with Google or Apple</strong> — if you choose this option, Google or Apple shares a stable account identifier and (usually) your name and email with us so we can create or log you into your account. We do not receive your Google or Apple password. Their use of your data is governed by their policies.</li>
+                            <li><strong>Public profiles</strong> — if you opt in, we publish the display name, optional photo, optional short bio, and aggregate contribution stats you choose at a public URL (<code class="text-sm">/people/…</code>). We do not show your email there. You can disable the page or limit search indexing in profile settings.</li>
+                            <li><strong>Abuse prevention</strong> — if you use report or block on a public profile, we store the minimum data needed to process the report or enforce the block (for example who reported whom, category, optional message, and block relationships).</li>
                             <li><strong>Content you submit</strong> — including edit suggestions, votes, feedback, and payment-related records needed to operate those features.</li>
                             <li><strong>Technical data</strong> — standard server and session information (e.g. IP, browser type, cookies) used to keep the service secure and working.</li>
                         </ul>
@@ -54,7 +56,7 @@
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Your choices</h2>
                         <p class="mb-6">
-                            You can review or update account details in your profile where the product supports it. For privacy requests (access, correction, deletion, or other rights offered in your region), contact us using <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> in the footer so we can verify and respond. We may need to keep certain records where law requires.
+                            You can review or update account details in your profile where the product supports it. You can turn off your public profile, hide yourself from the public leaderboard, or request <code class="text-sm">noindex</code> for your public page from profile settings when those options are available. For privacy requests (access, correction, deletion, or other rights offered in your region), contact us using <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> in the footer so we can verify and respond. We may need to keep certain records where law requires.
                         </p>
 
                         <p class="mt-10 text-sm font-bold text-amber-800/70">

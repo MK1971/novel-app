@@ -34,6 +34,38 @@
             </div>
         </div>
 
+        <input type="hidden" name="leaderboard_visible" value="0" />
+        <div class="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
+            <input
+                id="leaderboard_visible"
+                name="leaderboard_visible"
+                type="checkbox"
+                value="1"
+                class="mt-1 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                @checked(old('leaderboard_visible', $user->leaderboard_visible ?? true))
+            />
+            <div class="min-w-0">
+                <x-input-label for="leaderboard_visible" :value="__('Show me on the public leaderboard')" class="text-amber-900 font-extrabold cursor-pointer" />
+                <p class="text-xs font-bold text-amber-800/70 mt-1">{{ __('When off, your name and points are hidden from the leaderboard lists (your account still works normally).') }}</p>
+            </div>
+        </div>
+
+        <input type="hidden" name="profile_indexable" value="0" />
+        <div class="flex items-start gap-3 rounded-xl border border-amber-100 bg-amber-50/40 p-4">
+            <input
+                id="profile_indexable"
+                name="profile_indexable"
+                type="checkbox"
+                value="1"
+                class="mt-1 h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                @checked(old('profile_indexable', $user->profile_indexable ?? true))
+            />
+            <div class="min-w-0">
+                <x-input-label for="profile_indexable" :value="__('Allow search engines to index my public profile')" class="text-amber-900 font-extrabold cursor-pointer" />
+                <p class="text-xs font-bold text-amber-800/70 mt-1">{{ __('When off, we ask crawlers not to index your /people/… page (noindex). Applies only while your public profile is enabled.') }}</p>
+            </div>
+        </div>
+
         <div>
             <x-input-label for="public_slug" value="Public URL slug" class="text-amber-900 font-extrabold mb-2" />
             <div class="flex flex-wrap items-center gap-2 text-sm font-bold text-amber-800/80">

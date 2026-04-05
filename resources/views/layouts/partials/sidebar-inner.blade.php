@@ -1,7 +1,7 @@
 <div class="p-8 space-y-10">
     {{-- Main Navigation --}}
     <div>
-        <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Main Menu</h3>
+        <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">Main Menu</h3>
         <nav class="space-y-2">
             @auth
             <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">
@@ -22,7 +22,7 @@
 
     {{-- Explore Section --}}
     <div>
-        <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Explore</h3>
+        <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">Explore</h3>
         <nav class="space-y-2">
             <x-sidebar-link :href="route('archive.chapters')" :active="request()->routeIs('archive.*')" icon="archive">
                 Archives
@@ -42,7 +42,7 @@
     {{-- Admin Section --}}
     @can('admin')
         <div>
-            <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Administration</h3>
+            <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">Administration</h3>
             <nav class="space-y-2">
                 <x-sidebar-link :href="route('admin.edits.index')" :active="request()->routeIs('admin.edits.*')" icon="review">
                     Review Suggestions
@@ -69,7 +69,7 @@
     {{-- User Profile --}}
     @auth
         <div>
-            <h3 class="text-xs font-extrabold text-amber-900/30 uppercase tracking-[0.2em] mb-6 px-4">Account</h3>
+            <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">Account</h3>
             <nav class="space-y-2">
                 <x-sidebar-link :href="route('profile.show')" :active="request()->routeIs('profile.show')" icon="user">
                     My Profile

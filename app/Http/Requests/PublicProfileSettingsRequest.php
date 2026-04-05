@@ -21,6 +21,8 @@ class PublicProfileSettingsRequest extends FormRequest
     {
         return [
             'public_profile_enabled' => ['boolean'],
+            'leaderboard_visible' => ['boolean'],
+            'profile_indexable' => ['boolean'],
             'public_slug' => [
                 'nullable',
                 'string',
@@ -47,6 +49,8 @@ class PublicProfileSettingsRequest extends FormRequest
         $this->merge([
             'public_slug' => $slug,
             'public_profile_enabled' => $this->boolean('public_profile_enabled'),
+            'leaderboard_visible' => $this->boolean('leaderboard_visible'),
+            'profile_indexable' => $this->boolean('profile_indexable'),
         ]);
     }
 

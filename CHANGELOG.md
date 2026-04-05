@@ -2,6 +2,17 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
+### Added
+- **Reader themes & focus (P4-4):** Chapter toolbar (**cream / paper / sepia / night**) with **`localStorage`**; **focus mode** hides app chrome and suggest column (**`sessionStorage`**); CSS in **`app.css`**; Alpine **`novelChapterReader`** in **`app.js`**.
+- **Site-wide dark mode (P4-5):** Tailwind **`darkMode: 'class'`**; **`novel-theme.js`** cycles **system / light / dark**; **`theme-boot`** inline script + **`theme-toggle`** in app, guest, and welcome layouts; shell/sidebar/nav/dropdown dark styles.
+- **Public profile abuse & privacy (Tier A):** **`user_blocks`**, **`profile_reports`**; **`leaderboard_visible`**, **`profile_indexable`** on **`users`**; **`PublicProfileAbuseController`** (**report**, **block**, **unblock**, **`unblockByUser`**); profile **Safety** UI (**Report** / **Block**); **blocked contributors** on **`profile/edit`**; **`noindex`** when indexing off; leaderboard + top contributor respect opt-out.
+### Changed
+- **`privacy`**: public profiles, reporting/blocks, choices copy.
+- **`PublicProfileController`**, **`LeaderboardController`**, **`AppServiceProvider`** (top leader cache key **`layout.top_leader.v2`**), **`PublicProfileSettingsRequest`**, **`ProfileController::edit`**, **`User`** relationships/helpers.
+### Tests
+- **`PublicProfileTest`**, **`LeaderboardTest`** extended for reports, blocks, toggles, noindex.
+
 ## Version 1.9.41 - Avatar upload: replace Laravel generic “failed to upload”
 ### Fixed
 - **Avatar / `validation.uploaded`:** When PHP rejects an upload before the controller runs, users no longer only see **“The avatar failed to upload.”** — **`ProfileUpdateRequest::withValidator`** replaces it with **`UPLOAD_ERR_*`** detail via **`App\Support\UploadFailureMessage`**; **`ProfileController`** uses the same helper.

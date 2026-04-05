@@ -5,13 +5,102 @@
 /* P3-6: visible focus for keyboard users (app shell + forms) */
 @layer base {
     :where(a, button, input:not([type="hidden"]), select, textarea, summary):focus-visible {
-        @apply outline-none ring-2 ring-amber-500 ring-offset-2 ring-offset-[#fff9f0];
+        @apply outline-none ring-2 ring-amber-500 dark:ring-amber-400 ring-offset-2 ring-offset-[#fff9f0] dark:ring-offset-stone-950;
     }
 
     /* P2 reader: literary body text (stack + kerning; Tailwind font-serif on #chapter-content) */
     .novel-reader-body {
         font-feature-settings: "kern" 1, "liga" 1;
     }
+}
+
+/* P4-4: chapter reader themes (column-local; stored in localStorage via Alpine) */
+.novel-chapter-reader-root[data-reader-theme="cream"] .novel-reader-surface {
+    --novel-read-bg: #ffffff;
+    --novel-read-fg: #431407;
+    --novel-read-border: rgb(254 243 199 / 0.9);
+    --novel-read-decor: rgb(245 158 11 / 0.06);
+}
+
+.novel-chapter-reader-root[data-reader-theme="paper"] .novel-reader-surface {
+    --novel-read-bg: #fbf8f3;
+    --novel-read-fg: #292524;
+    --novel-read-border: rgb(231 229 228 / 0.95);
+    --novel-read-decor: rgb(120 113 108 / 0.08);
+}
+
+.novel-chapter-reader-root[data-reader-theme="sepia"] .novel-reader-surface {
+    --novel-read-bg: #f4ecd8;
+    --novel-read-fg: #3d2f1f;
+    --novel-read-border: rgb(161 98 7 / 0.25);
+    --novel-read-decor: rgb(146 64 14 / 0.12);
+}
+
+.novel-chapter-reader-root[data-reader-theme="night"] .novel-reader-surface {
+    --novel-read-bg: #1c1917;
+    --novel-read-fg: #e7e5e4;
+    --novel-read-border: rgb(68 64 60 / 0.85);
+    --novel-read-decor: rgb(255 255 255 / 0.04);
+}
+
+.novel-reader-surface {
+    background-color: var(--novel-read-bg, #fff);
+    border-color: var(--novel-read-border, rgb(254 243 199));
+    color: var(--novel-read-fg, #431407);
+}
+
+.novel-read-decor-num {
+    color: var(--novel-read-decor, rgb(245 158 11 / 0.06));
+}
+
+.novel-chapter-reader-root[data-reader-theme="night"] .novel-reader-surface #chapter-content {
+    color: var(--novel-read-fg);
+}
+
+/* P4-4: focus reading — hide app chrome (class toggled on <html>) */
+html.novel-reader-focus .novel-reader-focus-hide {
+    display: none !important;
+}
+
+html.novel-reader-focus .app-shell__main-with-rail {
+    padding-left: 0 !important;
+}
+
+html.novel-reader-focus main.novel-app-main {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    html.novel-reader-focus main.novel-app-main {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+html.novel-reader-focus .novel-reader-focus-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgb(251 191 36 / 0.35);
+    background-color: rgb(255 251 235 / 0.95);
+    backdrop-filter: blur(8px);
+}
+
+html.novel-reader-focus.dark .novel-reader-focus-bar {
+    background-color: rgb(28 25 23 / 0.92);
+    border-bottom-color: rgb(68 64 60 / 0.6);
+}
+
+html.novel-reader-focus .novel-chapter-reader-root {
+    padding-top: 3.25rem;
+}
+
+html.novel-reader-focus .novel-chapter-read-progress {
+    top: 3.25rem !important;
 }
 
 /* Edit diff preview (JS-built rows): explicit colors so styling never depends on Tailwind + dynamic class strings */

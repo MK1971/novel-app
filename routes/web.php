@@ -18,6 +18,7 @@ use App\Http\Controllers\ParagraphReactionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PublicProfileAbuseController;
 use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\VoteController;
@@ -165,6 +166,17 @@ Route::middleware('auth')->group(function () {
         ->name('profile.social.disconnect');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/public-settings', [ProfileController::class, 'updatePublicSettings'])->name('profile.public-settings.update');
+    Route::post('/people/{slug}/report', [PublicProfileAbuseController::class, 'report'])
+        ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+        ->name('profile.public.report');
+    Route::post('/people/{slug}/block', [PublicProfileAbuseController::class, 'block'])
+        ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+        ->name('profile.public.block');
+    Route::delete('/people/{slug}/block', [PublicProfileAbuseController::class, 'unblock'])
+        ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+        ->name('profile.public.unblock');
+    Route::delete('/profile/blocks/{blocked}', [PublicProfileAbuseController::class, 'unblockByUser'])
+        ->name('profile.blocks.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/edits/preview-diff', EditDiffPreviewController::class)->name('edits.preview-diff');

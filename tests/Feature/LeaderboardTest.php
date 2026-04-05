@@ -124,4 +124,25 @@ class LeaderboardTest extends TestCase
             ->assertSee(route('profile.public', ['slug' => 'casey-on-board'], false), false)
             ->assertSee('Casey Public', false);
     }
+
+    public function test_leaderboard_excludes_users_who_opt_out(): void
+    {
+        User::factory()->create([
+            'email' => 'admin@example.com',
+            'points' => 0,
+        ]);
+        User::factory()->hiddenFromLeaderboard()->create([
+            'name' => 'Hidden Contributor',
+            'points' => 999,
+        ]);
+        User::factory()->create([
+            'name' => 'Visible Contributor',
+            'points' => 5,
+        ]);
+
+        $this->get(route('leaderboard'))
+            ->assertOk()
+            ->assertDontSee('Hidden Contributor', false)
+            ->assertSee('Visible Contributor', false);
+    }
 }

@@ -8,6 +8,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @include('layouts.partials.theme-boot')
 
         <title>{{ $pageTitle ?? config("app.name", "What's My Book Name") }}</title>
         @include('layouts.partials.seo-head', ['pageTitle' => $pageTitle, 'metaDescription' => $metaDescription])
@@ -34,7 +35,7 @@
             }
         </style>
     </head>
-    <body class="min-h-screen antialiased bg-[#fff9f0] text-[#2c2419]" style="font-family: 'Nunito', sans-serif;">
+    <body class="min-h-screen antialiased bg-[#fff9f0] dark:bg-stone-950 text-[#2c2419] dark:text-amber-50 transition-colors duration-200" style="font-family: 'Nunito', sans-serif;">
         @php $showSidebarNav = !isset($hideSidebar) || !$hideSidebar; @endphp
         <div
             class="min-h-screen flex flex-col"
@@ -42,7 +43,7 @@
             @keydown.escape.window="mobileNavOpen = false"
         >
             {{-- Top Navigation (sticky: document scrolls; no h-screen / overflow-hidden trap) --}}
-            <nav class="sticky top-0 z-40 border-b border-amber-200/60 bg-white/80 backdrop-blur-sm">
+            <nav class="novel-reader-focus-hide sticky top-0 z-40 border-b border-amber-200/60 dark:border-stone-700 bg-white/80 dark:bg-stone-900/85 backdrop-blur-sm">
                 <div class="max-w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3 md:gap-8 min-w-0">
                         @if ($showSidebarNav)
@@ -57,7 +58,7 @@
                                 </svg>
                             </button>
                         @endif
-                        <a href="{{ url("/") }}" class="text-xl sm:text-2xl font-extrabold text-amber-800 tracking-tight truncate">
+                        <a href="{{ url("/") }}" class="text-xl sm:text-2xl font-extrabold text-amber-800 dark:text-amber-200 tracking-tight truncate">
                             What's My Book Name
                         </a>
                         @if($topLeader)
@@ -73,10 +74,11 @@
                     </div>
                     
                     <div class="flex items-center gap-2 sm:gap-4">
+                        @include('layouts.partials.theme-toggle')
                         @auth
                             @include('layouts.partials.nav-account-menu')
                         @else
-                            <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-4 sm:px-6 py-2 bg-amber-500 text-black text-sm sm:text-base font-bold rounded-full hover:bg-amber-600 transition-all shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">Sign In</button>
+                            <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-4 sm:px-6 py-2 bg-amber-500 dark:bg-amber-400 text-black text-sm sm:text-base font-bold rounded-full hover:bg-amber-600 dark:hover:bg-amber-300 transition-all shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] dark:focus-visible:ring-offset-stone-950">Sign In</button>
                         @endauth
                     </div>
                 </div>
@@ -88,7 +90,7 @@
                     x-show="mobileNavOpen"
                     x-cloak
                     x-transition.opacity
-                    class="md:hidden fixed inset-0 z-50"
+                    class="novel-reader-focus-hide md:hidden fixed inset-0 z-50"
                     role="dialog"
                     aria-modal="true"
                     aria-label="Main menu"
@@ -130,25 +132,25 @@
 
                 <div class="min-w-0 w-full {{ $showSidebarNav ? 'app-shell__main-with-rail' : '' }}">
                     @isset($header)
-                        <header class="bg-white/50 border-b border-amber-100 py-8 px-8">
+                        <header class="novel-reader-focus-hide bg-white/50 dark:bg-stone-900/40 border-b border-amber-100 dark:border-stone-700 py-8 px-8">
                             <div class="max-w-7xl mx-auto">
                                 {{ $header }}
                             </div>
                         </header>
                     @endisset
 
-                    <main class="p-8">
+                    <main class="novel-app-main p-8">
                         <div class="max-w-7xl mx-auto">
                             {{ $slot }}
                         </div>
                     </main>
 
-                    <footer class="py-8 px-8 border-t border-amber-100 text-center">
-                        <p class="text-amber-900/30 text-sm font-bold mb-3">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
-                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-bold text-amber-900/45" aria-label="Legal">
-                            <a href="{{ route('legal.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70">Legal</a>
-                            <span class="text-amber-300/80 select-none pointer-events-none" aria-hidden="true">·</span>
-                            <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70">Feedback</a>
+                    <footer class="novel-reader-focus-hide py-8 px-8 border-t border-amber-100 dark:border-stone-800 text-center">
+                        <p class="text-amber-900/30 dark:text-stone-500 text-sm font-bold mb-3">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
+                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-bold text-amber-900/45 dark:text-stone-400" aria-label="Legal">
+                            <a href="{{ route('legal.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70 dark:hover:text-amber-200">Legal</a>
+                            <span class="text-amber-300/80 dark:text-stone-600 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70 dark:hover:text-amber-200">Feedback</a>
                         </nav>
                     </footer>
                 </div>

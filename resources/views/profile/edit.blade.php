@@ -10,6 +10,11 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            @if (session('success'))
+                <div class="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-green-800" role="status">
+                    {{ session('success') }}
+                </div>
+            @endif
             {{-- Profile Information --}}
             <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-8 shadow-sm">
                 <div class="max-w-xl">
@@ -38,6 +43,7 @@
                     @include('profile.partials.update-profile-information-form')
                     @include('profile.partials.connected-social-accounts')
                     @include('profile.partials.update-public-profile-form')
+                    @include('profile.partials.blocked-contributors', ['blockedContributors' => $blockedContributors ?? collect()])
                 </div>
             </div>
 

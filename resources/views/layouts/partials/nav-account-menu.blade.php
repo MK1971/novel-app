@@ -2,7 +2,7 @@
 <div class="flex items-center gap-2 sm:gap-4">
     <a
         href="{{ route('notifications.index') }}"
-        class="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-amber-200 bg-white text-amber-900 shadow-sm hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]"
+        class="relative inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-amber-200 dark:border-stone-600 bg-white dark:bg-stone-800 text-amber-900 dark:text-amber-100 shadow-sm hover:bg-amber-50 dark:hover:bg-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] dark:focus-visible:ring-offset-stone-950"
         aria-label="Notifications{{ ($unreadNotificationCount ?? 0) > 0 ? ', '.$unreadNotificationCount.' unread' : '' }}"
     >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -16,9 +16,9 @@
     </a>
     <x-dropdown align="right" width="48">
         <x-slot name="trigger">
-            <button type="button" class="inline-flex items-center px-4 py-2 border border-amber-200 text-sm font-bold rounded-full text-amber-900 bg-white hover:bg-amber-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] transition-all shadow-sm">
+            <button type="button" class="inline-flex items-center px-4 py-2 border border-amber-200 dark:border-stone-600 text-sm font-bold rounded-full text-amber-900 dark:text-amber-50 bg-white dark:bg-stone-800 hover:bg-amber-50 dark:hover:bg-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] dark:focus-visible:ring-offset-stone-950 transition-all shadow-sm">
                 @if(Auth::user()->avatarUrl())
-                    <img src="{{ Auth::user()->avatarUrl() }}" alt="" class="w-6 h-6 rounded-full mr-2 object-cover border border-amber-200 shrink-0" width="24" height="24" />
+                    <img src="{{ Auth::user()->avatarUrl() }}" alt="" class="w-6 h-6 rounded-full mr-2 object-cover border border-amber-200 dark:border-stone-600 shrink-0" width="24" height="24" />
                 @else
                     <span class="w-6 h-6 bg-amber-500 rounded-full mr-2 flex items-center justify-center text-[10px] text-black shrink-0" aria-hidden="true">
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -32,23 +32,23 @@
         </x-slot>
 
         <x-slot name="content">
-            <x-dropdown-link :href="route('profile.show')" class="text-amber-900 font-bold hover:bg-amber-50">
+            <x-dropdown-link :href="route('profile.show')" class="text-amber-900 dark:text-amber-50 font-bold hover:bg-amber-50 dark:hover:bg-stone-700">
                 {{ __('Profile') }}
             </x-dropdown-link>
-            <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 font-bold hover:bg-amber-50">
+            <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 dark:text-amber-50 font-bold hover:bg-amber-50 dark:hover:bg-stone-700">
                 {{ __('Edit profile') }}
             </x-dropdown-link>
             @can('admin')
-                <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 dark:text-amber-300 font-bold hover:bg-amber-50 dark:hover:bg-stone-700">
                     {{ __('Moderation') }}
                 </x-dropdown-link>
-                <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 font-bold hover:bg-amber-50">
+                <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 dark:text-amber-300 font-bold hover:bg-amber-50 dark:hover:bg-stone-700">
                     {{ __('User Management') }}
                 </x-dropdown-link>
             @endcan
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 font-bold hover:bg-red-50">
+                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 dark:text-red-400 font-bold hover:bg-red-50 dark:hover:bg-red-950/40">
                     {{ __('Log Out') }}
                 </x-dropdown-link>
             </form>

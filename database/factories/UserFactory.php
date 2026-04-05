@@ -60,4 +60,12 @@ class UserFactory extends Factory
             'profile_bio' => 'Test bio.',
         ]);
     }
+
+    /** Hidden from public leaderboard lists (P4 Tier A privacy). */
+    public function hiddenFromLeaderboard(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'leaderboard_visible' => false,
+        ]);
+    }
 }

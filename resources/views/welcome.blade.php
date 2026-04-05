@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @include('layouts.partials.theme-boot')
         <title>{{ config('app.name', 'WhatsMyBookName') }}</title>
         @include('layouts.partials.seo-head', [
             'pageTitle' => config('app.name', 'WhatsMyBookName'),
@@ -222,7 +223,7 @@
             }
         </style>
     </head>
-    <body class="antialiased font-['Nunito'] bg-[#fff9f0] text-amber-900 selection:bg-amber-200 selection:text-amber-900" x-data="{ showLoginModal: false, showRegisterModal: false, mobileNavOpen: false }" @keydown.escape.window="mobileNavOpen = false">
+    <body class="antialiased font-['Nunito'] bg-[#fff9f0] dark:bg-stone-950 text-amber-900 dark:text-amber-100 selection:bg-amber-200 selection:text-amber-900 dark:selection:bg-amber-700 dark:selection:text-amber-50 transition-colors duration-200" x-data="{ showLoginModal: false, showRegisterModal: false, mobileNavOpen: false }" @keydown.escape.window="mobileNavOpen = false">
         <button type="button" class="skip-to-main" id="skip-to-main-btn" onclick="window.skipToMainContent && window.skipToMainContent()">Skip to main content</button>
         <script>
             window.skipToMainContent = function () {
@@ -249,7 +250,7 @@
                 <div class="landing-hero-bg-overlay"></div>
             </div>
             {{-- Solid light bar (opaque) so it stays visible over hero + cream sections; amber only on CTAs like Join Now --}}
-            <nav class="relative z-50 sticky top-0 bg-white border-b border-amber-200/90 shadow-md shadow-amber-900/10" @click.outside="mobileNavOpen = false">
+            <nav class="relative z-50 sticky top-0 bg-white dark:bg-stone-900 border-b border-amber-200/90 dark:border-stone-700 shadow-md shadow-amber-900/10 dark:shadow-black/40" @click.outside="mobileNavOpen = false">
                 <div class="max-w-7xl mx-auto px-6 min-h-20 flex items-center justify-between gap-4">
                     <a href="{{ route('home') }}" class="landing-ui-transition flex items-center gap-3 shrink-0 min-h-11 py-2 -my-1 rounded-lg text-amber-900 hover:text-amber-700 transition-colors focus:outline-none">
                         <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0" aria-hidden="true">
@@ -266,6 +267,7 @@
                     </div>
 
                     <div class="hidden md:flex items-center gap-4">
+                        @include('layouts.partials.theme-toggle')
                         @auth
                             <div class="flex items-center gap-6">
                                 <div class="flex flex-col items-end">

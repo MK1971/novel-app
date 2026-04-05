@@ -22,9 +22,15 @@ class LeaderboardController extends Controller
         $adminUser = User::query()->where('email', $adminEmail)->first();
         $excludeUserId = $adminUser?->id;
 
+        $leaderboardHiddenUserIds = User::query()
+            ->where('leaderboard_visible', false)
+            ->pluck('id')
+            ->all();
+
         if ($period === LeaderboardScoring::PERIOD_30_DAYS) {
             $since = Carbon::now()->subDays(30);
             $pointsByUser = LeaderboardScoring::periodPointsByUserId($since, $excludeUserId)
+                ->except($leaderboardHiddenUserIds)
                 ->filter(fn (int $p) => $p > 0);
 
             $totalRanked = $pointsByUser->count();
@@ -54,6 +60,7 @@ class LeaderboardController extends Controller
         } else {
             $eligible = User::query()
                 ->where('email', '!=', $adminEmail)
+                ->where('leaderboard_visible', true)
                 ->orderByDesc('points')
                 ->orderBy('id');
 

@@ -123,7 +123,7 @@
     @auth
         {{-- Sticky under top nav: stays visible while reading (header scrolls away) --}}
         <div
-            class="sticky z-30 -mx-8 mb-6 border-b border-amber-200/60 bg-amber-50/95 backdrop-blur-sm px-8 py-3 shadow-sm supports-[backdrop-filter]:bg-amber-50/85"
+            class="novel-chapter-read-progress sticky z-30 -mx-8 mb-6 border-b border-amber-200/60 bg-amber-50/95 backdrop-blur-sm px-8 py-3 shadow-sm supports-[backdrop-filter]:bg-amber-50/85"
             style="top: var(--app-shell-nav-h, 4.5rem)"
             aria-live="polite"
         >
@@ -156,13 +156,43 @@
                 <div class="p-4 bg-amber-100 text-amber-900 rounded-2xl border border-amber-200 font-bold">{{ session('warning') }}</div>
             @endif
         </div>
+        <div
+            id="novel-chapter-reader"
+            class="novel-chapter-reader-root"
+            data-reader-theme="cream"
+            x-data="novelChapterReader"
+        >
+            <div
+                class="novel-reader-toolbar novel-reader-focus-bar -mx-8 mb-6 flex flex-wrap items-center gap-3 border-b border-amber-200/60 dark:border-stone-700 bg-amber-50/90 dark:bg-stone-900/80 px-8 py-3 text-xs font-bold text-amber-900 dark:text-amber-100 shadow-sm backdrop-blur-sm supports-[backdrop-filter]:bg-amber-50/80 dark:supports-[backdrop-filter]:bg-stone-900/75"
+            >
+                <span class="font-black uppercase tracking-widest text-amber-800/50 dark:text-amber-200/55">{{ __('Reader') }}</span>
+                <label class="sr-only" for="novel-reader-theme-select">{{ __('Reading theme') }}</label>
+                <select
+                    id="novel-reader-theme-select"
+                    x-model="theme"
+                    class="rounded-xl border-amber-200 dark:border-stone-600 bg-white dark:bg-stone-800 text-xs font-bold text-amber-900 dark:text-amber-50 py-2 pl-3 pr-8 max-w-[11rem] sm:max-w-none"
+                >
+                    <option value="cream">{{ __('Cream (default)') }}</option>
+                    <option value="paper">{{ __('Paper') }}</option>
+                    <option value="sepia">{{ __('Sepia') }}</option>
+                    <option value="night">{{ __('Night (reader)') }}</option>
+                </select>
+                <button
+                    type="button"
+                    class="inline-flex items-center gap-2 rounded-xl border border-amber-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-4 py-2 text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-50 hover:bg-amber-100 dark:hover:bg-stone-700"
+                    @click="toggleFocus()"
+                >
+                    <span x-show="!focus">{{ __('Focus mode') }}</span>
+                    <span x-show="focus" x-cloak>{{ __('Exit focus') }}</span>
+                </button>
+            </div>
         {{-- Below lg: suggest panel first so it is visible on load without scrolling past the chapter --}}
-        <div class="grid lg:grid-cols-3 gap-12">
+        <div class="grid gap-12" :class="focus ? 'lg:grid-cols-1' : 'lg:grid-cols-3'">
             {{-- Chapter Content --}}
-            <div class="order-2 lg:order-1 lg:col-span-2">
-                <div class="bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
+            <div class="order-2 lg:order-1" :class="focus ? 'lg:col-span-1 max-w-3xl mx-auto w-full' : 'lg:col-span-2'">
+                <div class="novel-reader-surface bg-white border border-amber-100 shadow-sm rounded-[3rem] p-12 md:p-16 relative overflow-hidden">
                     {{-- Decorative background number --}}
-                    <div class="absolute -top-10 -right-10 text-[15rem] font-black text-amber-500/5 select-none leading-none">
+                    <div class="novel-read-decor-num absolute -top-10 -right-10 text-[15rem] font-black select-none leading-none">
                         {{ $chapter->listSectionDecorativeMarker() }}
                     </div>
                     
@@ -178,7 +208,7 @@
                                 <div class="text-[20rem] font-black rotate-[-35deg] whitespace-nowrap">LOCKED</div>
                             </div>
                         @endif
-                        <div id="chapter-content" class="novel-reader-body max-w-none text-amber-950 text-[1.0625rem] sm:text-lg leading-[1.88] tracking-[0.01em] font-serif font-normal text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
+                        <div id="chapter-content" class="novel-reader-body max-w-none text-[1.0625rem] sm:text-lg leading-[1.88] tracking-[0.01em] font-serif font-normal text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
                             @php
                                 $paragraphs = explode("\n", $chapter->content);
                             @endphp
@@ -224,7 +254,7 @@
             </div>
 
             {{-- Sidebar: Suggest Edit (sticky on large screens; first on small screens so form is on-screen immediately) --}}
-            <div class="order-1 lg:order-2 lg:col-span-1">
+            <div class="order-1 lg:order-2 lg:col-span-1" x-show="!focus">
                 <div id="chapter-suggest-edit-sidebar" class="scroll-mt-28 space-y-8 lg:sticky lg:top-[calc(var(--app-shell-nav-h,4.5rem)+0.375rem+0.75rem)] lg:max-h-[calc(100vh-var(--app-shell-nav-h,4.5rem)-2rem)] lg:overflow-y-auto lg:overscroll-y-contain lg:self-start">
                     @if($isPeterTrullBook)
                         <div class="bg-emerald-50 border-2 border-emerald-100 rounded-[3rem] p-10 text-emerald-900 shadow-sm relative overflow-hidden">
@@ -429,11 +459,12 @@
                 </div>
             </div>
         </div>
+        </div>
 
         @if($chapterSuggestFabVisible)
             <a
                 href="#chapter-suggest-edit-sidebar"
-                class="lg:hidden fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-2xl bg-amber-900 text-white px-5 py-3.5 text-sm font-extrabold shadow-xl shadow-amber-900/30 ring-2 ring-white/40 hover:bg-black transition-colors max-w-[calc(100vw-2.5rem)]"
+                class="novel-reader-focus-hide lg:hidden fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-2xl bg-amber-900 text-white px-5 py-3.5 text-sm font-extrabold shadow-xl shadow-amber-900/30 ring-2 ring-white/40 hover:bg-black transition-colors max-w-[calc(100vw-2.5rem)]"
                 onclick="event.preventDefault(); window.scrollToSuggestEditSidebar();"
             >
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>

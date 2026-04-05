@@ -55,8 +55,15 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user()->load('socialAccounts');
+        $blockedContributors = $user->blocksInitiated()
+            ->with(['blocked' => fn ($q) => $q->select('id', 'name', 'public_slug', 'public_profile_enabled')])
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('profile.edit', [
-            'user' => $request->user()->load('socialAccounts'),
+            'user' => $user,
+            'blockedContributors' => $blockedContributors,
         ]);
     }
 

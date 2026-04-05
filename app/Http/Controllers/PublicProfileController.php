@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserBlock;
 use Illuminate\View\View;
 
 class PublicProfileController extends Controller
@@ -17,6 +18,17 @@ class PublicProfileController extends Controller
             ->where('public_slug', $slug)
             ->firstOrFail();
 
+        $viewer = auth()->user();
+        if ($user->publicProfileBlockedFor($viewer)) {
+            abort(404);
+        }
+
+        $viewerHasBlocked = $viewer
+            && UserBlock::query()
+                ->where('blocker_id', $viewer->id)
+                ->where('blocked_id', $user->id)
+                ->exists();
+
         $stats = [
             'points' => (int) ($user->points ?? 0),
             'accepted' => $user->acceptedChapterAndParagraphEditCount(),
@@ -26,6 +38,7 @@ class PublicProfileController extends Controller
         return view('profile.public', [
             'profileUser' => $user,
             'stats' => $stats,
+            'viewerHasBlocked' => $viewerHasBlocked,
         ]);
     }
 }

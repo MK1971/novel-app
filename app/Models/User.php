@@ -23,6 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'public_profile_enabled',
         'public_slug',
         'profile_bio',
+        'leaderboard_visible',
+        'profile_indexable',
     ];
 
     protected $hidden = [
@@ -38,6 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_admin' => 'boolean',
             'onboarding_completed_at' => 'datetime',
             'public_profile_enabled' => 'boolean',
+            'leaderboard_visible' => 'boolean',
+            'profile_indexable' => 'boolean',
         ];
     }
 
@@ -136,5 +140,34 @@ class User extends Authenticatable implements MustVerifyEmail
     public function socialAccounts()
     {
         return $this->hasMany(SocialAccount::class);
+    }
+
+    public function blocksInitiated()
+    {
+        return $this->hasMany(UserBlock::class, 'blocker_id');
+    }
+
+    public function blocksReceived()
+    {
+        return $this->hasMany(UserBlock::class, 'blocked_id');
+    }
+
+    /**
+     * Whether the viewer cannot access this user's public profile due to a block (either direction).
+     */
+    public function publicProfileBlockedFor(?User $viewer): bool
+    {
+        if ($viewer === null || $viewer->id === $this->id) {
+            return false;
+        }
+
+        return UserBlock::query()
+            ->where(function ($q) use ($viewer) {
+                $q->where('blocker_id', $viewer->id)->where('blocked_id', $this->id);
+            })
+            ->orWhere(function ($q) use ($viewer) {
+                $q->where('blocker_id', $this->id)->where('blocked_id', $viewer->id);
+            })
+            ->exists();
     }
 }
