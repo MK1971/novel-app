@@ -62,7 +62,7 @@ class AdminNotifier
     public static function notifyNewPaidSuggestion(string $summaryLine): void
     {
         self::notify(
-            config('app.name').': new paid suggestion',
+            'WhatsMyBookName: new paid suggestion',
             $summaryLine."\n\nReview: ".url('/admin/chapters')
         );
     }

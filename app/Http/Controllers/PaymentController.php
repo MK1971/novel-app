@@ -7,19 +7,26 @@ use App\Models\ChapterStatistic;
 use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\Payment;
+use App\Models\User;
 use App\Support\AchievementUnlock;
 use App\Support\AdminNotifier;
 use App\Support\ChapterLifecycle;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends Controller
 {
     private const USER_PAYPAL_CONFIG_MESSAGE = 'Edit checkout is temporarily unavailable. Please try again later. If this keeps happening, contact the site administrator.';
+
+    private const DONATION_MIN_CENTS = 200;
 
     public function cancel(Request $request)
     {
@@ -57,6 +64,8 @@ class PaymentController extends Controller
         $request->validate([
             'chapter_id' => 'required|exists:chapters,id',
             'type' => 'required|in:writing,phrase,inline_edit',
+            'show_in_public_feed' => 'nullable|boolean',
+            'queue_only' => 'nullable|boolean',
         ]);
 
         if ($request->type === 'inline_edit') {
@@ -86,12 +95,16 @@ class PaymentController extends Controller
         }
 
         $payloadJson = null;
+        $showInPublicFeed = $request->has('show_in_public_feed')
+            ? $request->boolean('show_in_public_feed')
+            : true;
         if ($request->type === 'inline_edit') {
             $payloadJson = json_encode([
                 'paragraph_number' => (int) $request->paragraph_number,
                 'original_text' => $request->original_text,
                 'suggested_text' => $request->suggested_text,
                 'reason' => $request->reason ?? '',
+                'show_in_public_feed' => $showInPublicFeed,
             ]);
             session(['inlineEditData' => $payloadJson]);
         } else {
@@ -99,7 +112,19 @@ class PaymentController extends Controller
         }
 
         try {
-            $edit = $this->findOrSyncPendingPaymentEdit($request, $chapter, $payloadJson);
+            $hasExistingQueuedEdits = Edit::query()
+                ->where('user_id', $request->user()->id)
+                ->where('status', 'pending_payment')
+                ->exists();
+            $appendAsNewEdit = $request->boolean('queue_only') || $hasExistingQueuedEdits;
+
+            $edit = $this->findOrSyncPendingPaymentEdit(
+                $request,
+                $chapter,
+                $payloadJson,
+                $showInPublicFeed,
+                $appendAsNewEdit
+            );
         } catch (QueryException $e) {
             Log::error('payment.checkout database error', ['message' => $e->getMessage()]);
 
@@ -108,7 +133,29 @@ class PaymentController extends Controller
 
         session(['edit_type' => $request->type]);
 
-        return $this->startPayPalCheckout($chapter, $edit);
+        if ($request->boolean('queue_only')) {
+            return redirect()
+                ->route('chapters.show', $chapter->id)
+                ->with('success', 'Suggestion added to your checkout queue. Add another edit or checkout all queued edits.');
+        }
+
+        return $this->startPayPalCheckout($request->user()->id, $chapter->id, $edit->id);
+    }
+
+    public function removeQueuedEdit(Request $request, Edit $edit): RedirectResponse
+    {
+        abort_unless($edit->user_id === $request->user()->id, 403);
+
+        if ($edit->status !== 'pending_payment') {
+            return back()->with('warning', 'Only queued (unpaid) edits can be removed.');
+        }
+
+        $chapterId = (int) $edit->chapter_id;
+        $edit->delete();
+
+        return redirect()
+            ->route('chapters.show', $chapterId)
+            ->with('success', 'Removed one queued edit.');
     }
 
     private function checkoutResume(Request $request): RedirectResponse
@@ -147,30 +194,14 @@ class PaymentController extends Controller
         }
         session(['edit_type' => $edit->type]);
 
-        return $this->startPayPalCheckout($chapter, $edit);
+        return $this->startPayPalCheckout($request->user()->id, $chapter->id, $edit->id);
     }
 
-    private function findOrSyncPendingPaymentEdit(Request $request, Chapter $chapter, ?string $payloadJson): Edit
+    private function findOrSyncPendingPaymentEdit(Request $request, Chapter $chapter, ?string $payloadJson, bool $showInPublicFeed, bool $queueOnly): Edit
     {
         $userId = $request->user()->id;
-        $existing = Edit::query()
-            ->where('user_id', $userId)
-            ->where('chapter_id', $chapter->id)
-            ->where('status', 'pending_payment')
-            ->first();
 
         if ($request->type === 'inline_edit') {
-            if ($existing) {
-                $existing->update([
-                    'type' => 'inline_edit',
-                    'original_text' => '',
-                    'edited_text' => 'Inline edit pending',
-                    'inline_edit_payload' => $payloadJson,
-                ]);
-
-                return $existing->fresh();
-            }
-
             return Edit::create([
                 'user_id' => $userId,
                 'chapter_id' => $chapter->id,
@@ -179,7 +210,18 @@ class PaymentController extends Controller
                 'edited_text' => 'Inline edit pending',
                 'status' => 'pending_payment',
                 'inline_edit_payload' => $payloadJson,
+                'show_in_public_feed' => $showInPublicFeed,
             ]);
+        }
+
+        $existing = null;
+        if (! $queueOnly) {
+            $existing = Edit::query()
+                ->where('user_id', $userId)
+                ->where('chapter_id', $chapter->id)
+                ->where('status', 'pending_payment')
+                ->where('type', '!=', 'inline_edit')
+                ->first();
         }
 
         if ($existing) {
@@ -188,6 +230,7 @@ class PaymentController extends Controller
                 'original_text' => $chapter->content,
                 'edited_text' => $request->string('edited_text')->value(),
                 'inline_edit_payload' => null,
+                'show_in_public_feed' => $showInPublicFeed,
             ]);
             session()->forget('inlineEditData');
 
@@ -201,6 +244,7 @@ class PaymentController extends Controller
             'original_text' => $chapter->content,
             'edited_text' => $request->edited_text,
             'status' => 'pending_payment',
+            'show_in_public_feed' => $showInPublicFeed,
         ]);
     }
 
@@ -221,36 +265,54 @@ class PaymentController extends Controller
         return null;
     }
 
-    private function startPayPalCheckout(Chapter $chapter, Edit $edit): RedirectResponse
+    private function startPayPalCheckout(int $userId, int $chapterId, int $preferredEditId): RedirectResponse
     {
+        $chapter = Chapter::findOrFail($chapterId);
         if ($response = $this->assertChapterAllowsPaidEdits($chapter)) {
             return $response;
         }
 
-        $chapterId = $chapter->id;
-        $editId = $edit->id;
+        $pendingEdits = Edit::query()
+            ->where('user_id', $userId)
+            ->where('status', 'pending_payment')
+            ->orderBy('id')
+            ->get();
+        if ($pendingEdits->isEmpty()) {
+            return back()->with('error', 'No pending suggestions were found for checkout. Add a suggestion first.');
+        }
+
+        $pendingIds = $pendingEdits->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $primaryEditId = in_array($preferredEditId, $pendingIds, true) ? $preferredEditId : $pendingIds[0];
+        $amountValue = number_format((count($pendingIds) * 2), 2, '.', '');
+        $count = count($pendingIds);
+        $idsParam = implode(',', $pendingIds);
 
         try {
-            $provider = new PayPalClient;
-            $provider->setApiCredentials(config('paypal'));
-            $provider->getAccessToken();
+            $response = self::withoutProxyEnvironment(function () use ($chapter, $chapterId, $primaryEditId, $amountValue, $count, $idsParam) {
+                $provider = self::makePayPalProvider();
+                $provider->getAccessToken();
 
-            $response = $provider->createOrder([
-                'intent' => 'CAPTURE',
-                'application_context' => [
-                    'return_url' => route('payment.success', ['chapter_id' => $chapterId, 'edit_id' => $editId]),
-                    'cancel_url' => route('payment.cancel', ['chapter_id' => $chapterId, 'edit_id' => $editId]),
-                ],
-                'purchase_units' => [
-                    [
-                        'description' => 'Suggest Edit - '.$chapter->readerHeadingLine().' - The Book With No Name',
-                        'amount' => [
-                            'currency_code' => 'USD',
-                            'value' => '2.00',
+                return $provider->createOrder([
+                    'intent' => 'CAPTURE',
+                    'application_context' => [
+                        'return_url' => route('payment.success', [
+                            'chapter_id' => $chapterId,
+                            'edit_id' => $primaryEditId,
+                            'pending_ids' => $idsParam,
+                        ]),
+                        'cancel_url' => route('payment.cancel', ['chapter_id' => $chapterId, 'edit_id' => $primaryEditId]),
+                    ],
+                    'purchase_units' => [
+                        [
+                            'description' => "Batch edit checkout ({$count} suggestions) - ".$chapter->readerHeadingLine(),
+                            'amount' => [
+                                'currency_code' => 'USD',
+                                'value' => $amountValue,
+                            ],
                         ],
                     ],
-                ],
-            ]);
+                ]);
+            });
 
             if (isset($response['id']) && $response['status'] === 'CREATED') {
                 foreach ($response['links'] as $link) {
@@ -261,27 +323,47 @@ class PaymentController extends Controller
             }
 
             $summary = self::summarizePayPalResponse(is_array($response) ? $response : []);
-            Log::error('PayPal createOrder failed', ['response' => $response]);
+            Log::error('PayPal createOrder failed', [
+                'response' => $response,
+                'network_diagnostics' => self::paypalNetworkDiagnostics(),
+            ]);
 
             return back()->with('error', 'Could not start PayPal checkout. '.$summary);
         } catch (\Throwable $e) {
-            Log::error('PayPal checkout exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('PayPal checkout exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'network_diagnostics' => self::paypalNetworkDiagnostics(),
+            ]);
+            if (self::isTunnelFailureMessage($e->getMessage())) {
+                return back()->with('error', 'Could not connect to PayPal from this environment. Check outbound network/proxy settings, then try again.');
+            }
 
-            return back()->with('error', 'Could not reach PayPal: '.$e->getMessage());
+            return back()->with('error', 'Could not reach PayPal right now. Please try again in a moment.');
         }
     }
 
     public function success(Request $request)
     {
-        $token = $request->query('token');
-        $chapterId = $request->query('chapter_id');
-        $editId = $request->query('edit_id');
+        $token = (string) $request->query('token');
+        $chapterId = (int) $request->query('chapter_id');
+        $editId = (int) $request->query('edit_id');
+        $pendingIds = self::decodePendingIds((string) $request->query('pending_ids'));
         if (! $token || ! $chapterId || ! $editId) {
             return redirect()->route('chapters.index')->with('error', 'Your payment session was incomplete. Please start checkout again from the chapter page.');
         }
 
-        $edit = Edit::find($editId);
-        if (! $edit || $edit->status !== 'pending_payment' || $edit->user_id !== $request->user()->id) {
+        if ($pendingIds === []) {
+            $pendingIds = [$editId];
+        }
+
+        $edits = Edit::query()
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'pending_payment')
+            ->whereIn('id', $pendingIds)
+            ->orderBy('id')
+            ->get();
+        if ($edits->isEmpty()) {
             return redirect()->route('chapters.index')->with('error', 'That payment session is no longer valid. If you paid, contact support with your PayPal receipt.');
         }
 
@@ -294,10 +376,12 @@ class PaymentController extends Controller
         }
 
         try {
-            $provider = new PayPalClient;
-            $provider->setApiCredentials(config('paypal'));
-            $provider->getAccessToken();
-            $captureResponse = $provider->capturePaymentOrder($token);
+            $captureResponse = self::withoutProxyEnvironment(function () use ($token) {
+                $provider = self::makePayPalProvider();
+                $provider->getAccessToken();
+
+                return $provider->capturePaymentOrder($token);
+            });
         } catch (\Throwable $e) {
             Log::error('PayPal capture exception', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
 
@@ -317,70 +401,66 @@ class PaymentController extends Controller
         }
 
         if (isset($captureResponse['status']) && $captureResponse['status'] === 'COMPLETED') {
-            $edit->refresh();
-
             try {
-                $payment = Payment::create([
-                    'user_id' => $request->user()->id,
-                    'amount_cents' => 200,
-                    'payment_id' => $token,
-                    'status' => 'completed',
-                    'edit_id' => $editId,
-                ]);
-
-                if ($edit->type === 'inline_edit') {
-                    $raw = $edit->inline_edit_payload;
-                    if ($raw === null || $raw === '') {
-                        $sessionRaw = session('inlineEditData');
-                        $raw = is_string($sessionRaw) ? $sessionRaw : null;
-                    }
-                    $inlineEditArray = self::decodeInlineEditPayloadRaw($raw);
-                    if (! is_array($inlineEditArray)) {
-                        Log::critical('Paid inline edit missing or invalid payload', [
-                            'edit_id' => $edit->id,
+                $processed = 0;
+                DB::transaction(function () use ($request, $token, $edits, &$processed) {
+                    foreach ($edits as $edit) {
+                        $payment = Payment::create([
                             'user_id' => $request->user()->id,
-                            'payload_len' => is_string($raw) ? strlen($raw) : null,
+                            'amount_cents' => 200,
+                            'payment_id' => $token,
+                            'status' => 'completed',
+                            'purpose' => 'edit_fee',
+                            'edit_id' => $edit->id,
                         ]);
 
-                        return redirect()->route('chapters.show', $chapterId)->with(
-                            'error',
-                            'Your payment was recorded, but we could not restore your paragraph suggestion. Please contact support with your PayPal receipt so we can fix this.'
-                        );
+                        if ($edit->type === 'inline_edit') {
+                            $inlineEditArray = self::decodeInlineEditPayloadRaw($edit->inline_edit_payload);
+                            if (! is_array($inlineEditArray)) {
+                                throw new QueryException('', [], new \RuntimeException('Missing inline payload'));
+                            }
+
+                            InlineEdit::create([
+                                'user_id' => $request->user()->id,
+                                'chapter_id' => (int) $edit->chapter_id,
+                                'paragraph_number' => (int) ($inlineEditArray['paragraph_number'] ?? 0),
+                                'original_text' => (string) ($inlineEditArray['original_text'] ?? ''),
+                                'suggested_text' => (string) ($inlineEditArray['suggested_text'] ?? ''),
+                                'reason' => (string) ($inlineEditArray['reason'] ?? ''),
+                                'status' => 'pending',
+                                'payment_id' => $payment->id,
+                                'show_in_public_feed' => (bool) ($inlineEditArray['show_in_public_feed'] ?? true),
+                            ]);
+                            $edit->update(['inline_edit_payload' => null]);
+                        }
+
+                        $edit->update(['status' => 'pending']);
+                        $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $edit->chapter_id]);
+                        $stats->increment('total_edits');
+                        $processed++;
                     }
+                });
 
-                    InlineEdit::create([
-                        'user_id' => $request->user()->id,
-                        'chapter_id' => (int) $chapterId,
-                        'paragraph_number' => (int) ($inlineEditArray['paragraph_number'] ?? 0),
-                        'original_text' => (string) ($inlineEditArray['original_text'] ?? ''),
-                        'suggested_text' => (string) ($inlineEditArray['suggested_text'] ?? ''),
-                        'reason' => (string) ($inlineEditArray['reason'] ?? ''),
-                        'status' => 'pending',
-                        'payment_id' => $payment->id,
-                    ]);
-                    session()->forget('inlineEditData');
-                    $edit->update([
-                        'inline_edit_payload' => null,
-                    ]);
-                }
-
-                $edit->update(['status' => 'pending']);
-
-                $stats = ChapterStatistic::firstOrCreate(['chapter_id' => $chapterId]);
-                $stats->increment('total_edits');
-
+                session()->forget('inlineEditData');
                 AchievementUnlock::syncForUser($request->user());
 
-                $chapterForMail = Chapter::with('book')->find($chapterId);
-                if ($chapterForMail) {
-                    $label = $edit->type === 'inline_edit' ? 'Paragraph suggestion' : 'Full-chapter suggestion';
-                    $bookName = $chapterForMail->book?->name ?? 'Unknown book';
-                    $readerLabel = $chapterForMail->readerHeadingLine();
-                    AdminNotifier::notifyNewPaidSuggestion(
-                        "{$label} pending review — {$bookName}, {$readerLabel} (row id {$chapterForMail->id}, edit #{$edit->id}) by {$request->user()->name}."
-                    );
+                $notifyKey = 'admin-notify-paid-checkout:'.$token;
+                if (Cache::add($notifyKey, true, now()->addDays(7))) {
+                    $chapters = $edits
+                        ->map(fn (Edit $e) => Chapter::with('book')->find($e->chapter_id))
+                        ->filter()
+                        ->values();
+                    if ($chapters->isNotEmpty()) {
+                        $label = $processed > 1 ? "{$processed} suggestions" : 'Suggestion';
+                        $lines = $chapters
+                            ->map(fn (Chapter $c) => '- '.($c->book?->name ?? 'Unknown book').' / '.$c->readerHeadingLine().' (row id '.$c->id.')')
+                            ->implode("\n");
+                        AdminNotifier::notifyNewPaidSuggestion(
+                            "{$label} pending review by {$request->user()->name}.\nCheckout token: {$token}\n\nItems:\n{$lines}"
+                        );
+                    }
                 }
-            } catch (QueryException $e) {
+            } catch (\Throwable $e) {
                 Log::error('payment.success database error', [
                     'message' => $e->getMessage(),
                     'chapter_id' => $chapterId,
@@ -397,7 +477,7 @@ class PaymentController extends Controller
                 ->to(route('chapters.show', $chapterId).'#edit-submission-box')
                 ->with(
                     'success',
-                    'Thank you for your submission! Your payment was accepted and your edit has been submitted for review. You now have one vote credit on Peter Trull Solitary Detective (open Vote in the menu when you are ready).'
+                    'Thank you! Your payment was accepted and your queued suggestions were submitted for review. You now have one vote credit per paid suggestion for Peter Trull Solitary Detective.'
                 );
         }
 
@@ -408,6 +488,203 @@ class PaymentController extends Controller
             'error',
             'Payment could not be completed. '.$summary
         );
+    }
+
+    public function donationCheckout(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'amount_dollars' => ['required', 'numeric', 'min:2', 'max:10000'],
+        ]);
+
+        if (! self::paypalCredentialsConfigured()) {
+            Log::warning('PayPal donation checkout blocked: missing API credentials for current mode', [
+                'mode' => config('paypal.mode'),
+            ]);
+
+            return back()->with('error', 'Donations are temporarily unavailable. Please try again later.');
+        }
+
+        $amountCents = (int) round(((float) $request->input('amount_dollars')) * 100);
+        if ($amountCents < self::DONATION_MIN_CENTS) {
+            return back()->withErrors(['amount_dollars' => 'Minimum donation is $2.00.']);
+        }
+
+        try {
+            $response = self::withoutProxyEnvironment(function () use ($amountCents, $request) {
+                $provider = self::makePayPalProvider();
+                $provider->getAccessToken();
+
+                return $provider->createOrder([
+                'intent' => 'CAPTURE',
+                'application_context' => [
+                    'return_url' => route('payment.donation.success', ['amount_cents' => $amountCents]),
+                    'cancel_url' => route('payment.donation.cancel'),
+                ],
+                'purchase_units' => [
+                    [
+                        'description' => 'Support contribution - '.$request->user()->name,
+                        'custom_id' => 'user:'.$request->user()->id,
+                        'amount' => [
+                            'currency_code' => 'USD',
+                            'value' => number_format($amountCents / 100, 2, '.', ''),
+                        ],
+                    ],
+                ],
+            ]);
+            });
+
+            if (isset($response['id']) && $response['status'] === 'CREATED') {
+                foreach ($response['links'] as $link) {
+                    if ($link['rel'] === 'approve') {
+                        return redirect()->away($link['href']);
+                    }
+                }
+            }
+
+            Log::error('PayPal donation createOrder failed', [
+                'response' => $response,
+                'network_diagnostics' => self::paypalNetworkDiagnostics(),
+            ]);
+
+            return back()->with('error', 'Could not start donation checkout. '.self::summarizePayPalResponse((array) $response));
+        } catch (\Throwable $e) {
+            Log::error('PayPal donation checkout exception', [
+                'message' => $e->getMessage(),
+                'network_diagnostics' => self::paypalNetworkDiagnostics(),
+            ]);
+            $msg = $e->getMessage();
+            if (self::isTunnelFailureMessage($msg)) {
+                return back()->with('error', 'Could not connect to PayPal from this environment. Check outbound network/proxy settings, then try again.');
+            }
+
+            return back()->with('error', 'Could not reach PayPal right now. Please try again in a moment.');
+        }
+    }
+
+    public function donationCancel(): RedirectResponse
+    {
+        return redirect()->route('dashboard')->with('warning', 'Donation checkout was canceled. You were not charged.');
+    }
+
+    public function donationSuccess(Request $request): RedirectResponse
+    {
+        $token = $request->query('token');
+        if (! $token) {
+            return redirect()->route('dashboard')->with('error', 'Your donation session was incomplete. Please try again.');
+        }
+
+        if (! self::paypalCredentialsConfigured()) {
+            return redirect()->route('dashboard')->with('error', 'Donations are temporarily unavailable. Please try again later.');
+        }
+
+        try {
+            $captureResponse = self::withoutProxyEnvironment(function () use ($token) {
+                $provider = self::makePayPalProvider();
+                $provider->getAccessToken();
+
+                return $provider->capturePaymentOrder($token);
+            });
+        } catch (\Throwable $e) {
+            Log::error('PayPal donation capture exception', ['message' => $e->getMessage()]);
+
+            return redirect()->route('dashboard')->with('error', 'We could not confirm your donation with PayPal.');
+        }
+
+        if (! is_array($captureResponse) || ($captureResponse['status'] ?? null) !== 'COMPLETED') {
+            Log::error('PayPal donation capture not completed', ['response' => $captureResponse]);
+
+            return redirect()->route('dashboard')->with('error', 'Donation could not be completed. '.self::summarizePayPalResponse((array) $captureResponse));
+        }
+
+        $amountCents = self::extractCapturedUsdCents($captureResponse) ?? (int) $request->query('amount_cents', 0);
+        if ($amountCents < self::DONATION_MIN_CENTS) {
+            $amountCents = self::DONATION_MIN_CENTS;
+        }
+
+        $payment = Payment::firstOrCreate(
+            [
+                'user_id' => $request->user()->id,
+                'payment_id' => $token,
+                'purpose' => 'donation',
+            ],
+            [
+                'amount_cents' => $amountCents,
+                'status' => 'completed',
+                'edit_id' => null,
+            ]
+        );
+        if ($payment->wasRecentlyCreated) {
+            $this->sendDonationEmails($request->user(), $payment);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Thank you for supporting the publishing fund!');
+    }
+
+    public function donationWebhook(Request $request)
+    {
+        $payload = $request->all();
+        if (! $this->webhookAuthorized($request, $payload)) {
+            return response()->json(['ok' => false], 401);
+        }
+
+        $eventType = (string) ($payload['event_type'] ?? '');
+        $resource = is_array($payload['resource'] ?? null) ? $payload['resource'] : [];
+        if (! in_array($eventType, ['PAYMENT.CAPTURE.COMPLETED', 'CHECKOUT.ORDER.APPROVED', 'CHECKOUT.ORDER.COMPLETED'], true)) {
+            return response()->json(['ok' => true, 'ignored' => true]);
+        }
+
+        $orderId = (string) ($resource['supplementary_data']['related_ids']['order_id'] ?? $resource['id'] ?? '');
+        $amountValue = $resource['amount']['value'] ?? $resource['purchase_units'][0]['amount']['value'] ?? null;
+        $amountCents = is_numeric($amountValue) ? max(0, (int) round(((float) $amountValue) * 100)) : self::DONATION_MIN_CENTS;
+        $customId = (string) ($resource['custom_id'] ?? $resource['purchase_units'][0]['custom_id'] ?? '');
+        $userId = self::extractUserIdFromCustomId($customId);
+        if (! $orderId || ! $userId || ! User::query()->whereKey($userId)->exists()) {
+            return response()->json(['ok' => false, 'message' => 'missing required fields'], 422);
+        }
+
+        $payment = Payment::firstOrCreate(
+            [
+                'user_id' => $userId,
+                'payment_id' => $orderId,
+                'purpose' => 'donation',
+            ],
+            [
+                'amount_cents' => $amountCents,
+                'status' => 'completed',
+                'edit_id' => null,
+            ]
+        );
+        if ($payment->wasRecentlyCreated) {
+            $user = User::query()->find($userId);
+            if ($user) {
+                $this->sendDonationEmails($user, $payment);
+            }
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Prefer PayPal signature verification when webhook id is configured.
+     * Fallback for local/dev: shared header token.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function webhookAuthorized(Request $request, array $payload): bool
+    {
+        $webhookId = trim((string) env('PAYPAL_WEBHOOK_ID', ''));
+        if ($webhookId !== '') {
+            return $this->verifyPayPalWebhookSignature($request, $payload, $webhookId);
+        }
+
+        $token = (string) env('PAYPAL_WEBHOOK_TOKEN', '');
+        if ($token === '') {
+            return false;
+        }
+
+        $incoming = (string) $request->header('X-Webhook-Token', '');
+
+        return hash_equals($token, $incoming);
     }
 
     /**
@@ -511,6 +788,247 @@ class PaymentController extends Controller
         }
 
         return substr($message, 0, 217).'…';
+    }
+
+    /**
+     * @param  array<string, mixed>  $captureResponse
+     */
+    private static function extractCapturedUsdCents(array $captureResponse): ?int
+    {
+        $value = $captureResponse['purchase_units'][0]['payments']['captures'][0]['amount']['value'] ?? null;
+        if (! is_string($value) && ! is_numeric($value)) {
+            return null;
+        }
+
+        return max(0, (int) round(((float) $value) * 100));
+    }
+
+    private static function isTunnelFailureMessage(string $message): bool
+    {
+        return str_contains($message, 'CONNECT tunnel failed')
+            || str_contains($message, 'cURL error 56')
+            || (str_contains($message, 'response 403') && str_contains($message, 'paypal.com'));
+    }
+
+    /**
+     * Safe, non-secret network diagnostics for troubleshooting proxy/tunnel errors.
+     *
+     * @return array<string, mixed>
+     */
+    private static function paypalNetworkDiagnostics(): array
+    {
+        $envProxy = [];
+        foreach (['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy'] as $k) {
+            $v = getenv($k);
+            if ($v !== false && $v !== '') {
+                $envProxy[$k] = $v;
+            }
+        }
+
+        $sandboxHost = parse_url('https://api-m.sandbox.paypal.com/v2/checkout/orders', PHP_URL_HOST);
+        $resolved = $sandboxHost ? gethostbyname($sandboxHost) : null;
+
+        return [
+            'php_version' => PHP_VERSION,
+            'curl_version' => function_exists('curl_version') ? (curl_version()['version'] ?? null) : null,
+            'openssl_version' => \defined('OPENSSL_VERSION_TEXT') ? OPENSSL_VERSION_TEXT : null,
+            'paypal_mode' => config('paypal.mode'),
+            'paypal_target_host' => $sandboxHost,
+            'paypal_target_ip' => $resolved && $resolved !== $sandboxHost ? $resolved : null,
+            'proxy_env_present' => array_keys($envProxy),
+        ];
+    }
+
+    private static function makePayPalProvider(): PayPalClient
+    {
+        $provider = new PayPalClient;
+        $provider->setApiCredentials(config('paypal'));
+
+        $curlOptions = [];
+        if (\defined('CURLOPT_PROXY')) {
+            $curlOptions[\constant('CURLOPT_PROXY')] = '';
+        }
+        if (\defined('CURLOPT_NOPROXY')) {
+            $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
+        }
+        if (\defined('CURLOPT_PROXYTYPE')) {
+            $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+        }
+
+        if ($curlOptions !== []) {
+            $provider->setClient(new GuzzleClient([
+                'curl' => $curlOptions,
+            ]));
+        }
+
+        return $provider;
+    }
+
+    /**
+     * Run PayPal SDK calls with proxy env disabled for this process.
+     */
+    private static function withoutProxyEnvironment(callable $callback): mixed
+    {
+        $keys = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy'];
+        $original = [];
+        foreach ($keys as $key) {
+            $value = getenv($key);
+            $original[$key] = $value === false ? null : $value;
+            putenv($key);
+            $_ENV[$key] = '';
+            $_SERVER[$key] = '';
+        }
+
+        try {
+            return $callback();
+        } finally {
+            foreach ($keys as $key) {
+                $value = $original[$key];
+                if ($value === null) {
+                    putenv($key);
+                    unset($_ENV[$key], $_SERVER[$key]);
+                } else {
+                    putenv($key.'='.$value);
+                    $_ENV[$key] = $value;
+                    $_SERVER[$key] = $value;
+                }
+            }
+        }
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private static function decodePendingIds(string $value): array
+    {
+        $parts = array_filter(array_map('trim', explode(',', $value)), fn ($v) => $v !== '');
+        if ($parts === []) {
+            return [];
+        }
+
+        return array_values(array_unique(array_map('intval', $parts)));
+    }
+
+    private static function extractUserIdFromCustomId(string $customId): ?int
+    {
+        if (! str_starts_with($customId, 'user:')) {
+            return null;
+        }
+        $id = (int) substr($customId, 5);
+
+        return $id > 0 ? $id : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function verifyPayPalWebhookSignature(Request $request, array $payload, string $webhookId): bool
+    {
+        $transmissionId = (string) $request->header('PAYPAL-TRANSMISSION-ID', '');
+        $transmissionTime = (string) $request->header('PAYPAL-TRANSMISSION-TIME', '');
+        $transmissionSig = (string) $request->header('PAYPAL-TRANSMISSION-SIG', '');
+        $certUrl = (string) $request->header('PAYPAL-CERT-URL', '');
+        $authAlgo = (string) $request->header('PAYPAL-AUTH-ALGO', '');
+        if ($transmissionId === '' || $transmissionTime === '' || $transmissionSig === '' || $certUrl === '' || $authAlgo === '') {
+            return false;
+        }
+
+        $mode = strtolower((string) config('paypal.mode', 'sandbox'));
+        $baseUri = $mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        $group = $mode === 'live' ? 'live' : 'sandbox';
+        $clientId = trim((string) config("paypal.{$group}.client_id", ''));
+        $clientSecret = trim((string) config("paypal.{$group}.client_secret", ''));
+        if ($clientId === '' || $clientSecret === '') {
+            return false;
+        }
+
+        $curlOptions = [];
+        if (\defined('CURLOPT_PROXY')) {
+            $curlOptions[\constant('CURLOPT_PROXY')] = '';
+        }
+        if (\defined('CURLOPT_NOPROXY')) {
+            $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
+        }
+        if (\defined('CURLOPT_PROXYTYPE')) {
+            $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+        }
+
+        try {
+            return (bool) self::withoutProxyEnvironment(function () use ($baseUri, $clientId, $clientSecret, $curlOptions, $transmissionId, $transmissionTime, $transmissionSig, $certUrl, $authAlgo, $webhookId, $payload) {
+                $client = new GuzzleClient([
+                    'base_uri' => $baseUri,
+                    'timeout' => 20,
+                    'curl' => $curlOptions,
+                ]);
+
+                $tokenResponse = $client->post('/v1/oauth2/token', [
+                    'auth' => [$clientId, $clientSecret],
+                    'form_params' => ['grant_type' => 'client_credentials'],
+                    'headers' => ['Accept' => 'application/json'],
+                ]);
+                $tokenData = json_decode((string) $tokenResponse->getBody(), true);
+                $accessToken = is_array($tokenData) ? (string) ($tokenData['access_token'] ?? '') : '';
+                if ($accessToken === '') {
+                    return false;
+                }
+
+                $verifyResponse = $client->post('/v1/notifications/verify-webhook-signature', [
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Bearer '.$accessToken,
+                    ],
+                    'json' => [
+                        'transmission_id' => $transmissionId,
+                        'transmission_time' => $transmissionTime,
+                        'cert_url' => $certUrl,
+                        'auth_algo' => $authAlgo,
+                        'transmission_sig' => $transmissionSig,
+                        'webhook_id' => $webhookId,
+                        'webhook_event' => $payload,
+                    ],
+                ]);
+
+                $verifyData = json_decode((string) $verifyResponse->getBody(), true);
+
+                return strtoupper((string) ($verifyData['verification_status'] ?? '')) === 'SUCCESS';
+            });
+        } catch (\Throwable $e) {
+            Log::warning('PayPal webhook signature verification failed', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    private function sendDonationEmails(User $user, Payment $payment): void
+    {
+        $amount = '$'.number_format(((int) $payment->amount_cents) / 100, 2);
+        $fromAddress = config('mail.from.address');
+        $fromName = 'WhatsMyBookName';
+
+        try {
+            Mail::raw(
+                "Thank you for your donation of {$amount}.\n\nYour support helps fund publication and community features.\n",
+                function ($message) use ($user, $fromAddress, $fromName, $amount) {
+                    $message
+                        ->from($fromAddress, $fromName)
+                        ->to($user->email)
+                        ->subject("WhatsMyBookName: donation receipt ({$amount})");
+                }
+            );
+        } catch (\Throwable $e) {
+            Log::warning('donation receipt email failed', [
+                'user_id' => $user->id,
+                'payment_id' => $payment->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        AdminNotifier::notify(
+            'WhatsMyBookName: new donation',
+            "Donation received from {$user->name} ({$user->email})\nAmount: {$amount}\nPayment id: {$payment->payment_id}\n\nReview: ".url('/admin/donations')
+        );
     }
 
     private function throttleCheckoutAttempts(Request $request): ?RedirectResponse

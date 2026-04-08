@@ -5,6 +5,9 @@
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
         <div class="max-w-4xl">
+            <nav class="mb-2 text-xs font-bold text-amber-800/70">
+                <a href="{{ route('dashboard') }}" class="underline">Dashboard</a> / Insights
+            </nav>
             <h1 class="font-extrabold text-3xl text-amber-900 leading-tight">
                 Community insights
             </h1>
@@ -15,6 +18,12 @@
     </x-slot>
 
     <div class="py-12">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+            <a href="{{ route('analytics.export') }}" class="inline-flex items-center px-4 py-2 bg-white border border-amber-200 rounded-full text-sm font-black text-amber-900 hover:bg-amber-50">Export CSV</a>
+            <button type="button" class="inline-flex items-center px-4 py-2 bg-white border border-amber-200 rounded-full text-sm font-black text-amber-900 hover:bg-amber-50" onclick="navigator.clipboard.writeText(window.location.href)">
+                Copy share link
+            </button>
+        </div>
         {{-- MVP summary strip --}}
         <div class="grid sm:grid-cols-2 gap-6 mb-12 max-w-3xl">
             <div class="bg-white border border-amber-100 rounded-3xl p-6 shadow-sm">

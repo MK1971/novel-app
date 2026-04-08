@@ -119,12 +119,19 @@ class ChapterController extends Controller
         $stats->increment('total_reads');
 
         $pendingPaymentEdit = null;
+        $queuedPendingEdits = collect();
         if (Auth::check()) {
             $pendingPaymentEdit = Edit::query()
                 ->where('user_id', Auth::id())
                 ->where('chapter_id', $chapter->id)
                 ->where('status', 'pending_payment')
                 ->first();
+            $queuedPendingEdits = Edit::query()
+                ->with('chapter.book')
+                ->where('user_id', Auth::id())
+                ->where('status', 'pending_payment')
+                ->orderByDesc('updated_at')
+                ->get();
         }
 
         $suggestionsClosed = ChapterLifecycle::suggestionsClosedForTbwChapter($chapter);
@@ -152,6 +159,7 @@ class ChapterController extends Controller
             'progressExtentMax',
             'stats',
             'pendingPaymentEdit',
+            'queuedPendingEdits',
             'suggestionsClosed',
             'editingWindowEndsAt',
             'prevChapter',

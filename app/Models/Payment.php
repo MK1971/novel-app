@@ -11,11 +11,14 @@ class Payment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'amount_cents', 'payment_id', 'status', 'edit_id'];
+    protected $fillable = ['user_id', 'amount_cents', 'payment_id', 'status', 'purpose', 'edit_id'];
 
     public function scopeWithAvailableVoteCredit($query)
     {
-        return $query->where('status', 'completed')->whereDoesntHave('vote');
+        return $query
+            ->where('status', 'completed')
+            ->where('purpose', 'edit_fee')
+            ->whereDoesntHave('vote');
     }
 
     public function user(): BelongsTo

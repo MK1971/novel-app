@@ -98,10 +98,15 @@ final class EditOutcomeNotifier
         ]);
 
         try {
+            $fromAddress = config('mail.from.address');
+            $fromName = 'WhatsMyBookName';
             Mail::raw(
                 $mailBodyLine."\n\nOpen the site to read chapters and notifications.\n",
-                function ($message) use ($user, $title) {
-                    $message->to($user->email)->subject($title.' — What\'s My Book Name');
+                function ($message) use ($user, $title, $fromAddress, $fromName) {
+                    $message
+                        ->from($fromAddress, $fromName)
+                        ->to($user->email)
+                        ->subject($title.' — What\'s My Book Name');
                 }
             );
         } catch (Throwable $e) {

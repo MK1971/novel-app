@@ -29,6 +29,11 @@
                             Fees for suggested edits or other services are tied to features described in the product. If a payment fails or we cannot deliver the stated feature due to an error on our side, contact us via <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> and we will review the case.
                         </p>
 
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Donations</h2>
+                        <p class="mb-6">
+                            Donations are voluntary support contributions. They are separate from paid edit fees, do not grant vote credits by default, and are not represented as tax-deductible charitable gifts.
+                        </p>
+
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Chargebacks and abuse</h2>
                         <p class="mb-6">
                             Misuse of payment systems or chargebacks filed in bad faith may result in suspension of access, as described in our <a href="{{ route('terms') }}" class="text-amber-700 underline hover:text-amber-900">Terms</a>.

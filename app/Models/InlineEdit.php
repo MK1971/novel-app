@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InlineEdit extends Model
 {
@@ -22,6 +23,7 @@ class InlineEdit extends Model
         'moderation_outcome',
         'admin_notes',
         'payment_id',
+        'show_in_public_feed',
     ];
 
     protected $casts = [
@@ -42,6 +44,11 @@ class InlineEdit extends Model
     public function payment(): BelongsTo
     {
         return $this->belongsTo(Payment::class);
+    }
+
+    public function feedback(): HasMany
+    {
+        return $this->hasMany(EditFeedback::class);
     }
 
     public function scopePending($query)

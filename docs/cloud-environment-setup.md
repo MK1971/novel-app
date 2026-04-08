@@ -144,6 +144,8 @@ Register **Return URLs** for **each** HTTPS host (staging + production). Apple o
 | `PAYPAL_MODE` | Yes | **`sandbox`** for dev/staging; **`live`** for production. |
 | `PAYPAL_SANDBOX_CLIENT_ID`, `PAYPAL_SANDBOX_CLIENT_SECRET` | If sandbox | From [PayPal Developer](https://developer.paypal.com). |
 | `PAYPAL_LIVE_CLIENT_ID`, `PAYPAL_LIVE_CLIENT_SECRET` | If live | Production credentials only on production. |
+| `PAYPAL_WEBHOOK_ID` | Recommended | Enables PayPal signature verification for webhook authenticity checks. |
+| `PAYPAL_WEBHOOK_TOKEN` | Fallback | Shared-secret fallback for local/testing if webhook ID is not configured. |
 | `PAYPAL_LIVE_APP_ID` | Optional | If your integration needs it. |
 
 **Do not commit** live keys. Replace any sample keys in local `.env` with your own.

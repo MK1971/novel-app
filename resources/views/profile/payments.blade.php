@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="font-extrabold text-3xl text-amber-900">Payments &amp; vote credits</h1>
-                <p class="text-amber-800/80 font-bold mt-1">Completed $2 checkouts and how vote credits were used.</p>
+                <p class="text-amber-800/80 font-bold mt-1">Paid edit checkouts, donations, and vote-credit usage.</p>
             </div>
             <a href="{{ route('profile.show') }}" class="text-sm font-black text-amber-700 hover:text-amber-900 underline">Back to profile</a>
         </div>
@@ -23,6 +23,9 @@
                                 <div>
                                     <p class="text-xs font-black uppercase tracking-widest text-amber-800/50">{{ $payment->created_at->format('M j, Y g:i A') }}</p>
                                     <p class="text-lg font-black text-amber-950 mt-1">${{ $amount }} — <span class="capitalize">{{ $payment->status }}</span></p>
+                                    <p class="text-xs font-bold text-amber-700/80 mt-1 uppercase tracking-widest">
+                                        {{ $payment->purpose === 'donation' ? 'Donation contribution' : 'Paid edit fee' }}
+                                    </p>
                                     @if($chapter)
                                         <p class="text-sm font-bold text-amber-800 mt-2">
                                             Chapter:
@@ -31,7 +34,9 @@
                                     @endif
                                 </div>
                                 <div class="shrink-0">
-                                    @if($payment->status === 'completed' && $payment->vote)
+                                    @if($payment->purpose === 'donation')
+                                        <span class="inline-flex px-4 py-2 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase tracking-widest">Donation</span>
+                                    @elseif($payment->status === 'completed' && $payment->vote)
                                         <span class="inline-flex px-4 py-2 rounded-full bg-emerald-100 text-emerald-900 text-xs font-black uppercase tracking-widest">Vote credit used</span>
                                         @if($payment->vote->chapter)
                                             <p class="text-xs font-bold text-amber-700 mt-2 text-right">

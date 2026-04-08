@@ -3,6 +3,15 @@
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
 ## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
+## Version 1.9.43 - Release B completion + Cloudways deploy runbook
+### Added
+- **Cloudways deployment runbook:** Added `docs/cloudways-deploy-readiness-and-runbook.md` with step-by-step staging/production setup, webhook setup, smoke tests, and server command checklist.
+- **Deploy scripts:** Added `scripts/deploy/server_post_deploy.sh` (server post-pull automation) and `scripts/deploy/webhook_test_local.sh` (local webhook simulation helper).
+### Changed
+- **Environment template hardening:** Removed real PayPal credentials from `.env.example`; documented `PAYPAL_WEBHOOK_ID` and `PAYPAL_WEBHOOK_TOKEN`.
+- **Cloud env docs:** `docs/cloud-environment-setup.md` now includes PayPal webhook signature/fallback env variables.
+
+## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
 ### Added
 - **Reader themes & focus (P4-4):** Chapter toolbar (**cream / paper / sepia / night**) with **`localStorage`**; **focus mode** hides app chrome and suggest column (**`sessionStorage`**); CSS in **`app.css`**; Alpine **`novelChapterReader`** in **`app.js`**.
 - **Site-wide dark mode (P4-5):** Tailwind **`darkMode: 'class'`**; **`novel-theme.js`** cycles **system / light / dark**; **`theme-boot`** inline script + **`theme-toggle`** in app, guest, and welcome layouts; shell/sidebar/nav/dropdown dark styles.

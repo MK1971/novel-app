@@ -144,6 +144,9 @@
     <div class="py-12">
         @php
             $chapterSuggestFabVisible = ! $chapter->is_locked && $manuscriptEditsAllowed && ! $isPeterTrullBook;
+            $queuedCount = (int) (($queuedPendingEdits ?? collect())->count());
+            $queuedTotalDisplay = number_format($queuedCount * 2, 2);
+            $payNowTotalDisplay = number_format(($queuedCount + 1) * 2, 2);
         @endphp
         <div class="max-w-7xl mx-auto mb-8 space-y-3">
             @if (session('success'))
@@ -209,6 +212,13 @@
                             </div>
                         @endif
                         <div id="chapter-content" class="novel-reader-body max-w-none text-[1.0625rem] sm:text-lg leading-[1.88] tracking-[0.01em] font-serif font-normal text-left {{ $chapter->is_locked ? 'opacity-80 grayscale-[0.2]' : '' }}">
+                            @auth
+                                @if(! $chapter->is_locked && $manuscriptEditsAllowed)
+                                    <p class="mb-5 md:hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-900/80">
+                                        Tap the pencil beside a paragraph to suggest a paragraph edit on mobile.
+                                    </p>
+                                @endif
+                            @endauth
                             @php
                                 $paragraphs = explode("\n", $chapter->content);
                             @endphp
@@ -221,7 +231,7 @@
                                                 <button 
                                                     type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
-                                                    class="absolute -right-8 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-2 text-amber-700 hover:text-amber-900 focus-visible:opacity-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg"
+                                                    class="absolute -right-8 top-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 text-amber-700 hover:text-amber-900 focus-visible:opacity-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg bg-amber-50/80 md:bg-transparent"
                                                     title="Paragraph edit ($2): suggest a change to this paragraph only. Whole-chapter rewrites use the sidebar form."
                                                 >
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
@@ -296,22 +306,37 @@
                         </div>
                     @else
                         @auth
-                            @if($pendingPaymentEdit ?? null)
+                            @if(($queuedPendingEdits ?? collect())->isNotEmpty())
                                 <div class="mb-6 p-6 rounded-[2rem] border-2 border-amber-400/60 bg-amber-50 text-amber-900 shadow-sm">
-                                    <p class="text-sm font-black uppercase tracking-widest text-amber-800/70 mb-2">Checkout not finished</p>
+                                    <p class="text-sm font-black uppercase tracking-widest text-amber-800/70 mb-2">Queued for checkout</p>
                                     <p class="text-sm font-bold text-amber-900/80 mb-4 leading-relaxed">
-                                        @if($pendingPaymentEdit->type === 'inline_edit')
-                                            Your paragraph suggestion is saved. You were not charged until PayPal completes successfully.
-                                        @else
-                                            Your draft is saved. You were not charged until PayPal completes successfully.
-                                        @endif
+                                        You currently have <strong>{{ $queuedPendingEdits->count() }}</strong> queued suggestion(s). Total at checkout: <strong>${{ number_format($queuedPendingEdits->count() * 2, 2) }}</strong>.
                                     </p>
-                                    <form action="{{ route('payment.checkout') }}" method="POST" class="inline">
+                                    <ul class="mb-4 text-xs space-y-2 text-amber-900/80">
+                                        @foreach($queuedPendingEdits->take(5) as $queued)
+                                            <li class="flex items-center justify-between gap-2">
+                                                <span>
+                                                    • {{ $queued->chapter?->readerHeadingLine() ?? 'Chapter removed' }} — {{ $queued->type === 'inline_edit' ? 'Paragraph edit' : ucfirst($queued->type).' edit' }}
+                                                </span>
+                                                <form method="POST" action="{{ route('payment.queue.remove', $queued) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="px-2 py-1 rounded-lg border border-amber-300 bg-white text-[10px] font-black uppercase text-amber-900 hover:bg-amber-100">
+                                                        Remove
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endforeach
+                                        @if($queuedPendingEdits->count() > 5)
+                                            <li>• and {{ $queuedPendingEdits->count() - 5 }} more…</li>
+                                        @endif
+                                    </ul>
+                                    <form action="{{ route('payment.checkout') }}" method="POST" class="inline-flex flex-wrap gap-3">
                                         @csrf
                                         <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
-                                        <input type="hidden" name="resume_edit_id" value="{{ $pendingPaymentEdit->id }}">
+                                        <input type="hidden" name="resume_edit_id" value="{{ $queuedPendingEdits->first()->id }}">
                                         <button type="submit" class="inline-flex items-center px-6 py-3 bg-amber-900 text-white text-sm font-extrabold rounded-2xl hover:bg-black transition-all shadow-lg">
-                                            Resume PayPal checkout ($2)
+                                            Submit queued edits & Pay (${{ $queuedTotalDisplay }})
                                         </button>
                                     </form>
                                 </div>
@@ -352,7 +377,7 @@
                                                 class="w-full bg-white/10 border-white/20 rounded-2xl text-white placeholder-white/30 focus:ring-amber-500 focus:border-amber-500 font-bold p-4"
                                                 placeholder="Enter your suggested edit..."
                                                 required
-                                            >{{ old('edited_text', ($pendingPaymentEdit ?? null) && ($pendingPaymentEdit->type ?? '') !== 'inline_edit' ? $pendingPaymentEdit->edited_text : '') }}</textarea>
+                                            >{{ old('edited_text', '') }}</textarea>
                                             @error('edited_text')
                                                 <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
                                             @enderror
@@ -366,10 +391,32 @@
                                             </div>
                                             <div id="novel-edit-diff-preview" class="hidden mt-4 rounded-2xl border-2 border-white/20 bg-black/30 p-4 text-left flex flex-col gap-3" aria-live="polite"></div>
                                         </div>
+
+                                        <div class="rounded-2xl border border-white/20 bg-white/10 px-4 py-3">
+                                            <input type="hidden" name="show_in_public_feed" value="0">
+                                            <label class="inline-flex items-start gap-3 text-sm text-amber-100">
+                                                <input
+                                                    type="checkbox"
+                                                    name="show_in_public_feed"
+                                                    value="1"
+                                                    class="mt-0.5 rounded border-white/40 bg-white/10 text-amber-500 focus:ring-amber-400"
+                                                    {{ old('show_in_public_feed', '1') ? 'checked' : '' }}
+                                                >
+                                                <span>
+                                                    <span class="font-extrabold text-white">Show this suggestion in the public edits feed</span>
+                                                    <span class="block text-xs text-amber-100/80 mt-1">You can change this later from My Profile → My submissions.</span>
+                                                </span>
+                                            </label>
+                                        </div>
                                         
-                                        <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                            Submit & Pay $2
-                                        </button>
+                                        <div class="grid gap-3 sm:grid-cols-2">
+                                            <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                                                Submit current + queued & Pay (${{ $payNowTotalDisplay }})
+                                            </button>
+                                            <button type="submit" name="queue_only" value="1" class="w-full py-5 bg-white/15 border border-white/30 text-white text-lg font-extrabold rounded-2xl hover:bg-white/20 transition-all">
+                                                Add another edit
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                                 {{-- Decorative circles --}}
@@ -489,6 +536,7 @@
                 @csrf
                 <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                 <input type="hidden" name="type" value="inline_edit">
+                <input type="hidden" name="show_in_public_feed" value="0">
                 <input type="hidden" id="paragraph-number" name="paragraph_number">
                 <input type="hidden" id="original-text-input" name="original_text">
                 
@@ -507,10 +555,27 @@
                     <input type="text" id="edit-reason" name="reason" class="w-full bg-amber-50/50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
                 </div>
 
+                <label class="inline-flex items-start gap-3 text-sm text-amber-900/90">
+                    <input
+                        type="checkbox"
+                        name="show_in_public_feed"
+                        value="1"
+                        checked
+                        class="mt-0.5 rounded border-amber-300 bg-white text-amber-700 focus:ring-amber-400"
+                    >
+                    <span>
+                        <span class="font-extrabold text-amber-900">Show this paragraph edit in the public feed</span>
+                        <span class="block text-xs text-amber-800/70 mt-1">You can change this later from My Profile → My submissions.</span>
+                    </span>
+                </label>
+
                 <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph suggestions use the same <strong class="text-amber-900">$2</strong> PayPal checkout. Points apply only after payment succeeds and a moderator accepts your edit.</p>
                 <div class="flex flex-wrap items-center gap-4 pt-4">
                     <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Continue to PayPal ($2)
+                        Submit current + queued & Pay (${{ $payNowTotalDisplay }})
+                    </button>
+                    <button type="submit" name="queue_only" value="1" class="px-10 py-4 bg-amber-100 border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all">
+                        Add another edit
                     </button>
                     <button type="button" onclick="discardInlineParagraphDraft()" class="px-10 py-4 bg-white border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-50 transition-all">
                         Discard saved draft
@@ -600,8 +665,9 @@
                 let stripPct;
                 let positionForSave;
                 if (maxScroll <= 0) {
-                    stripPct = 100;
-                    positionForSave = 1;
+                    // Avoid persisting false 100% when layout briefly reports no scroll range.
+                    stripPct = 0;
+                    positionForSave = 0;
                 } else {
                     stripPct = (scrollTop / maxScroll) * 100;
                     positionForSave = scrollTop;

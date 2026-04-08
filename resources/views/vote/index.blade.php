@@ -37,7 +37,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{ ready: false }" x-init="setTimeout(() => ready = true, 180)">
         @if (session('success'))
             <div class="mb-8 p-4 bg-green-100 text-green-700 rounded-2xl border border-green-200 shadow-sm font-bold">{{ session('success') }}</div>
         @endif
@@ -45,6 +45,13 @@
             <div class="mb-8 p-4 bg-red-100 text-red-700 rounded-2xl border border-red-200 shadow-sm font-bold">{{ session('error') }}</div>
         @endif
 
+        <div x-show="!ready" x-cloak class="space-y-6" aria-hidden="true">
+            <div class="h-48 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+            <div class="h-56 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+            <div class="h-56 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+        </div>
+
+        <div x-show="ready" x-cloak>
         @if (!($canVote ?? false))
             <div class="mb-16 p-12 bg-amber-900 rounded-[3rem] text-center text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                 <div class="relative z-10">
@@ -250,6 +257,7 @@
                     </ul>
                 </details>
             @endif
+        </div>
         </div>
     </div>
 </x-dynamic-component>

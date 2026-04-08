@@ -14,7 +14,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{ ready: false }" x-init="setTimeout(() => ready = true, 180)">
         @if (session('success'))
             <div class="mb-8 p-4 bg-green-100 text-green-700 rounded-2xl border border-green-200 shadow-sm font-bold">{{ session('success') }}</div>
         @endif
@@ -22,7 +22,13 @@
             <div class="mb-8 p-4 bg-red-100 text-red-700 rounded-2xl border border-red-200 shadow-sm font-bold">{{ session('error') }}</div>
         @endif
 
-        <div class="max-w-5xl mx-auto space-y-16">
+        <div x-show="!ready" x-cloak class="max-w-5xl mx-auto space-y-6" aria-hidden="true">
+            <div class="h-36 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+            <div class="h-36 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+            <div class="h-36 rounded-[2rem] bg-amber-100/70 animate-pulse"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto space-y-16" x-show="ready" x-cloak>
             @php
                 $tbwnnPrimaryMaxId = ($chapters ?? collect())->max('id');
             @endphp
@@ -96,8 +102,12 @@
                                             Open for Edits
                                         </div>
                                     @else
-                                        <div class="px-6 py-3 bg-amber-100 rounded-2xl border border-amber-200 text-amber-800 text-xs font-black uppercase tracking-widest">
+                                        <div class="relative group px-6 py-3 bg-amber-100 rounded-2xl border border-amber-200 text-amber-800 text-xs font-black uppercase tracking-widest flex items-center gap-2">
                                             Editing window closed
+                                            <span class="inline-flex h-5 w-5 items-center justify-center rounded-full border border-amber-300 text-[10px]">i</span>
+                                            <span class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden -translate-x-1/2 whitespace-normal w-64 rounded-xl bg-amber-950 px-3 py-2 text-[10px] normal-case tracking-normal leading-relaxed text-amber-100 shadow-lg group-hover:block">
+                                                This chapter is now read-only because the paid editing window ended.
+                                            </span>
                                         </div>
                                     @endif
                                 @endif
@@ -147,8 +157,11 @@
                                 class="mb-12 {{ $isLatestTbwSlot ? '' : 'hidden' }}"
                             >
                                 <div class="bg-amber-50/30 rounded-[2rem] p-10 border-2 border-dashed border-amber-200/50 text-center group-hover:border-amber-300/50 transition-all">
-                                    <div class="w-16 h-16 bg-amber-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                                        <div class="relative group w-16 h-16 bg-amber-100/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
                                         <span class="text-2xl">🔒</span>
+                                        <span class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden -translate-x-1/2 whitespace-normal w-64 rounded-xl bg-amber-950 px-3 py-2 text-[10px] normal-case tracking-normal leading-relaxed text-amber-100 shadow-lg group-hover:block">
+                                            Locked chapters are finalized text and no longer accept paid edits.
+                                        </span>
                                     </div>
                                     <p class="text-amber-900/40 font-extrabold text-lg mb-2 uppercase tracking-widest">Chapter Locked</p>
                                     <p class="text-amber-800/30 font-bold italic">This chapter is now part of the permanent record. Click below to read the final version.</p>

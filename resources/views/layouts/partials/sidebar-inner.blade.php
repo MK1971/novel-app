@@ -17,6 +17,9 @@
             <x-sidebar-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" icon="trophy">
                 Leaderboard
             </x-sidebar-link>
+            <x-sidebar-link :href="route('edits.public')" :active="request()->routeIs('edits.public')" icon="archive">
+                Public edits feed
+            </x-sidebar-link>
         </nav>
     </div>
 
@@ -61,6 +64,9 @@
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.feedback.index')" :active="request()->routeIs('admin.feedback.*')" icon="feedback">
                     Review Feedback
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('admin.donations.index')" :active="request()->routeIs('admin.donations.*')" icon="analytics">
+                    Donations report
                 </x-sidebar-link>
             </nav>
         </div>

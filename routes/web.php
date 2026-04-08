@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
+use App\Http\Controllers\Admin\DonationReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
@@ -18,7 +19,9 @@ use App\Http\Controllers\ParagraphReactionController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PaymentHistoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileSubmissionVisibilityController;
 use App\Http\Controllers\PublicProfileAbuseController;
+use App\Http\Controllers\PublicEditsController;
 use App\Http\Controllers\PublicProfileController;
 use App\Http\Controllers\RssFeedController;
 use App\Http\Controllers\VoteController;
@@ -29,6 +32,7 @@ use App\Models\Payment;
 use App\Models\User;
 use App\Support\AchievementUnlock;
 use App\Support\ChapterLifecycle;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -122,6 +126,7 @@ Route::get('/people/{slug}', [PublicProfileController::class, 'show'])
 
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+Route::get('/analytics/export', [AnalyticsController::class, 'exportCsv'])->name('analytics.export');
 Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
 Route::get('/achievements/{achievement}', [AchievementController::class, 'show'])->name('achievements.show');
 Route::get('/archive/chapters', [ArchiveController::class, 'chapters'])->name('archive.chapters');
@@ -129,6 +134,10 @@ Route::get('/archive/rounds', [ArchiveController::class, 'rounds'])->name('archi
 
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+Route::get('/edits/public', [PublicEditsController::class, 'index'])->name('edits.public');
+Route::post('/payment/donation/webhook', [PaymentController::class, 'donationWebhook'])
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('payment.donation.webhook');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
@@ -146,9 +155,34 @@ Route::middleware('auth')->group(function () {
             ->withAvailableVoteCredit()
             ->exists();
 
+        $fundingGoalCents = (int) config('marketing.funding_goal_cents', 5000000);
+        $contributionCents = (int) Payment::query()
+            ->where('status', 'completed')
+            ->where('purpose', 'donation')
+            ->sum('amount_cents');
+        $competitorCents = (int) Payment::query()
+            ->where('status', 'completed')
+            ->where('purpose', 'edit_fee')
+            ->sum('amount_cents');
+        $totalCents = $contributionCents + $competitorCents;
+        $fundingProgressPercent = $fundingGoalCents > 0
+            ? min(100, (int) round(($totalCents / $fundingGoalCents) * 100))
+            : 0;
+
         $firstOpenTbwChapter = ChapterLifecycle::latestOpenTbwChapter();
 
-        return view('dashboard', compact('achievements', 'userAchievements', 'progressByAchievementId', 'canVote', 'firstOpenTbwChapter'));
+        return view('dashboard', compact(
+            'achievements',
+            'userAchievements',
+            'progressByAchievementId',
+            'canVote',
+            'firstOpenTbwChapter',
+            'fundingGoalCents',
+            'contributionCents',
+            'competitorCents',
+            'totalCents',
+            'fundingProgressPercent'
+        ));
     })->name('dashboard');
 
     Route::post('/onboarding/dismiss', function () {
@@ -166,6 +200,9 @@ Route::middleware('auth')->group(function () {
         ->name('profile.social.disconnect');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/public-settings', [ProfileController::class, 'updatePublicSettings'])->name('profile.public-settings.update');
+    Route::patch('/profile/submissions/{kind}/{id}/visibility', [ProfileSubmissionVisibilityController::class, 'update'])
+        ->whereIn('kind', ['chapter', 'inline'])
+        ->name('profile.submissions.visibility');
     Route::post('/people/{slug}/report', [PublicProfileAbuseController::class, 'report'])
         ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
         ->name('profile.public.report');
@@ -180,10 +217,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/edits/preview-diff', EditDiffPreviewController::class)->name('edits.preview-diff');
+    Route::post('/edits/public/feedback', [PublicEditsController::class, 'storeFeedback'])->name('edits.public.feedback');
 
     Route::post('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
+    Route::delete('/payment/queue/{edit}', [PaymentController::class, 'removeQueuedEdit'])->name('payment.queue.remove');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+    Route::post('/payment/donation/checkout', [PaymentController::class, 'donationCheckout'])->name('payment.donation.checkout');
+    Route::get('/payment/donation/cancel', [PaymentController::class, 'donationCancel'])->name('payment.donation.cancel');
+    Route::get('/payment/donation/success', [PaymentController::class, 'donationSuccess'])->name('payment.donation.success');
 
     Route::get('/chapters/{chapterId}/edit', [EditController::class, 'create'])->name('edits.create');
     Route::post('/edits', [EditController::class, 'store'])->name('edits.store');
@@ -217,6 +259,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
 
         Route::get('/feedback', [FeedbackController::class, 'adminIndex'])->name('feedback.index');
+        Route::get('/donations', [DonationReportController::class, 'index'])->name('donations.index');
+        Route::get('/donations/export', [DonationReportController::class, 'exportCsv'])->name('donations.export');
 
         Route::get('/inline-edits', [ModerationController::class, 'inlineEdits'])->name('inline-edits.index');
         Route::post('/inline-edits/{inlineEdit}/approve', [ModerationController::class, 'approveInlineEdit'])->name('inline-edits.approve');

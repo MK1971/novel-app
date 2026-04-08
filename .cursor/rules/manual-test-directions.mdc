@@ -13,6 +13,13 @@ Whenever you **change runtime behavior** of this app (PHP, Blade, routes, front-
 - **Steps**: numbered or bulleted **URLs or nav paths** (use real route names or paths from the change).
 - **Expect**: what should appear, toggle, or redirect on success; mention one **negative or edge** check when it matters (e.g. empty state, validation error).
 
+## After implementing suggestions or requested features
+
+When you **implement** something the user asked for (a feature, fix, or pass of work—not a read-only answer), the **Manual testing** section must always give a **browser path**, not only PHPUnit or CLI:
+
+- Say how to run the app locally (**`php artisan serve`**, **`npm run dev`** if hot assets matter) and which base URL to open (note **`APP_URL`** / **`localhost` vs `127.0.0.1`** when auth or absolute URLs matter).
+- List **concrete URLs or clicks** (e.g. `/chapters/1`, **Profile → Edit**, mod queue) so they can verify in a real session without inferring steps.
+
 ## Scope
 
 - **Proportional**: a tiny fix gets 2–4 bullets; a feature gets a fuller checklist.

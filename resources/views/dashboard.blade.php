@@ -10,6 +10,15 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="mb-6 rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-bold text-green-800">{{ session('success') }}</div>
+            @endif
+            @if (session('warning'))
+                <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold text-amber-900">{{ session('warning') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-800">{{ session('error') }}</div>
+            @endif
             @can('admin')
                 {{-- ADMIN DASHBOARD --}}
                 
@@ -239,6 +248,15 @@
                     </div>
                 @endif
 
+                @php
+                    $usd = static fn (int $cents): string => '$'.number_format($cents / 100, 2);
+                    $goal = (int) ($fundingGoalCents ?? 0);
+                    $raised = (int) ($totalCents ?? 0);
+                    $contrib = (int) ($contributionCents ?? 0);
+                    $competitor = (int) ($competitorCents ?? 0);
+                    $pct = (int) ($fundingProgressPercent ?? 0);
+                @endphp
+
                 <div class="grid md:grid-cols-4 gap-6 mb-12">
                     <div class="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-200 rounded-[2rem] p-8" title="Chapter and paragraph suggestions both use 2 / 1 / 0 points (full accept / partial / reject) when paid and moderated.">
                         <div class="text-4xl font-extrabold text-amber-600 mb-2">{{ auth()->user()->points }}</div>
@@ -417,6 +435,63 @@
                                     Open full achievement page
                                 </a>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="publishing-fund" class="mt-10 rounded-[2rem] border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-amber-100/70 p-8 shadow-md shadow-amber-200/30">
+                    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                        <div class="max-w-3xl min-w-0">
+                            <h3 class="text-2xl font-extrabold text-amber-950">Publishing fund progress</h3>
+                            <p class="mt-2 text-sm font-bold text-amber-900/80 leading-relaxed break-words">
+                                {{ config('marketing.funding_mission_copy') }}
+                            </p>
+                            <div class="mt-6 grid sm:grid-cols-3 gap-4">
+                                <div class="rounded-2xl border border-amber-200 bg-white/80 px-4 py-3 min-w-0">
+                                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/55">Raised</p>
+                                    <p class="text-2xl font-black text-amber-950 tabular-nums break-all">{{ $usd($raised) }}</p>
+                                </div>
+                                <div class="rounded-2xl border border-amber-200 bg-white/80 px-4 py-3 min-w-0">
+                                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/55">Goal</p>
+                                    <p class="text-2xl font-black text-amber-950 tabular-nums break-all">{{ $usd($goal) }}</p>
+                                </div>
+                                <div class="rounded-2xl border border-amber-200 bg-white/80 px-4 py-3 min-w-0">
+                                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/55">Progress</p>
+                                    <p class="text-2xl font-black text-amber-950 tabular-nums">{{ $pct }}%</p>
+                                </div>
+                            </div>
+                            <div class="mt-5">
+                                <div class="h-3 rounded-full bg-amber-200/80 overflow-hidden">
+                                    <div class="h-3 rounded-full bg-amber-600 transition-all duration-500" style="width: {{ max(0, min(100, $pct)) }}%;"></div>
+                                </div>
+                            </div>
+                            <div class="mt-5 grid sm:grid-cols-2 gap-4">
+                                <div class="rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3 min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-emerald-800/65">Contributions (donations)</p>
+                                    <p class="text-xl font-black text-emerald-900 tabular-nums break-all">{{ $usd($contrib) }}</p>
+                                </div>
+                                <div class="rounded-xl border border-purple-200 bg-purple-50/80 px-4 py-3 min-w-0">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-purple-800/65">Competitors (paid edit fees)</p>
+                                    <p class="text-xl font-black text-purple-900 tabular-nums break-all">{{ $usd($competitor) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full max-w-sm rounded-2xl border border-amber-200 bg-white/95 p-5">
+                            <h4 class="text-lg font-extrabold text-amber-950">Support the publishing fund</h4>
+                            <p class="mt-2 text-xs font-bold text-amber-900/70 leading-relaxed">
+                                Donations are support contributions, separate from paid edit checkouts. They do not create vote credits and are not tax-deductible.
+                            </p>
+                            <form method="POST" action="{{ route('payment.donation.checkout') }}" class="mt-4 space-y-3">
+                                @csrf
+                                <label for="amount_dollars" class="block text-xs font-black uppercase tracking-widest text-amber-800/70">Donation (USD)</label>
+                                <input id="amount_dollars" name="amount_dollars" type="number" min="2" step="1" value="{{ old('amount_dollars', '') }}" placeholder="Enter amount (min $2)" class="w-full rounded-xl border-amber-200 !bg-white !text-stone-900 placeholder:!text-stone-500 focus:border-amber-500 focus:ring-amber-500 font-bold" style="background-color:#ffffff;color:#1c1917;" />
+                                @error('amount_dollars')
+                                    <p class="text-xs font-bold text-red-700">{{ $message }}</p>
+                                @enderror
+                                <button type="submit" class="w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white py-3 text-sm font-black">
+                                    Continue to PayPal
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

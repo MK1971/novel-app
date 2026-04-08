@@ -362,6 +362,9 @@
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
                                 A two-part journey: co-write the living manuscript of <span class="font-black text-inherit">The Book With No Name</span> by suggesting edits. Each completed <span class="font-black text-inherit">$2</span> edit unlocks one ballot to vote on Version A vs B for <span class="font-black text-inherit">Peter Trull Solitary Detective</span>.
                             </p>
+                            <p class="text-sm md:text-base text-white/90 font-bold mb-8 max-w-2xl leading-relaxed">
+                                The goal is both the joy of collaborative editing and saving enough to publish the finished result.
+                            </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
@@ -381,6 +384,11 @@
                                         Go to Dashboard
                                     </a>
                                 @endguest
+                                @auth
+                                    <a href="{{ route('dashboard') }}#publishing-fund" class="landing-ui-transition w-full sm:w-auto px-8 py-4 bg-black/30 border border-white/20 text-white text-sm font-black rounded-2xl hover:bg-black/45">
+                                        Support publishing fund
+                                    </a>
+                                @endauth
                             </div>
                         </div>
 
@@ -572,6 +580,23 @@
                 </div>
             </section>
             </main>
+
+            <section class="relative z-10 py-16 bg-amber-50 border-t border-amber-100">
+                <div class="max-w-4xl mx-auto px-6 text-center">
+                    <h2 class="text-3xl font-black text-amber-900">Stay connected with the project</h2>
+                    <p class="mt-3 text-amber-800/75 font-bold max-w-2xl mx-auto">
+                        Want updates on chapter releases and funding milestones? Send us a note through Feedback and we will include you in update planning.
+                    </p>
+                    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition inline-flex items-center px-6 py-3 bg-amber-600 text-white font-black rounded-xl hover:bg-amber-700">Open feedback</a>
+                        @auth
+                            <a href="{{ route('dashboard') }}#publishing-fund" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">View live funding progress</a>
+                        @else
+                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">Create account to support</button>
+                        @endauth
+                    </div>
+                </div>
+            </section>
 
             {{-- Footer --}}
             <footer class="relative z-10 py-20 border-t border-amber-100 bg-white">

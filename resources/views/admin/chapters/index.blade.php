@@ -1,9 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-extrabold text-3xl text-amber-900">
-                📚 Manage Chapters
-            </h2>
+            <div>
+                <nav class="mb-2 text-xs font-bold text-amber-800/70">
+                    <a href="{{ route('dashboard') }}" class="underline">Dashboard</a> / Admin / Chapters
+                </nav>
+                <h2 class="font-extrabold text-3xl text-amber-900">
+                    📚 Manage Chapters
+                </h2>
+            </div>
             <p class="text-amber-800/60 font-bold">Upload, lock, and delete chapters</p>
         </div>
     </x-slot>
