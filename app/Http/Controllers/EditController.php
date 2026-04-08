@@ -5,21 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\Payment;
+use App\Support\ChapterLifecycle;
 use Illuminate\Http\Request;
 
 class EditController extends Controller
 {
     public function create($chapterId)
     {
-        $chapter = Chapter::findOrFail($chapterId);
+        $chapter = Chapter::with('book')->findOrFail($chapterId);
+        if (ChapterLifecycle::isPeterTrullChapter($chapter)) {
+            return redirect()->route('chapters.show', $chapter)->with('error', 'Peter Trull chapters use voting only, not paid edits.');
+        }
         $user = request()->user();
         $hasPaid = Payment::where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNull('edit_id')
             ->exists();
-        if (!$hasPaid) {
+        if (! $hasPaid) {
             return redirect()->route('chapters.show', $chapter)->with('error', 'Please pay $2 to submit an edit.');
         }
+
         return view('edits.create', compact('chapter'));
     }
 
@@ -31,13 +36,16 @@ class EditController extends Controller
             'edited_text' => 'required|string',
         ]);
 
-        $chapter = Chapter::findOrFail($request->chapter_id);
+        $chapter = Chapter::with('book')->findOrFail($request->chapter_id);
+        if (ChapterLifecycle::isPeterTrullChapter($chapter)) {
+            return back()->with('error', 'Peter Trull chapters use voting only, not paid edits.');
+        }
         $user = $request->user();
         $hasPaid = Payment::where('user_id', $user->id)
             ->where('status', 'completed')
             ->whereNull('edit_id')
             ->first();
-        if (!$hasPaid) {
+        if (! $hasPaid) {
             return back()->with('error', 'Please complete payment first.');
         }
 
@@ -54,13 +62,6 @@ class EditController extends Controller
 
         $stats = \App\Models\ChapterStatistic::firstOrCreate(['chapter_id' => $chapter->id]);
         $stats->increment('total_edits');
-
-        \App\Models\ActivityFeed::create([
-            'user_id' => $user->id,
-            'chapter_id' => $chapter->id,
-            'activity_type' => 'edit_submitted',
-            'description' => "{$user->name} submitted a new edit for Chapter {$chapter->number}.",
-        ]);
 
         return redirect()->route('chapters.index')->with('success', 'Edit submitted! We will review it.');
     }

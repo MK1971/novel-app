@@ -4,114 +4,69 @@
 
 <x-dynamic-component :component="$layout">
     <x-slot name="header">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-6">
-                <a href="{{ route('chapters.index') }}" class="w-12 h-12 bg-white border border-amber-200 rounded-2xl flex items-center justify-center text-amber-900 hover:bg-amber-50 transition-all shadow-sm">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('achievements.index') }}" class="w-12 h-12 bg-white border border-amber-200 rounded-2xl flex items-center justify-center text-amber-900 hover:bg-amber-50 transition-all shadow-sm shrink-0" aria-label="Back to all achievements">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </a>
                 <div>
-                    <h1 class="text-3xl font-extrabold text-amber-900">Your Achievements</h1>
-                    <p class="text-amber-600 font-bold">Unlock badges by contributing to the story</p>
+                    <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">{{ $achievement->name }}</h2>
+                    <p class="text-amber-800/60 font-bold mt-1">Achievement details</p>
                 </div>
             </div>
         </div>
     </x-slot>
 
-    <div class="max-w-6xl mx-auto px-4 py-12">
-        @auth
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div class="py-12">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border-2 border-amber-100 rounded-[2rem] p-10 text-center mb-8 shadow-sm">
+                <div class="text-7xl mb-6" aria-hidden="true">{{ $achievement->icon_emoji }}</div>
+                <p class="text-amber-800 font-bold text-lg leading-relaxed">{{ $achievement->description }}</p>
+            </div>
+
+            <div class="bg-amber-50 rounded-2xl border border-amber-200 p-8 mb-8">
+                <p class="text-xs text-amber-900/60 font-bold uppercase tracking-widest mb-3">Requirement</p>
+                <p class="text-2xl font-extrabold text-amber-900">{{ $achievement->requirementLabel() }}</p>
+            </div>
+
+            @auth
                 @php
-                    $achievements = [
-                        [
-                            'id' => 1,
-                            'name' => 'First Contributor',
-                            'emoji' => '✏️',
-                            'description' => 'Suggest your first edit',
-                            'color' => 'from-blue-400 to-blue-600'
-                        ],
-                        [
-                            'id' => 2,
-                            'name' => 'Prolific Editor',
-                            'emoji' => '📝',
-                            'description' => 'Get 5 edits accepted',
-                            'color' => 'from-purple-400 to-purple-600'
-                        ],
-                        [
-                            'id' => 3,
-                            'name' => 'Voting Champion',
-                            'emoji' => '🗳️',
-                            'description' => 'Cast 10 votes',
-                            'color' => 'from-green-400 to-green-600'
-                        ],
-                        [
-                            'id' => 4,
-                            'name' => 'Rising Star',
-                            'emoji' => '⭐',
-                            'description' => 'Earn 100 points',
-                            'color' => 'from-yellow-400 to-yellow-600'
-                        ],
-                        [
-                            'id' => 5,
-                            'name' => 'Bookworm',
-                            'emoji' => '📚',
-                            'description' => 'Read 5 chapters',
-                            'color' => 'from-red-400 to-red-600'
-                        ],
-                    ];
+                    $userAchievement = auth()->user()->achievements()->where('achievements.id', $achievement->id)->first();
+                    $targetShow = max(1, (int) $achievement->requirement_value);
+                    $barPctShow = $userAchievement ? 100 : ($currentProgress !== null ? min(100, (int) round(((int) $currentProgress / $targetShow) * 100)) : 0);
                 @endphp
-
-                @foreach($achievements as $achievement)
-                    @php
-                        $userHasAchievement = auth()->user()->achievements()->where('achievement_id', $achievement['id'])->exists();
-                    @endphp
-                    <div class="relative group">
-                        <div class="absolute -inset-0.5 bg-gradient-to-r {{ $achievement['color'] }} rounded-3xl blur opacity-75 group-hover:opacity-100 transition duration-1000 {{ !$userHasAchievement ? 'opacity-0' : '' }}"></div>
-                        <div class="relative bg-white rounded-3xl p-8 shadow-lg {{ !$userHasAchievement ? 'opacity-50 grayscale' : '' }}">
-                            <div class="text-6xl mb-4 text-center">{{ $achievement['emoji'] }}</div>
-                            <h3 class="text-2xl font-extrabold text-amber-900 text-center mb-2">{{ $achievement['name'] }}</h3>
-                            <p class="text-amber-600 text-center font-bold mb-4">{{ $achievement['description'] }}</p>
-                            
-                            @if($userHasAchievement)
-                                <div class="flex items-center justify-center gap-2 text-green-600 font-bold">
-                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-                                    Unlocked
-                                </div>
-                            @else
-                                <div class="text-amber-600 text-center font-bold text-sm">Locked</div>
-                            @endif
+                @if($userAchievement)
+                    <div class="bg-green-50 border-2 border-green-200 rounded-2xl p-8 text-center">
+                        <p class="text-green-800 font-extrabold text-lg">Unlocked</p>
+                        @if($userAchievement->pivot->unlocked_at)
+                            <p class="text-green-700/80 font-bold text-sm mt-2">{{ \Carbon\Carbon::parse($userAchievement->pivot->unlocked_at)->toFormattedDateString() }}</p>
+                        @endif
+                    </div>
+                @elseif($currentProgress !== null)
+                    <div class="rounded-2xl border-2 border-amber-200 bg-amber-50/80 p-8 text-center">
+                        <p class="text-sm font-extrabold text-amber-900">Progress: {{ (int) $currentProgress }} / {{ $targetShow }}</p>
+                        <div class="relative mx-auto mt-4 max-w-md h-3 w-full overflow-hidden rounded-full bg-amber-100" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $barPctShow }}">
+                            <div class="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-300" style="width: {{ $barPctShow }}%"></div>
                         </div>
+                        <p class="mt-6 text-amber-900 font-extrabold">Locked — keep contributing to unlock this badge.</p>
                     </div>
-                @endforeach
-            </div>
-
-            <div class="mt-12 bg-amber-50 border-2 border-amber-200 rounded-3xl p-8">
-                <h2 class="text-2xl font-extrabold text-amber-900 mb-4">Your Progress</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-sm">
-                        <div class="text-3xl font-extrabold text-amber-900">{{ auth()->user()->achievements()->count() }}</div>
-                        <div class="text-amber-600 font-bold text-sm mt-2">Achievements Unlocked</div>
+                @else
+                    <div class="bg-amber-100 border-2 border-amber-200 rounded-2xl p-8 text-center">
+                        <p class="text-amber-900 font-extrabold">Locked — keep contributing to unlock this badge.</p>
                     </div>
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-sm">
-                        <div class="text-3xl font-extrabold text-amber-900">{{ auth()->user()->edits()->count() }}</div>
-                        <div class="text-amber-600 font-bold text-sm mt-2">Edits Submitted</div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-sm">
-                        <div class="text-3xl font-extrabold text-amber-900">{{ auth()->user()->votes()->count() }}</div>
-                        <div class="text-amber-600 font-bold text-sm mt-2">Votes Cast</div>
-                    </div>
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-sm">
-                        <div class="text-3xl font-extrabold text-amber-900">{{ auth()->user()->points ?? 0 }}</div>
-                        <div class="text-amber-600 font-bold text-sm mt-2">Total Points</div>
-                    </div>
+                @endif
+            @else
+                <div class="text-center rounded-2xl border-2 border-amber-100 bg-white p-8">
+                    <p class="text-amber-800/70 font-bold mb-4">Sign in to track your progress on this achievement.</p>
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-8 py-3 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-colors">
+                        Sign in
+                    </button>
                 </div>
-            </div>
-        @else
-            <div class="text-center py-16">
-                <h2 class="text-2xl font-extrabold text-amber-900 mb-4">Sign in to view your achievements</h2>
-                <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-8 py-4 bg-amber-900 text-white font-bold rounded-2xl hover:bg-black transition-all">
-                    Sign In
-                </button>
-            </div>
-        @endauth
+            @endauth
+
+            <p class="mt-10 text-center">
+                <a href="{{ route('achievements.index') }}" class="text-amber-700 font-bold hover:underline">← All achievements</a>
+            </p>
+        </div>
     </div>
 </x-dynamic-component>

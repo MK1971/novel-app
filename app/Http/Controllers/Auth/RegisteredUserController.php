@@ -45,10 +45,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        if ($request->has('redirect_to')) {
-            return redirect($request->redirect_to);
-        }
-
-        return redirect(route('dashboard', absolute: false));
+        // New accounts always land on the dashboard (welcome / onboarding), not the page where they opened the register modal.
+        return redirect()->route('dashboard');
     }
 }

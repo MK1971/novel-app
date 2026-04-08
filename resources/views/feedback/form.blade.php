@@ -15,9 +15,14 @@
             <div>
                 <label for="type" class="block text-sm font-bold text-amber-900 mb-2">Feedback Type</label>
                 <select name="type" id="type" class="w-full bg-white border-amber-200 rounded-xl focus:ring-amber-500 focus:border-amber-500 text-amber-900">
-                    <option value="general">General Feedback</option>
-                    <option value="suggestion">Story Suggestion</option>
-                    <option value="bug">Report a Bug</option>
+                    <option value="general">General feedback</option>
+                    <option value="site_suggestion">Site suggestion</option>
+                    <option value="suggestion">Story suggestion</option>
+                    <option value="bug">Bug report</option>
+                    <option value="accessibility">Accessibility</option>
+                    <option value="account">Account / login</option>
+                    <option value="payment">Payment / PayPal</option>
+                    <option value="content_issue">Content / typo</option>
                 </select>
             </div>
         @endif

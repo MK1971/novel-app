@@ -1,8 +1,8 @@
-@if(auth()->check())
-    <x-app-layout>
-@else
-    <x-guest-layout>
-@endif
+@php
+    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+@endphp
+
+<x-dynamic-component :component="$layout">
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-extrabold text-3xl text-amber-900">🏆 Achievements</h2>
@@ -14,32 +14,43 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($achievements as $achievement)
-                    <div class="bg-white border-2 {{ in_array($achievement->id, $userAchievements) ? 'border-amber-500 shadow-lg shadow-amber-500/20' : 'border-amber-100' }} rounded-[2rem] p-8 text-center transition-all hover:shadow-lg {{ in_array($achievement->id, $userAchievements) ? 'bg-amber-50' : '' }}">
-                        <div class="text-6xl mb-4">{{ $achievement->icon_emoji }}</div>
+                    @php
+                        $unlocked = in_array($achievement->id, $userAchievements);
+                        $target = max(1, (int) $achievement->requirement_value);
+                        $current = auth()->check() ? (int) ($progressByAchievementId[$achievement->id] ?? 0) : 0;
+                        $barPct = $unlocked ? 100 : min(100, (int) round(($current / $target) * 100));
+                    @endphp
+                    <article tabindex="0" class="outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-[2rem] bg-white border-2 {{ $unlocked ? 'border-amber-500 shadow-lg shadow-amber-500/20' : 'border-amber-100' }} p-8 text-center transition-all hover:shadow-lg {{ $unlocked ? 'bg-amber-50' : '' }}">
+                        <div class="text-6xl mb-4" aria-hidden="true">{{ $achievement->icon_emoji }}</div>
                         <h3 class="text-xl font-extrabold text-amber-900 mb-2">{{ $achievement->name }}</h3>
                         <p class="text-amber-800/60 font-bold text-sm mb-4">{{ $achievement->description }}</p>
-                        
-                        <div class="bg-amber-50 rounded-xl p-4 mb-4">
+
+                        <div class="bg-amber-50 rounded-xl p-4 mb-3 text-left">
                             <p class="text-xs text-amber-900/60 font-bold uppercase tracking-widest mb-2">Requirement</p>
-                            <p class="text-amber-900 font-extrabold">
-                                @switch($achievement->requirement_type)
-                                    @case('edits_accepted')
-                                        {{ $achievement->requirement_value }} Accepted Edits
-                                        @break
-                                    @case('votes_cast')
-                                        {{ $achievement->requirement_value }} Votes Cast
-                                        @break
-                                    @case('points_earned')
-                                        {{ $achievement->requirement_value }} Points
-                                        @break
-                                    @case('chapters_read')
-                                        {{ $achievement->requirement_value }} Chapters Read
-                                        @break
-                                @endswitch
-                            </p>
+                            <p class="text-amber-900 font-extrabold">{{ $achievement->requirementLabel() }}</p>
                         </div>
 
-                        @if(in_array($achievement->id, $userAchievements))
+                        @if(auth()->check())
+                            <div class="mb-4 text-left">
+                                <p class="text-xs font-bold text-amber-800/70 mb-1">Your progress</p>
+                                <div class="flex items-center justify-between gap-2 text-sm font-extrabold text-amber-900">
+                                    <span>{{ $current }} / {{ $target }}</span>
+                                    <span>{{ $barPct }}%</span>
+                                </div>
+                                <div class="relative mt-2 h-2.5 w-full overflow-hidden rounded-full bg-amber-200/80" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $barPct }}" aria-label="Progress toward {{ $achievement->name }}">
+                                    <div class="absolute inset-y-0 left-0 rounded-full bg-amber-500 transition-all duration-300" style="width: {{ $barPct }}%"></div>
+                                </div>
+                            </div>
+                        @else
+                            <p class="mb-4 text-left text-xs font-bold text-amber-800/60">Sign in to see your progress on this badge.</p>
+                        @endif
+
+                        <details class="mb-4 rounded-xl border border-amber-100 bg-white/80 p-3 text-left text-sm focus-within:ring-2 focus-within:ring-amber-400">
+                            <summary class="cursor-pointer font-extrabold text-amber-900 outline-none">How to earn</summary>
+                            <p class="mt-2 font-bold text-amber-800/80 leading-relaxed">{{ $achievement->description }}</p>
+                        </details>
+
+                        @if($unlocked)
                             <div class="bg-gradient-to-r from-amber-400 to-amber-500 text-white font-extrabold py-3 px-4 rounded-xl">
                                 ✓ Unlocked
                             </div>
@@ -48,7 +59,7 @@
                                 Locked
                             </div>
                         @endif
-                    </div>
+                    </article>
                 @empty
                     <div class="col-span-full text-center py-16">
                         <p class="text-amber-800/60 font-bold text-lg">No achievements available yet.</p>
@@ -61,7 +72,7 @@
                     <h3 class="text-xl font-extrabold text-amber-900 mb-4">Your Progress</h3>
                     <div class="grid md:grid-cols-4 gap-6">
                         <div class="bg-white rounded-xl p-6 text-center border border-amber-100">
-                            <p class="text-3xl font-extrabold text-amber-600">{{ auth()->user()->edits()->where('status', 'accepted')->count() }}</p>
+                            <p class="text-3xl font-extrabold text-amber-600">{{ auth()->user()->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count() }}</p>
                             <p class="text-amber-800/60 font-bold text-sm mt-2">Accepted Edits</p>
                         </div>
                         <div class="bg-white rounded-xl p-6 text-center border border-amber-100">
@@ -81,8 +92,4 @@
             @endif
         </div>
     </div>
-@if(auth()->check())
-    </x-app-layout>
-@else
-    </x-guest-layout>
-@endif
+</x-dynamic-component>

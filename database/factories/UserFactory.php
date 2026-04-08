@@ -29,6 +29,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'onboarding_completed_at' => now(),
         ];
     }
 
@@ -39,6 +40,32 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /** OAuth-only account (use with `social_accounts` rows in tests). */
+    public function withoutPassword(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'password' => null,
+        ]);
+    }
+
+    /** Opt-in public /people/{slug} page (P4-2). */
+    public function withPublicProfile(string $slug = 'demo-contributor'): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'public_profile_enabled' => true,
+            'public_slug' => $slug,
+            'profile_bio' => 'Test bio.',
+        ]);
+    }
+
+    /** Hidden from public leaderboard lists (P4 Tier A privacy). */
+    public function hiddenFromLeaderboard(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'leaderboard_visible' => false,
         ]);
     }
 }

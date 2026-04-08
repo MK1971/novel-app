@@ -32,6 +32,18 @@ class WelcomeLandingTest extends TestCase
         $this->assertStringContainsString('id="landing-hero-cta-subline"', $html);
         $this->assertStringContainsString('id="landing-social-proof"', $html);
         $this->assertStringContainsString('id="landing-stats-footnote"', $html);
+        $this->assertStringContainsString('id="landing-stats-strip"', $html);
+        $this->assertStringContainsString('id="landing-stats-quiet-lead"', $html);
+        $this->assertStringContainsString('og:description', $html);
+        $this->assertStringContainsString('© '.date('Y').' WhatsMyBookName', $html);
+        $this->assertStringContainsString('id="landing-how-steps"', $html);
+        $this->assertStringContainsString('id="landing-how-heading"', $html);
+        $this->assertStringContainsString(route('privacy'), $html);
+        $this->assertStringContainsString(route('terms'), $html);
+        $this->assertStringContainsString('name="csrf-token"', $html);
+        $this->assertStringContainsString('landing-hero-bg', $html);
+        $this->assertStringContainsString('fetchpriority="high"', $html);
+        $this->assertStringNotContainsString('unpkg.com/alpinejs', $html);
     }
 
     public function test_welcome_includes_reduced_motion_and_focus_styles(): void
@@ -50,8 +62,26 @@ class WelcomeLandingTest extends TestCase
         $this->assertStringContainsString('landing-motion-card', $src);
         $this->assertStringContainsString('hero-ping-dot', $src);
         $this->assertStringContainsString('hero-foreground', $src);
-        $this->assertStringContainsString('max-width: 767px', $src);
-        $this->assertStringContainsString('background-attachment: scroll', $src);
-        $this->assertMatchesRegularExpression('/min-width:\s*768px[\s\S]*background-attachment:\s*fixed/s', $src);
+        $this->assertStringContainsString('data-type-text', $src);
+        $this->assertStringContainsString('landing-hero-typewriter', $src);
+        $this->assertStringContainsString('landing-hero-bg', $src);
+        $this->assertStringContainsString('hero-books-960.jpg', $src);
+        $this->assertStringContainsString('srcset=', $src);
+        $this->assertMatchesRegularExpression('/min-width:\s*768px[\s\S]*\.landing-hero-bg[\s\S]*position:\s*fixed/s', $src);
+        $this->assertStringContainsString('landing-how-steps', $src);
+        $this->assertStringContainsString('Voting is gated:', $src);
+        $this->assertStringContainsString('landing-ui-transition', $src);
+        $this->assertStringContainsString('id="landing-stats-strip"', $src);
+        $this->assertStringContainsString("© {{ date('Y') }} WhatsMyBookName", $src);
+    }
+
+    public function test_app_js_supports_landing_query_string_modals(): void
+    {
+        $js = file_get_contents(resource_path('js/app.js'));
+
+        $this->assertStringContainsString('openAuthModalFromLandingQuery', $js);
+        $this->assertStringContainsString('landing-root', $js);
+        $this->assertStringContainsString('stripQueryParam', $js);
+        $this->assertStringContainsString('initLandingHeroTypewriter', $js);
     }
 }

@@ -48,4 +48,23 @@ class PasswordUpdateTest extends TestCase
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')
             ->assertRedirect('/profile');
     }
+
+    public function test_password_can_be_set_without_current_when_user_has_no_password(): void
+    {
+        $user = User::factory()->withoutPassword()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('profile.edit'))
+            ->put(route('password.update'), [
+                'password' => 'New-Password-9!',
+                'password_confirmation' => 'New-Password-9!',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('profile.edit'));
+
+        $this->assertTrue(Hash::check('New-Password-9!', $user->refresh()->password));
+    }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Edit;
-use App\Models\Achievement;
+use App\Models\Payment;
+use App\Support\AchievementUnlock;
+use App\Support\EditOutcomeNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,6 +16,7 @@ class EditApprovalController extends Controller
     {
         Gate::authorize('admin');
         $edits = Edit::with(['user', 'chapter'])->where('status', 'pending')->orderBy('created_at')->get();
+
         return view('admin.edits.index', compact('edits'));
     }
 
@@ -21,59 +24,52 @@ class EditApprovalController extends Controller
     {
         Gate::authorize('admin');
         $status = $request->input('status');
-        $points = $status === 'accepted_full' ? 2 : 1;
+
+        $hasCompletedPayment = Payment::query()
+            ->where('edit_id', $edit->id)
+            ->where('status', 'completed')
+            ->exists();
+
+        $points = 0;
+        if ($hasCompletedPayment) {
+            $points = match ($status) {
+                'accepted_full' => 2,
+                'accepted_partial' => 1,
+                default => 0,
+            };
+        }
 
         $edit->update(['status' => $status, 'points_awarded' => $points]);
-        $edit->user->increment('points', $points);
-        
-        // Check and unlock achievements
-        $this->checkAndUnlockAchievements($edit->user);
 
-        return back()->with('success', 'Edit approved.');
+        if ($points > 0) {
+            $edit->user->increment('points', $points);
+        }
+
+        AchievementUnlock::syncForUser($edit->user);
+
+        $edit->load(['user', 'chapter']);
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditAccepted($edit->user, $edit->chapter, $status, $points > 0);
+        }
+
+        $message = 'Edit approved.';
+        if (! $hasCompletedPayment) {
+            $message .= ' No leaderboard points were awarded because there is no completed payment linked to this suggestion.';
+        }
+
+        return back()->with('success', $message);
     }
 
     public function reject(Edit $edit)
     {
         Gate::authorize('admin');
+        $edit->load(['user', 'chapter']);
         $edit->update(['status' => 'rejected']);
-        return back()->with('success', 'Edit rejected.');
-    }
-    
-    private function checkAndUnlockAchievements($user)
-    {
-        $achievements = Achievement::all();
-        
-        foreach ($achievements as $achievement) {
-            if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
-                continue;
-            }
-            
-            $hasAchievement = false;
-            
-            switch ($achievement->requirement_type) {
-                case 'edits_accepted':
-                    $acceptedEdits = $user->edits()->whereIn('status', ['accepted', 'accepted_partial'])->count();
-                    $hasAchievement = $acceptedEdits >= $achievement->requirement_value;
-                    break;
-                    
-                case 'votes_cast':
-                    $votesCast = $user->votes()->count();
-                    $hasAchievement = $votesCast >= $achievement->requirement_value;
-                    break;
-                    
-                case 'points_earned':
-                    $hasAchievement = $user->points >= $achievement->requirement_value;
-                    break;
-                    
-                case 'chapters_read':
-                    $chaptersRead = $user->readingProgress()->where('completed', true)->count();
-                    $hasAchievement = $chaptersRead >= $achievement->requirement_value;
-                    break;
-            }
-            
-            if ($hasAchievement) {
-                $user->achievements()->attach($achievement->id, ['unlocked_at' => now()]);
-            }
+
+        if ($edit->user && $edit->chapter) {
+            EditOutcomeNotifier::chapterEditRejected($edit->user, $edit->chapter);
         }
+
+        return back()->with('success', 'Edit rejected.');
     }
 }

@@ -22,7 +22,7 @@
                                     <div class="grid md:grid-cols-2 gap-6">
                                         @foreach($chapters as $chapter)
                                             <div class="bg-white p-6 rounded-xl border border-amber-100 shadow-sm hover:shadow-md transition duration-150">
-                                                <h3 class="text-xl font-bold text-amber-900 mb-2">{{ $chapter->title }}</h3>
+                                                <h3 class="text-xl font-bold text-amber-900 mb-2">{{ $chapter->readerHeadingLine() }}</h3>
                                                 <p class="text-amber-700 text-sm mb-4 line-clamp-3">{{ Str::limit($chapter->content, 150) }}</p>
                                                 <div class="flex items-center justify-between">
                                                     <span class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded-full uppercase tracking-wider">

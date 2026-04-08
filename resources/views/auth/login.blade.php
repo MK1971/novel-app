@@ -2,6 +2,12 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    @if(session('social_login_error'))
+        <p class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-800" role="alert">{{ session('social_login_error') }}</p>
+    @endif
+
+    @include('auth.partials.social-login-buttons', ['oauthBeforeEmail' => true])
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
@@ -16,10 +22,13 @@
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+            <x-password-reveal-field
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                required
+                class="mt-1"
+            />
 
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>

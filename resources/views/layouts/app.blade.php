@@ -1,11 +1,18 @@
+@props([
+    'pageTitle' => null,
+    'metaDescription' => null,
+])
 <!DOCTYPE html>
 <html lang="{{ str_replace("_", "-", app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        @include('layouts.partials.theme-boot')
 
-        <title>{{ config("app.name", "What's My Book Name") }}</title>
+        <title>{{ $pageTitle ?? config("app.name", "What's My Book Name") }}</title>
+        @include('layouts.partials.seo-head', ['pageTitle' => $pageTitle, 'metaDescription' => $metaDescription])
+        {{ $headMeta ?? '' }}
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,90 +23,135 @@
         
         <style>
             [x-cloak] { display: none !important; }
+            :root {
+                --app-shell-nav-h: 4.5rem;
+                --app-shell-rail-w: 18rem;
+            }
+            /* Inset main column for fixed rail — do not rely on Tailwind arbitrary var() (often not emitted in build) */
+            @media (min-width: 768px) {
+                .app-shell__main-with-rail {
+                    padding-left: var(--app-shell-rail-w, 18rem);
+                }
+            }
         </style>
     </head>
-    <body class="min-h-screen antialiased bg-[#fff9f0] text-[#2c2419]" style="font-family: 'Nunito', sans-serif;">
-        <div class="min-h-screen flex flex-col">
-            {{-- Top Navigation --}}
-            <nav class="border-b border-amber-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-40">
-                <div class="max-w-full mx-auto px-6 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-8">
-                        <a href="{{ url("/") }}" class="text-2xl font-extrabold text-amber-800 tracking-tight">
+    <body class="min-h-screen antialiased bg-[#fff9f0] dark:bg-stone-950 text-[#2c2419] dark:text-amber-50 transition-colors duration-200" style="font-family: 'Nunito', sans-serif;">
+        @php $showSidebarNav = !isset($hideSidebar) || !$hideSidebar; @endphp
+        <div
+            class="min-h-screen flex flex-col"
+            x-data="{ mobileNavOpen: false }"
+            @keydown.escape.window="mobileNavOpen = false"
+        >
+            {{-- Top Navigation (sticky: document scrolls; no h-screen / overflow-hidden trap) --}}
+            <nav class="novel-reader-focus-hide sticky top-0 z-40 border-b border-amber-200/60 dark:border-stone-700 bg-white/80 dark:bg-stone-900/85 backdrop-blur-sm">
+                <div class="max-w-full mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3 md:gap-8 min-w-0">
+                        @if ($showSidebarNav)
+                            <button
+                                type="button"
+                                class="md:hidden shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-amber-200 bg-white text-amber-900 shadow-sm hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                @click="mobileNavOpen = true"
+                                aria-label="Open main menu"
+                            >
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        @endif
+                        <a href="{{ url("/") }}" class="text-xl sm:text-2xl font-extrabold text-amber-800 dark:text-amber-200 tracking-tight truncate">
                             What's My Book Name
                         </a>
                         @if($topLeader)
-                            <div class="hidden lg:flex items-center px-4 py-1.5 bg-amber-100 text-amber-900 text-sm font-bold rounded-full border border-amber-200/50">
-                                <span class="mr-2">🏆</span>
-                                <span class="opacity-60 mr-1">Leader:</span>
+                            <a href="{{ route('leaderboard') }}" class="hidden lg:inline-flex items-center px-4 py-1.5 bg-amber-100 text-amber-950 text-sm font-bold rounded-full border border-amber-200/50 hover:bg-amber-200/80 transition-colors" title="Open full leaderboard">
+                                <span class="mr-2" aria-hidden="true">🏆</span>
+                                <span class="sr-only">Top contributor — open leaderboard: </span>
+                                <span class="text-amber-900/85 mr-1">Top contributor:</span>
                                 <span>{{ $topLeader->name }}</span>
-                                <span class="mx-2 opacity-20">|</span>
+                                <span class="mx-2 text-amber-900/35" aria-hidden="true">|</span>
                                 <span>{{ $topLeader->points }} pts</span>
-                            </div>
+                            </a>
                         @endif
                     </div>
                     
-                    <div class="flex items-center gap-4">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center px-4 py-2 border border-amber-200 text-sm font-bold rounded-full text-amber-900 bg-white hover:bg-amber-50 focus:outline-none transition-all shadow-sm">
-                                    <div class="w-6 h-6 bg-amber-500 rounded-full mr-2 flex items-center justify-center text-[10px] text-black">
-                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                                    </div>
-                                    <div>{{ Auth::user()->name }}</div>
-                                    <svg class="ms-2 h-4 w-4 opacity-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <x-dropdown-link :href="route('profile.edit')" class="text-amber-900 font-bold hover:bg-amber-50">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-                                @can('admin')
-                                    <x-dropdown-link :href="route('admin.inline-edits.index')" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __('Moderation') }}
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.users.index')" class="text-amber-600 font-bold hover:bg-amber-50">
-                                        {{ __('User Management') }}
-                                    </x-dropdown-link>
-                                @endcan
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 font-bold hover:bg-red-50">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        @include('layouts.partials.theme-toggle')
+                        @auth
+                            @include('layouts.partials.nav-account-menu')
+                        @else
+                            <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="px-4 sm:px-6 py-2 bg-amber-500 dark:bg-amber-400 text-black text-sm sm:text-base font-bold rounded-full hover:bg-amber-600 dark:hover:bg-amber-300 transition-all shadow-md shadow-amber-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0] dark:focus-visible:ring-offset-stone-950">Sign In</button>
+                        @endauth
                     </div>
                 </div>
             </nav>
 
-            <div class="flex flex-1">
-                {{-- Sidebar --}}
-                @if(!isset($hideSidebar) || !$hideSidebar)
+            @if ($showSidebarNav)
+                {{-- Mobile drawer: same links as desktop sidebar (md:hidden) --}}
+                <div
+                    x-show="mobileNavOpen"
+                    x-cloak
+                    x-transition.opacity
+                    class="novel-reader-focus-hide md:hidden fixed inset-0 z-50"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Main menu"
+                >
+                    <div class="absolute inset-0 bg-black/40" @click="mobileNavOpen = false"></div>
+                    <aside
+                        class="absolute inset-y-0 left-0 z-10 w-[min(100vw,18rem)] min-w-[16rem] max-w-full bg-white/95 backdrop-blur-md border-r border-amber-200/60 shadow-xl overflow-y-auto"
+                        @click.outside="mobileNavOpen = false"
+                    >
+                        <div class="flex items-center justify-between p-4 border-b border-amber-100">
+                            <span class="text-sm font-extrabold text-amber-900">Menu</span>
+                            <button
+                                type="button"
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-amber-200 text-amber-900 hover:bg-amber-50"
+                                @click="mobileNavOpen = false"
+                                aria-label="Close menu"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <div
+                            @click.capture="
+                                const a = $event.target.closest('a[href]');
+                                if (a) { const h = a.getAttribute('href'); if (h && h.indexOf('#') !== 0) mobileNavOpen = false; }
+                                if ($event.target.closest('button[type=submit]')) mobileNavOpen = false;
+                            "
+                        >
+                            @include('layouts.partials.sidebar-inner')
+                        </div>
+                    </aside>
+                </div>
+            @endif
+
+            {{-- Sidebar is fixed on md+; .app-shell__main-with-rail adds padding-left (see <style> in head) --}}
+            <div class="w-full">
+                @if($showSidebarNav)
                     @include("layouts.sidebar")
                 @endif
 
-                {{-- Main Content Area --}}
-                <div class="flex-1 flex flex-col overflow-y-auto">
+                <div class="min-w-0 w-full {{ $showSidebarNav ? 'app-shell__main-with-rail' : '' }}">
                     @isset($header)
-                        <header class="bg-white/50 border-b border-amber-100 py-8 px-8">
+                        <header class="novel-reader-focus-hide bg-white/50 dark:bg-stone-900/40 border-b border-amber-100 dark:border-stone-700 py-8 px-8">
                             <div class="max-w-7xl mx-auto">
                                 {{ $header }}
                             </div>
                         </header>
                     @endisset
 
-                    <main class="flex-grow p-8">
+                    <main class="novel-app-main p-8">
                         <div class="max-w-7xl mx-auto">
                             {{ $slot }}
                         </div>
                     </main>
-                    
-                    <footer class="py-8 px-8 border-t border-amber-100 text-center">
-                        <p class="text-amber-900/30 text-sm font-bold">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
+
+                    <footer class="novel-reader-focus-hide py-8 px-8 border-t border-amber-100 dark:border-stone-800 text-center">
+                        <p class="text-amber-900/30 dark:text-stone-500 text-sm font-bold mb-3">© {{ date("Y") }} What's My Book Name. All rights reserved.</p>
+                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs font-bold text-amber-900/45 dark:text-stone-400" aria-label="Legal">
+                            <a href="{{ route('legal.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70 dark:hover:text-amber-200">Legal</a>
+                            <span class="text-amber-300/80 dark:text-stone-600 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('feedback.index') }}" class="whitespace-nowrap transition-colors hover:text-amber-900/70 dark:hover:text-amber-200">Feedback</a>
+                        </nav>
                     </footer>
                 </div>
             </div>

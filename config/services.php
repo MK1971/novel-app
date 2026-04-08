@@ -35,4 +35,26 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
+    ],
+
+    /*
+    | Apple Sign In (deferred in UI by default): set APPLE_SIGN_IN_ENABLED=true when ready.
+    | Then set APPLE_CLIENT_SECRET (JWT, max ~6 months) OR key-based APPLE_TEAM_ID,
+    | APPLE_KEY_ID, APPLE_PRIVATE_KEY (.p8 path). Routes and Socialite stay registered.
+    */
+    'apple' => [
+        'sign_in_enabled' => filter_var(env('APPLE_SIGN_IN_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+        'client_id' => env('APPLE_CLIENT_ID'),
+        'client_secret' => env('APPLE_CLIENT_SECRET'),
+        'key_id' => env('APPLE_KEY_ID'),
+        'team_id' => env('APPLE_TEAM_ID'),
+        'private_key' => env('APPLE_PRIVATE_KEY'),
+        'passphrase' => env('APPLE_PASSPHRASE'),
+        'redirect' => env('APPLE_REDIRECT_URI', env('APP_URL').'/auth/apple/callback'),
+    ],
+
 ];

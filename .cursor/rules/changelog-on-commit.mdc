@@ -1,0 +1,26 @@
+---
+description: Update CHANGELOG.md whenever creating a git commit
+alwaysApply: true
+---
+
+# Changelog with every commit
+
+When you **create a git commit** for this repo (as part of the user’s request or workflow), **in the same batch** update **`CHANGELOG.md`** so the log stays accurate.
+
+## What to add
+
+- A new **version line** (e.g. `## Version 1.x.y - Short title`) **or** a **`## [YYYY-MM-DD] - Title`** section—match the style already used at the **top** of the file (prefer the same pattern as the most recent entry).
+- Under it, use **`### Added`**, **`### Changed`**, and/or **`### Fixed`** as appropriate.
+- Bullets: **bold lead phrase** (e.g. `**Feature name**:`) then a short, clear sentence in plain language.
+- Mention files, routes, or config only when it helps someone scanning the log.
+
+## Scope
+
+- If the commit is **trivial** (e.g. typo in a comment only), a **single bullet** under Changed or Fixed is enough.
+- **Do not** commit secrets or `.env`; changelog entries should describe behavior, not credentials.
+
+## Order
+
+- Prepend or insert new sections so **newest work appears near the top** of the changelog (consistent with `CHANGELOG.md` today).
+
+If the user explicitly says **not** to touch the changelog for a specific commit, skip this rule for that commit only.

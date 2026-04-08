@@ -1,4 +1,8 @@
-<x-app-layout>
+@php
+    $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+@endphp
+
+<x-dynamic-component :component="$layout">
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-amber-900 leading-tight">Voting Rounds Archive</h2>
     </x-slot>
@@ -24,4 +28,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-dynamic-component>

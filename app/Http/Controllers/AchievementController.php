@@ -3,63 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\Achievement;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Support\AchievementUnlock;
 use Illuminate\Support\Facades\Auth;
 
 class AchievementController extends Controller
 {
     public function index()
     {
+        AchievementUnlock::ensureDefinitionsExist();
+
         $achievements = Achievement::all();
         $userAchievements = [];
+        $progressByAchievementId = [];
         if (Auth::check()) {
-            $userAchievements = Auth::user()->achievements()->pluck('achievement_id')->toArray();
+            $authUser = Auth::user();
+            AchievementUnlock::syncForUser($authUser);
+            $userAchievements = $authUser->achievements()->pluck('achievement_id')->toArray();
+            foreach ($achievements as $achievement) {
+                $progressByAchievementId[$achievement->id] = AchievementUnlock::currentProgressToward($authUser, $achievement);
+            }
         }
-        return view('achievements.index', compact('achievements', 'userAchievements'));
+
+        return view('achievements.index', compact('achievements', 'userAchievements', 'progressByAchievementId'));
     }
 
     public function checkAndUnlock()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 
-        $user = Auth::user();
-        $achievements = Achievement::all();
-
-        foreach ($achievements as $achievement) {
-            if ($user->achievements()->where('achievement_id', $achievement->id)->exists()) {
-                continue;
-            }
-
-            $hasAchievement = false;
-            switch ($achievement->requirement_type) {
-                case 'edits_accepted':
-                    $acceptedEdits = $user->edits()->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])->count();
-                    $hasAchievement = $acceptedEdits >= $achievement->requirement_value;
-                    break;
-                case 'votes_cast':
-                    $votesCast = $user->votes()->count();
-                    $hasAchievement = $votesCast >= $achievement->requirement_value;
-                    break;
-                case 'points_earned':
-                    $hasAchievement = $user->points >= $achievement->requirement_value;
-                    break;
-                case 'chapters_read':
-                    $chaptersRead = $user->readingProgress()->count();
-                    $hasAchievement = $chaptersRead >= $achievement->requirement_value;
-                    break;
-            }
-
-            if ($hasAchievement) {
-                $user->achievements()->attach($achievement->id, ['unlocked_at' => now()]);
-            }
-        }
+        AchievementUnlock::syncForUser(Auth::user());
     }
 
     public function show(Achievement $achievement)
     {
-        return view('achievements.show', compact('achievement'));
+        AchievementUnlock::ensureDefinitionsExist();
+
+        $currentProgress = null;
+        if (Auth::check()) {
+            $authUser = Auth::user();
+            AchievementUnlock::syncForUser($authUser);
+            $currentProgress = AchievementUnlock::currentProgressToward($authUser, $achievement);
+        }
+
+        return view('achievements.show', compact('achievement', 'currentProgress'));
     }
 }
