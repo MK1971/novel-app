@@ -48,6 +48,7 @@ If domains change, update **Google** (and **Apple**) consoles **and** this table
 | `APP_DEBUG` | Yes | **`false`** in staging/prod** except short-lived debugging. |
 | `APP_URL` | Yes | Must match browser origin (scheme + host + port). Drives URLs, OAuth defaults, mail, storage URL. |
 | `ADMIN_EMAIL` | Recommended | Admin gate + seeders + notifications; see `.env.example`. |
+| `LEGAL_ENTITY_NAME`, `LEGAL_ENTITY_ADDRESS`, `LEGAL_CONTACT_EMAIL`, `LEGAL_JURISDICTION` | Recommended | Rendered on legal pages so public policies show your registered business identity and governing jurisdiction. |
 
 ---
 
@@ -242,6 +243,12 @@ MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=
 MAIL_FROM_NAME=
+
+LEGAL_ENTITY_NAME=
+LEGAL_ENTITY_ADDRESS=
+LEGAL_CONTACT_EMAIL=
+LEGAL_JURISDICTION=
+LEGAL_DISPUTE_NOTICE_DAYS=30
 
 FILESYSTEM_DISK=
 

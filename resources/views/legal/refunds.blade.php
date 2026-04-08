@@ -24,6 +24,11 @@
                             Where the product sells voting credits or similar digital entitlements, those purchases are generally <strong>final</strong> once delivered to your account, except where required by law or where we explicitly state otherwise in the app at purchase.
                         </p>
 
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">EU/UK withdrawal rights for digital content</h2>
+                        <p class="mb-6">
+                            If you are in a region with a statutory cooling-off period (such as the EU/UK), you may have withdrawal rights for digital purchases unless you expressly consent to immediate performance and acknowledge loss of withdrawal rights. When applicable, checkout terms and this policy are interpreted to honor those legal rights.
+                        </p>
+
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Paid edits and services</h2>
                         <p class="mb-6">
                             Fees for suggested edits or other services are tied to features described in the product. If a payment fails or we cannot deliver the stated feature due to an error on our side, contact us via <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> and we will review the case.
@@ -31,7 +36,12 @@
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Donations</h2>
                         <p class="mb-6">
-                            Donations are voluntary support contributions. They are separate from paid edit fees, do not grant vote credits by default, and are not represented as tax-deductible charitable gifts.
+                            Donations are voluntary support contributions. They are separate from paid edit fees, do not grant vote credits by default, and are not represented as tax-deductible charitable gifts. Donations are generally non-refundable unless required by law or due to duplicate/technical error.
+                        </p>
+
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">How to request a refund review</h2>
+                        <p class="mb-6">
+                            Submit requests through <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> within 14 days of the charge where possible. Include your account email, PayPal transaction ID, date, amount, and what went wrong. We target an initial response within 5 business days and will share resolution steps by email or in-app.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Chargebacks and abuse</h2>

@@ -20,15 +20,47 @@
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Cookies we use</h2>
-                        <ul class="list-disc pl-6 space-y-2 mb-6">
-                            <li><strong>Session</strong> — keeps you signed in and ties requests to your session.</li>
-                            <li><strong>CSRF token</strong> — helps prevent cross-site request forgery on form submissions.</li>
-                            <li><strong>Functional preferences</strong> — where the product stores choices that improve your experience (for example UI state the app explicitly saves).</li>
-                        </ul>
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-left border border-amber-200 rounded-lg overflow-hidden">
+                                <thead class="bg-amber-50 text-amber-900">
+                                    <tr>
+                                        <th class="px-3 py-2 border-b border-amber-200">Cookie</th>
+                                        <th class="px-3 py-2 border-b border-amber-200">Purpose</th>
+                                        <th class="px-3 py-2 border-b border-amber-200">Type</th>
+                                        <th class="px-3 py-2 border-b border-amber-200">Typical duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-amber-800">
+                                    <tr class="bg-white">
+                                        <td class="px-3 py-2 border-b border-amber-100"><code>laravel_session</code></td>
+                                        <td class="px-3 py-2 border-b border-amber-100">Session state and sign-in continuity</td>
+                                        <td class="px-3 py-2 border-b border-amber-100">Essential</td>
+                                        <td class="px-3 py-2 border-b border-amber-100">Session / configurable</td>
+                                    </tr>
+                                    <tr class="bg-amber-50/40">
+                                        <td class="px-3 py-2 border-b border-amber-100"><code>XSRF-TOKEN</code></td>
+                                        <td class="px-3 py-2 border-b border-amber-100">CSRF protection for form requests</td>
+                                        <td class="px-3 py-2 border-b border-amber-100">Essential</td>
+                                        <td class="px-3 py-2 border-b border-amber-100">Session / short-lived</td>
+                                    </tr>
+                                    <tr class="bg-white">
+                                        <td class="px-3 py-2"><code>localStorage</code> keys (for example theme/focus preferences)</td>
+                                        <td class="px-3 py-2">Stores user-selected UI preferences</td>
+                                        <td class="px-3 py-2">Functional</td>
+                                        <td class="px-3 py-2">Until cleared by user/browser</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Third-party and analytics</h2>
                         <p class="mb-6">
                             We do not use third-party advertising cookies on this site by default. If we add analytics or embedded media that set their own cookies, we will update this page and, where required, ask for consent in the product.
+                        </p>
+
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Consent model</h2>
+                        <p class="mb-6">
+                            Essential cookies are used to run core site features. If we introduce non-essential analytics or marketing cookies, we will add a consent banner or preference center and collect consent before those cookies are set where required by law.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Managing cookies</h2>

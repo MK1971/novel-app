@@ -4,6 +4,16 @@ This document summarizes the key changes and enhancements made to the `novel-app
 
 ## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
 ## Version 1.9.43 - Release B completion + Cloudways deploy runbook
+## Version 1.9.44 - Legal policy hardening, branding sweep, and deploy identity envs
+### Added
+- **Legal identity config:** Added `config/legal.php` and new env-driven legal identity fields so Terms/Privacy can render registered entity details consistently.
+- **Unified doc exports:** Added refreshed `docs/latest-markdown-step-by-step.md` and `docs/latest-markdown-step-by-step.docx` with current deployment and legal updates.
+### Changed
+- **Legal pages:** Expanded Terms, Privacy, Refunds, Community Guidelines, and Cookie Policy with clearer compliance language (retention windows, dispute notice, appeals, cookie details, and withdrawal notes).
+- **Deploy runbooks:** Added required post-deploy legal env steps (`LEGAL_ENTITY_*`, jurisdiction, dispute notice days) and explicit verification checks for legal pages.
+- **Project docs branding:** Replaced scaffolded README framework boilerplate with WhatsMyBookName project-specific setup/deploy guidance.
+
+## Version 1.9.43 - Release B completion + Cloudways deploy runbook
 ### Added
 - **Cloudways deployment runbook:** Added `docs/cloudways-deploy-readiness-and-runbook.md` with step-by-step staging/production setup, webhook setup, smoke tests, and server command checklist.
 - **Deploy scripts:** Added `scripts/deploy/server_post_deploy.sh` (server post-pull automation) and `scripts/deploy/webhook_test_local.sh` (local webhook simulation helper).

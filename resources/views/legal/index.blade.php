@@ -37,6 +37,10 @@
                     <p class="mt-10 text-sm font-bold text-amber-800/70">
                         Questions? <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Send feedback</a>.
                     </p>
+
+                    <p class="mt-3 text-xs text-amber-800/60">
+                        Legal identity source: <code>LEGAL_ENTITY_NAME</code>, <code>LEGAL_ENTITY_ADDRESS</code>, <code>LEGAL_CONTACT_EMAIL</code>, and <code>LEGAL_JURISDICTION</code> in environment settings.
+                    </p>
                 </div>
             </div>
         </div>

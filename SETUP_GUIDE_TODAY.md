@@ -1,13 +1,13 @@
 # Novel App Setup Guide – Steps Completed Today
 
 **Project:** Crowdsourced Novel App – "The Book With No Name"  
-**Stack:** Laravel 12, PHP 8.3, MySQL, PayPal, Blade
+**Stack:** WhatsMyBookName app, PHP 8.3, MySQL, PayPal, Blade
 
 ---
 
 ## Phase 1: Initial Setup (Previously Completed)
 
-- Installed Laravel with Breeze (auth)
+- Installed app authentication stack (Breeze)
 - Installed Node.js and npm
 - Set up basic project structure
 

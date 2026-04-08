@@ -31,6 +31,14 @@ Use this file as your step-by-step script when each environment is first created
 - `APP_KEY=<generated key>`
 - `MAIL_FROM_NAME=WhatsMyBookName`
 
+### Legal identity (new, required for policy pages)
+
+- `LEGAL_ENTITY_NAME=<registered legal entity>`
+- `LEGAL_ENTITY_ADDRESS=<registered address>`
+- `LEGAL_CONTACT_EMAIL=<legal/privacy contact email>`
+- `LEGAL_JURISDICTION=<governing jurisdiction>`
+- `LEGAL_DISPUTE_NOTICE_DAYS=30`
+
 ### Database/session/cache/queue
 
 - `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
@@ -123,6 +131,10 @@ To verify auth mode in UI:
 6. webhook:
    - trigger PayPal test webhook
    - one donation row (deduped on repeated event)
+7. legal pages:
+   - open `/legal`, `/terms`, `/privacy`, `/legal/refunds`, `/legal/community`, `/legal/cookies`
+   - verify legal entity name/address/contact/jurisdiction render correctly
+   - verify no placeholder copy remains
 
 ---
 
@@ -130,6 +142,8 @@ To verify auth mode in UI:
 
 - Clear caches:
   - `php artisan optimize:clear`
+- Reload config after env updates:
+  - `php artisan optimize:clear && php artisan config:cache`
 - Re-cache config/routes/views:
   - `php artisan config:cache && php artisan route:cache && php artisan view:cache`
 - Restart queue worker:

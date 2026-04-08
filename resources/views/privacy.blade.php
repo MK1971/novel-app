@@ -14,6 +14,11 @@
                             This page describes how {{ config('app.name') }} (“we”, “us”) handles information when you use the site. It is a plain-language summary, not legal advice. We may update it from time to time; the date above will change when we do.
                         </p>
 
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Data controller</h2>
+                        <p class="mb-6">
+                            Data controller: <strong>{{ config('legal.entity_name') }}</strong>@if(filled(config('legal.entity_address'))) · {{ config('legal.entity_address') }}@endif. Privacy contact: <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a>@if(filled(config('legal.contact_email'))) or <a href="mailto:{{ config('legal.contact_email') }}" class="text-amber-700 underline hover:text-amber-900">{{ config('legal.contact_email') }}</a>@endif.
+                        </p>
+
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">What we collect</h2>
                         <ul class="list-disc pl-6 space-y-2 mb-6">
                             <li><strong>Account data</strong> — such as name and email, if you register or sign in.</li>
@@ -31,7 +36,7 @@
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Payments</h2>
                         <p class="mb-6">
-                            Payments are processed by <strong>PayPal</strong>. We do not store your full card details or your PayPal credentials on our servers. PayPal handles payment authentication according to its own policies. We may store metadata needed to operate purchases (for example transaction identifiers, amounts, timestamps, and status) and to provide history in your account where the product supports it.
+                            Payments are processed by <strong>PayPal</strong>. We do not store your full card details or your PayPal credentials on our servers. PayPal handles payment authentication according to its own policies. We may store metadata needed to operate purchases (for example transaction identifiers, amounts, timestamps, and status) and to provide history in your account where the product supports it. See PayPal’s policy at <a href="https://www.paypal.com/privacy" class="text-amber-700 underline hover:text-amber-900">paypal.com/privacy</a>.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Sharing</h2>
@@ -45,9 +50,11 @@
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Retention</h2>
-                        <p class="mb-6">
-                            We keep information only as long as needed for the purposes above, including legal, accounting, and security needs. Account and transaction-related records may be retained for a period after closure where law or dispute resolution requires. Technical logs are typically kept for a shorter rolling period unless an incident requires longer retention.
-                        </p>
+                        <ul class="list-disc pl-6 space-y-2 mb-6">
+                            <li><strong>Account profile data:</strong> retained while account is active, then generally removed or anonymized within 30 days after validated deletion requests unless legal obligations require longer retention.</li>
+                            <li><strong>Payment and tax-relevant metadata:</strong> retained up to 7 years where needed for accounting, audit, chargeback, fraud prevention, and legal compliance.</li>
+                            <li><strong>Security and technical logs:</strong> typically retained on a rolling window (about 90 days), except where incident investigation requires longer retention.</li>
+                        </ul>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Cookies</h2>
                         <p class="mb-6">
@@ -56,7 +63,12 @@
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Your choices</h2>
                         <p class="mb-6">
-                            You can review or update account details in your profile where the product supports it. You can turn off your public profile, hide yourself from the public leaderboard, or request <code class="text-sm">noindex</code> for your public page from profile settings when those options are available. For privacy requests (access, correction, deletion, or other rights offered in your region), contact us using <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> in the footer so we can verify and respond. We may need to keep certain records where law requires.
+                            You can review or update account details in your profile where the product supports it. You can turn off your public profile, hide yourself from the public leaderboard, or request <code class="text-sm">noindex</code> for your public page from profile settings when those options are available. For privacy requests (access, correction, deletion, or other rights offered in your region), contact us using <a href="{{ route('feedback.index') }}" class="text-amber-700 underline hover:text-amber-900">Feedback</a> in the footer so we can verify and respond. We target response within 30 days for validated requests. We may need to keep certain records where law requires.
+                        </p>
+
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">International transfers and complaints</h2>
+                        <p class="mb-6">
+                            Some providers we use (including PayPal) may process data in countries different from yours. Where required, we rely on lawful transfer mechanisms and contractual safeguards. If you are in a region with supervisory authorities (for example under GDPR), you also have the right to lodge a complaint with your local authority.
                         </p>
 
                         <p class="mt-10 text-sm font-bold text-amber-800/70">
