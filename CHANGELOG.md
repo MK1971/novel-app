@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.45 - MySQL: paragraph_reactions unique index name
+### Fixed
+- **`paragraph_reactions` migration:** Gave the composite unique index an explicit short name (`para_react_user_ch_idx_type_unq`) so MySQL no longer rejects the migration with **identifier name too long** (error 1059).
+
 ## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
 ## Version 1.9.43 - Release B completion + Cloudways deploy runbook
 ## Version 1.9.44 - Legal policy hardening, branding sweep, and deploy identity envs

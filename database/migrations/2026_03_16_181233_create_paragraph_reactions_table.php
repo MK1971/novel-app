@@ -18,7 +18,10 @@ return new class extends Migration
             $table->integer('paragraph_index');
             $table->string('reaction_type'); // 'like', 'love', 'wow', 'sad'
             $table->timestamps();
-            $table->unique(['user_id', 'chapter_id', 'paragraph_index', 'reaction_type']);
+            $table->unique(
+                ['user_id', 'chapter_id', 'paragraph_index', 'reaction_type'],
+                'para_react_user_ch_idx_type_unq'
+            );
         });
     }
 
