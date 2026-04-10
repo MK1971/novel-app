@@ -185,8 +185,19 @@ class Chapter extends Model
     {
         $t = trim((string) ($this->title ?? ''));
         $p = $this->headingPrefix();
+        $section = (string) ($this->list_section ?? self::LIST_SECTION_CHAPTER);
+        $isSpecialSection = in_array($section, [
+            self::LIST_SECTION_COLD_OPEN,
+            self::LIST_SECTION_PROLOG,
+            self::LIST_SECTION_EPILOG,
+        ], true);
 
-        return $t !== '' ? $p.': '.$t : $p;
+        if ($t !== '') {
+            // For special sections, avoid repeating section labels in reader headings.
+            return $isSpecialSection ? $t : $p.': '.$t;
+        }
+
+        return $p;
     }
 
     /**
