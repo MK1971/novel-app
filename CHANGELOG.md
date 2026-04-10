@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.46 - Dark mode readability + environment-safe social auth
+### Fixed
+- **Dark mode contrast guard:** Added a base CSS safeguard so elements that keep a white background in dark mode cannot render low-contrast light-amber text.
+- **Cross-environment OAuth redirects:** Social login buttons and auth redirects are now gated by host matching, so dev/staging won't surface providers configured with production redirect URLs.
+
 ## Version 1.9.45 - MySQL: paragraph_reactions unique index name
 ### Fixed
 - **`paragraph_reactions` migration:** Gave the composite unique index an explicit short name (`para_react_user_ch_idx_type_unq`) so MySQL no longer rejects the migration with **identifier name too long** (error 1059).
