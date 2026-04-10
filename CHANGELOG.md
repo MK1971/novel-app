@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.48 - Admin close flow + public edits column fix + modal usability
+### Fixed
+- **Public edits feed query:** Replaced an invalid `chapters.chapter_number` select with `chapters.number`, resolving SQL 1054 errors on `edits.public`.
+- **Paragraph edit modal accessibility:** The chapter inline-edit modal now supports viewport-safe scrolling and includes a persistent top-right close button so actions remain reachable on small screens.
+### Changed
+- **Admin chapter force-close:** `Close without merged text` for TBWNN now allows locking any open chapter immediately, so admins can proceed to upload the next chapter without moderation gating.
+- **Admin guidance copy:** Updated chapter management instructions and confirmation text to clearly describe force-close behavior and next-step upload flow.
+
 ## Version 1.9.47 - Vote warning scales by participation
 ### Changed
 - **Vote warning behavior:** On `vote.index`, the large restriction hero now appears only for users with no edit and no vote history; users who already submitted an edit or already voted now always see a compact status message instead.

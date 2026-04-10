@@ -45,7 +45,7 @@
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-2">📖 The Book With No Name</h3>
                 <p class="text-amber-800/60 font-bold mb-4">Add a new chapter. Previous chapters will be automatically locked for editing.</p>
                 <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">
-                    For each <strong>open</strong> chapter: if you have <strong>accepted</strong> suggestions, use <strong>Publish integrated revision</strong> — the preview highlights accepted contributions in green; edit the merged text in the box if needed, then lock. If you have <strong>no accepted</strong> suggestions (and nothing still pending), paste your <strong>own final text</strong> and use the same button to lock. If the window ended with <strong>all rejected</strong> and nothing pending, you can use <strong>Close without merged text</strong> instead.
+                    For each <strong>open</strong> chapter: if you have <strong>accepted</strong> suggestions, use <strong>Publish integrated revision</strong> — the preview highlights accepted contributions in green; edit the merged text in the box if needed, then lock. If you want to move on without merging suggestion text, use <strong>Close without merged text</strong> to force-lock the chapter and upload the next one.
                 </p>
 
                 @php
@@ -147,7 +147,7 @@
                                         {{ $rev['has_accepted'] ? 'Publish integrated revision & lock' : 'Upload final version & lock' }}
                                     </button>
                                 </form>
-                                <form action="{{ route('admin.chapters.close-story-without-merge', $openCh) }}" method="POST" class="border-t border-amber-100 pt-4" onsubmit="return confirm('Close this chapter without uploading merged text? Only allowed when the window ended and there are no pending suggestions and none accepted.');">
+                                <form action="{{ route('admin.chapters.close-story-without-merge', $openCh) }}" method="POST" class="border-t border-amber-100 pt-4" onsubmit="return confirm('Force-close this chapter without uploading merged text? This locks the chapter immediately so you can upload the next chapter.');">
                                     @csrf
                                     <button type="submit" class="px-6 py-2 bg-amber-200 text-amber-900 font-extrabold rounded-xl hover:bg-amber-300">Close without merged text</button>
                                 </form>

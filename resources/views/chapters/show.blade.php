@@ -528,8 +528,16 @@
 
     {{-- Inline Edit Modal --}}
     @auth
-    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
+    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+        <div class="relative my-4 bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
+            <button
+                type="button"
+                onclick="closeInlineEdit()"
+                class="absolute top-4 right-4 w-10 h-10 rounded-xl bg-amber-100 text-amber-900 font-black hover:bg-amber-200 transition-colors"
+                aria-label="Close paragraph edit dialog"
+            >
+                ×
+            </button>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Suggest paragraph edit</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> checkout. Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">

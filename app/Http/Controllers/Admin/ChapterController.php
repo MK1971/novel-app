@@ -198,7 +198,7 @@ class ChapterController extends Controller
         if (! ChapterLifecycle::canCloseTbwWithoutMergedUpload($chapter)) {
             return back()->with(
                 'error',
-                'You can only close without merged text when the 30-day window has ended, all suggestions were rejected, and none are still pending.'
+                'This chapter is already locked or is not part of The Book With No Name.'
             );
         }
 
