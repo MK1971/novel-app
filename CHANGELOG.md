@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.47 - Vote warning scales by participation
+### Changed
+- **Vote warning behavior:** On `vote.index`, the large restriction hero now appears only for users with no edit and no vote history; users who already submitted an edit or already voted now always see a compact status message instead.
+- **Participation-aware context:** Added controller view flags for `hasEverSubmittedEdit` / `hasEverVoted` so the vote page can keep warning size consistent after first participation.
+
 ## Version 1.9.46 - Dark mode readability + environment-safe social auth
 ### Fixed
 - **Dark mode contrast guard:** Added a base CSS safeguard so elements that keep a white background in dark mode cannot render low-contrast light-amber text.
