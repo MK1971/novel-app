@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Models\SocialAccount;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -42,6 +43,23 @@ class SocialAuthTest extends TestCase
 
         $this->get(route('social.redirect', ['provider' => 'google']))
             ->assertNotFound();
+    }
+
+    public function test_google_considered_configured_when_redirect_and_request_differ_only_by_www(): void
+    {
+        config([
+            'services.google.client_id' => 'test-id',
+            'services.google.client_secret' => 'test-secret',
+            'services.google.redirect' => 'https://www.example.test/auth/google/callback',
+        ]);
+
+        $this->assertTrue(SocialAuthController::providerConfigured('google', 'example.test'));
+        $this->assertTrue(SocialAuthController::providerConfigured('google', 'www.example.test'));
+
+        config(['services.google.redirect' => 'https://example.test/auth/google/callback']);
+
+        $this->assertTrue(SocialAuthController::providerConfigured('google', 'example.test'));
+        $this->assertTrue(SocialAuthController::providerConfigured('google', 'www.example.test'));
     }
 
     public function test_google_redirect_redirects_to_provider_when_configured(): void

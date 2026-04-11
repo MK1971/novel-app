@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.50 - OAuth: www vs apex host match for Google/Apple UI
+### Fixed
+- **Social login visibility:** `SocialAuthController` now treats the configured OAuth redirect host and the current request host as matching when they differ only by a leading `www.` (e.g. apex vs www), so the Google/Apple buttons show on both URLs while env still uses a single canonical `GOOGLE_REDIRECT_URI`.
+
 ## Version 1.9.49 - Production one-shot deploy + NVM for Vite
 ### Added
 - **`scripts/deploy/prod_one_shot.sh`:** One-shot production deploy (composer before `key:generate`, merge `APP_*` / PayPal / Google / DB / `MAIL_*` from optional `prod_secrets.local.sh`, migration recovery for `paragraph_reactions`, Vite build, Laravel caches, health curl). Loads **NVM** (`~/.nvm`) before `npm` when present (e.g. Cloudways) and logs which `node` binary runs.

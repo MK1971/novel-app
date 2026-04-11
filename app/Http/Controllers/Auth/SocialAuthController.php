@@ -165,6 +165,15 @@ class SocialAuthController extends Controller
             return true;
         }
 
-        return $redirectHost === $currentHost;
+        if ($redirectHost === $currentHost) {
+            return true;
+        }
+
+        // Same site with or without leading www (e.g. apex vs www) so OAuth buttons show on both URLs.
+        $stripWww = static function (string $host): string {
+            return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
+        };
+
+        return $stripWww($redirectHost) === $stripWww($currentHost);
     }
 }
