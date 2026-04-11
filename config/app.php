@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin operator email
+    |--------------------------------------------------------------------------
+    |
+    | Used for the admin Gate, leaderboard exclusion, and notification fallback.
+    | Must live in config (not only env() at runtime) so it works with config:cache.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@example.com'),
+
 ];

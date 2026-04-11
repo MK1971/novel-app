@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.52 - ADMIN_EMAIL works with config:cache
+### Fixed
+- **Admin gate and `ADMIN_EMAIL`:** `ADMIN_EMAIL` is now **`config('app.admin_email')`**, set from **`.env`** in **`config/app.php`**. Runtime **`env('ADMIN_EMAIL')`** in **`AppServiceProvider`** and related code did not work after **`php artisan config:cache`** (Laravel only loads **`.env`** into config at cache build time), so production admins matched only **`is_admin`** or the wrong default.
+- **Call sites:** **`LeaderboardController`**, **`AdminNotifier`**, **`ResetAppDataCommand`**, and **`AdminOnlySeeder`** now read the same config key.
+
+### Added
+- **`AdminEmailConfigGateTest`:** Asserts the admin gate honors **`app.admin_email`** when **`is_admin`** is false.
+
 ## Version 1.9.51 - Inline edit delete respects admin gate
 ### Fixed
 - **`InlineEditController::destroy`:** Deleting another user’s inline edit now uses **`Gate::allows('admin')`** instead of **`is_admin`** on the model, so operators granted admin via **`ADMIN_EMAIL`** behave the same as **`is_admin`** users.

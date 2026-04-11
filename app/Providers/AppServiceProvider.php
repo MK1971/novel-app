@@ -51,11 +51,13 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('layouts.guest', 'guest-layout');
 
         Gate::define('admin', function (User $user) {
-            return $user->is_admin === true || $user->email === env('ADMIN_EMAIL', 'admin@example.com');
+            $adminEmail = (string) config('app.admin_email', 'admin@example.com');
+
+            return $user->is_admin === true || $user->email === $adminEmail;
         });
 
         View::composer(['layouts.app', 'layouts.guest'], function ($view) {
-            $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
+            $adminEmail = (string) config('app.admin_email', 'admin@example.com');
             $topLeader = Cache::remember('layout.top_leader.v2', 60, function () use ($adminEmail) {
                 return User::query()
                     ->where('email', '!=', $adminEmail)

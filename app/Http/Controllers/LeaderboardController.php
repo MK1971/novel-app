@@ -12,7 +12,7 @@ class LeaderboardController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
+        $adminEmail = (string) config('app.admin_email', 'admin@example.com');
 
         $period = $request->query('period', LeaderboardScoring::PERIOD_ALL);
         if (! in_array($period, [LeaderboardScoring::PERIOD_ALL, LeaderboardScoring::PERIOD_30_DAYS], true)) {

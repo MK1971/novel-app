@@ -36,7 +36,7 @@ class ResetAppDataCommand extends Command
 
         $this->getLaravel()->make(AdminOnlySeeder::class)->run();
 
-        $email = env('ADMIN_EMAIL', 'admin@example.com');
+        $email = (string) config('app.admin_email', 'admin@example.com');
         $this->components->info("Done. Login: {$email} / password");
 
         return self::SUCCESS;
