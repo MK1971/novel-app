@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.51 - Inline edit delete respects admin gate
+### Fixed
+- **`InlineEditController::destroy`:** Deleting another user’s inline edit now uses **`Gate::allows('admin')`** instead of **`is_admin`** on the model, so operators granted admin via **`ADMIN_EMAIL`** behave the same as **`is_admin`** users.
+
 ## Version 1.9.50 - OAuth: www vs apex host match for Google/Apple UI
 ### Fixed
 - **Social login visibility:** `SocialAuthController` now treats the configured OAuth redirect host and the current request host as matching when they differ only by a leading `www.` (e.g. apex vs www), so the Google/Apple buttons show on both URLs while env still uses a single canonical `GOOGLE_REDIRECT_URI`.
