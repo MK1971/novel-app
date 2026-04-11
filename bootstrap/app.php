@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        // Applied globally so /up (health) and web routes all send baseline headers.
+        $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         // Apple OAuth POST callback; only needed when APPLE_SIGN_IN_ENABLED=true and Apple is used.
         $middleware->validateCsrfTokens(except: [
             'auth/apple/callback',
