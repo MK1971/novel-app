@@ -2,6 +2,12 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.49 - Production one-shot deploy + NVM for Vite
+### Added
+- **`scripts/deploy/prod_one_shot.sh`:** One-shot production deploy (composer before `key:generate`, merge `APP_*` / PayPal / Google / DB / `MAIL_*` from optional `prod_secrets.local.sh`, migration recovery for `paragraph_reactions`, Vite build, Laravel caches, health curl). Loads **NVM** (`~/.nvm`) before `npm` when present (e.g. Cloudways) and logs which `node` binary runs.
+### Changed
+- **`.gitignore`:** Ignore `scripts/deploy/prod_secrets.local.sh` so deploy credentials are not committed.
+
 ## Version 1.9.48 - Admin close flow + public edits column fix + modal usability
 ### Fixed
 - **Public edits feed query:** Replaced an invalid `chapters.chapter_number` select with `chapters.number`, resolving SQL 1054 errors on `edits.public`.
