@@ -2,6 +2,13 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.60 - Cloudways: one-shot all-env deploy + cron uses git_repo
+### Added
+- **`scripts/deploy/cloudways_all_envs_once.sh`:** Run **once** with **`sudo bash …`** on the Cloudways server — pulls **Development**, **staging**, and **Production** in each **`git_repo`**, **rsync** to **`public_html`**, then **`dev_after_pull`** or **`server_post_deploy`** as the **`master_…`** user.
+
+### Fixed
+- **`cron_git_pull_deploy.sh`:** Uses **`NOVEL_GIT_DIR`** (default **`…/git_repo`**) for **`git fetch` / merge**; **rsync** into **`NOVEL_APP_ROOT`** (`public_html`) so cron matches Cloudways layout (repo is not inside `public_html`).
+
 ## Version 1.9.59 - Landing: Peter Trull card copy tweak
 ### Changed
 - **`welcome.blade.php`:** Peter Trull teaser — “A mystery shaped by you” → “A mystery shaped by ghosts that haunt the traumatized.”
