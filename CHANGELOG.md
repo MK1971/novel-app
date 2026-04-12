@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.61 - Cloudways: verify all envs + deploy-all wrapper
+### Added
+- **`scripts/deploy/cloudways_verify_all_envs.sh`:** Read-only SSH check — branch/HEAD per app and **`git_repo` → `public_html`** sync on **`routes/web.php`** and **`cron_git_pull_deploy.sh`**.
+- **`scripts/deploy/cloudways_deploy_all.sh`:** Re-invokes **`cloudways_all_envs_once.sh`** with **`sudo`** (one command after **`git push`**).
+
+### Changed
+- **`cloudways_all_envs_once.sh`:** Header documents **`cloudways_deploy_all.sh`** and **`cloudways_verify_all_envs.sh`**.
+
 ## Version 1.9.60 - Cloudways: one-shot all-env deploy + cron uses git_repo
 ### Added
 - **`scripts/deploy/cloudways_all_envs_once.sh`:** Run **once** with **`sudo bash …`** on the Cloudways server — pulls **Development**, **staging**, and **Production** in each **`git_repo`**, **rsync** to **`public_html`**, then **`dev_after_pull`** or **`server_post_deploy`** as the **`master_…`** user.

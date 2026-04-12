@@ -3,9 +3,15 @@
 # ONE command for Cloudways after you push to GitHub: pull all three app branches,
 # rsync git_repo → public_html, then composer/migrate/build per environment.
 #
-# Run ONCE per maintenance window (SSH into the server):
+# Run ONCE per maintenance window (SSH into the server). Easiest (one sudo):
 #
-#   sudo bash /path/to/novel-app/scripts/deploy/cloudways_all_envs_once.sh
+#   bash /path/to/git_repo/scripts/deploy/cloudways_deploy_all.sh
+#
+# Or explicitly:
+#
+#   sudo bash /path/to/git_repo/scripts/deploy/cloudways_all_envs_once.sh
+#
+# Verify only (no deploy, no sudo): scripts/deploy/cloudways_verify_all_envs.sh
 #
 # If the script is not on disk yet, paste from GitHub or copy from git_repo after a panel Pull.
 # Requires root so git can write to /path/to/.../git_repo/.git (Cloudways default ownership).
