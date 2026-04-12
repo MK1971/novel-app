@@ -1,27 +1,28 @@
 #!/usr/bin/env bash
 #
-# Cron-friendly: fetch GitHub, fast-forward local branch if behind, then run deploy steps.
-# Intended for Cloudways (or any Linux host) with deploy keys / SSH access to GitHub.
+# Cron-friendly: update from GitHub, sync into the live Laravel tree, then run deploy steps.
 #
-# Configure with environment variables (recommended in cron wrapper or systemd):
+# Cloudways layout: git checkout lives in ../git_repo next to public_html (NOT inside public_html).
+# Set NOVEL_APP_ROOT to public_html (where artisan lives). Optionally set NOVEL_GIT_DIR to the
+# git_repo path; default: $(dirname NOVEL_APP_ROOT)/git_repo
 #
-#   NOVEL_APP_ROOT     Required. Absolute path to the Laravel project root (where artisan lives).
-#   NOVEL_GIT_BRANCH   Tracked branch for this server (default: Development).
+#   NOVEL_APP_ROOT     Required. Laravel project root (e.g. .../public_html).
+#   NOVEL_GIT_DIR      Optional. Git working copy (e.g. .../git_repo). Default: sibling git_repo.
+#   NOVEL_GIT_BRANCH   Tracked branch (default: Development).
 #   NOVEL_GIT_REMOTE   Default: origin
-#   NOVEL_DEPLOY_PROFILE  "dev" = scripts/deploy/dev_after_pull.sh
-#                         "production" = scripts/deploy/server_post_deploy.sh (composer --no-dev, caches)
+#   NOVEL_DEPLOY_PROFILE  dev → dev_after_pull.sh | production → server_post_deploy.sh
 #
-# Example crontab (every 5 minutes):
+# Example Application Cron (every 5 min) — dev app; log path must be writable:
 #
-#   NOVEL_APP_ROOT=/home/master/applications/XXXX/public_html
+#   NOVEL_APP_ROOT=/home/1611332.cloudwaysapps.com/ktdekqzmvx/public_html
+#   NOVEL_GIT_DIR=/home/1611332.cloudwaysapps.com/ktdekqzmvx/git_repo
 #   NOVEL_GIT_BRANCH=Development
 #   NOVEL_DEPLOY_PROFILE=dev
-#   */5 * * * * . $HOME/.profile 2>/dev/null; env NOVEL_APP_ROOT=... NOVEL_GIT_BRANCH=Development NOVEL_DEPLOY_PROFILE=dev /bin/bash /path/to/novel-app/scripts/deploy/cron_git_pull_deploy.sh >> /path/to/novel-app/storage/logs/cron-deploy.log 2>&1
+#   */5 * * * * . "$HOME/.nvm/nvm.sh" 2>/dev/null; env NOVEL_APP_ROOT=... NOVEL_GIT_DIR=... NOVEL_GIT_BRANCH=Development NOVEL_DEPLOY_PROFILE=dev /bin/bash /home/.../public_html/scripts/deploy/cron_git_pull_deploy.sh >> /home/.../public_html/storage/logs/cron-deploy.log 2>&1
 #
-# Notes:
-# - Use flock so overlapping cron runs do not stack composer/npm twice.
-# - Ensure git on the server can fetch (SSH deploy key or HTTPS token); test: git fetch origin.
-# - For production, set NOVEL_GIT_BRANCH=Production and NOVEL_DEPLOY_PROFILE=production.
+# If git fetch fails with "Permission denied" on .git, the repo is owned by root: run
+#   sudo bash scripts/deploy/cloudways_all_envs_once.sh
+# once, or run this cron as root, or chown the git_repo .git to the cron user.
 #
 set -euo pipefail
 
@@ -29,16 +30,17 @@ log() {
   printf '[%s] %s\n' "$(date '+%Y-%m-%dT%H:%M:%S%z' 2>/dev/null || date)" "$*"
 }
 
-: "${NOVEL_APP_ROOT:?Set NOVEL_APP_ROOT to the Laravel project root (absolute path)}"
+: "${NOVEL_APP_ROOT:?Set NOVEL_APP_ROOT to the Laravel project root (absolute path, e.g. .../public_html)}"
 
 NOVEL_GIT_BRANCH="${NOVEL_GIT_BRANCH:-Development}"
 NOVEL_GIT_REMOTE="${NOVEL_GIT_REMOTE:-origin}"
 NOVEL_DEPLOY_PROFILE="${NOVEL_DEPLOY_PROFILE:-dev}"
 
-cd "$NOVEL_APP_ROOT"
+APP_BASE="$(cd "$(dirname "$NOVEL_APP_ROOT")" && pwd)"
+NOVEL_GIT_DIR="${NOVEL_GIT_DIR:-${APP_BASE}/git_repo}"
 
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  log "ERROR: not a git repository: $NOVEL_APP_ROOT"
+if [[ ! -d "${NOVEL_GIT_DIR}/.git" ]]; then
+  log "ERROR: not a git repository: $NOVEL_GIT_DIR (set NOVEL_GIT_DIR to your Cloudways git_repo path)"
   exit 1
 fi
 
@@ -52,29 +54,39 @@ fi
 
 UPSTREAM="${NOVEL_GIT_REMOTE}/${NOVEL_GIT_BRANCH}"
 
-log "fetch $NOVEL_GIT_REMOTE $NOVEL_GIT_BRANCH"
-git fetch "$NOVEL_GIT_REMOTE" "$NOVEL_GIT_BRANCH"
-
-if ! git rev-parse --verify "$UPSTREAM" >/dev/null 2>&1; then
-  log "ERROR: missing $UPSTREAM after fetch — check branch name and remote"
+log "git fetch in $NOVEL_GIT_DIR ($NOVEL_GIT_BRANCH)"
+if ! git -C "$NOVEL_GIT_DIR" fetch "$NOVEL_GIT_REMOTE" "$NOVEL_GIT_BRANCH" 2>&1; then
+  log "ERROR: git fetch failed — if you see 'Permission denied' on .git, run: sudo bash scripts/deploy/cloudways_all_envs_once.sh"
   exit 1
 fi
 
-LOCAL=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse "$UPSTREAM")
+if ! git -C "$NOVEL_GIT_DIR" rev-parse --verify "$UPSTREAM" >/dev/null 2>&1; then
+  log "ERROR: missing $UPSTREAM after fetch — check branch name"
+  exit 1
+fi
+
+LOCAL=$(git -C "$NOVEL_GIT_DIR" rev-parse HEAD)
+REMOTE=$(git -C "$NOVEL_GIT_DIR" rev-parse "$UPSTREAM")
 
 if [[ "$LOCAL" == "$REMOTE" ]]; then
-  log "up-to-date $LOCAL ($NOVEL_GIT_BRANCH)"
+  log "up-to-date $(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD) ($NOVEL_GIT_BRANCH)"
   exit 0
 fi
 
-log "deploy: $LOCAL -> $REMOTE ($NOVEL_GIT_BRANCH)"
+log "deploy ${NOVEL_GIT_BRANCH}: $(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD) -> $(git -C "$NOVEL_GIT_DIR" rev-parse --short "$REMOTE")"
 
-# Ensure we are on the right branch (avoids detached HEAD surprises)
-git checkout "$NOVEL_GIT_BRANCH"
+git -C "$NOVEL_GIT_DIR" checkout "$NOVEL_GIT_BRANCH"
+git -C "$NOVEL_GIT_DIR" merge --ff-only "$UPSTREAM"
 
-# Fast-forward only — fails if local commits diverge (needs manual merge)
-git merge --ff-only "$UPSTREAM"
+log "rsync git_repo -> public_html (preserving .env storage vendor)"
+rsync -rt --no-perms --no-owner --no-group --omit-dir-times \
+  --exclude ".env" \
+  --exclude ".env.*" \
+  --exclude "storage/" \
+  --exclude "vendor/" \
+  --exclude "node_modules/" \
+  --exclude ".git/" \
+  "${NOVEL_GIT_DIR}/" "${NOVEL_APP_ROOT}/"
 
 run_deploy() {
   case "$NOVEL_DEPLOY_PROFILE" in
@@ -93,4 +105,4 @@ run_deploy() {
 
 run_deploy
 
-log "done $NOVEL_GIT_BRANCH=$(git rev-parse --short HEAD)"
+log "done $NOVEL_GIT_BRANCH=$(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD)"
