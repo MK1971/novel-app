@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.56 - Dev post-pull helper script
+### Added
+- **`scripts/deploy/dev_after_pull.sh`:** Run on Cloudways after **`git pull`** on dev/staging — composer, migrate, **`optimize:clear`**, optional **`npm run build`**, queue restart; prints git tip and checks for landing copy marker.
+
 ## Version 1.9.55 - Landing: prizes progression + journey copy
 ### Changed
 - **`welcome.blade.php`:** Joy-first hero (“Be part of a living novel…”). **The Journey** reframed as “Two books. Two ways to play.” with a clear two-book explanation and **Learn how it all works →** to `#landing-how-steps`. New **What You Could Win** block after the Peter Trull card (prize ladder + leaderboard line + link to **`prizes`**).
