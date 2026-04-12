@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.57 - Cron git pull + deploy
+### Added
+- **`scripts/deploy/cron_git_pull_deploy.sh`:** For **cron** on the app server — **`git fetch`**, skip if already up to date, **`git merge --ff-only`** when GitHub is ahead, then **`dev_after_pull`** or **`server_post_deploy`** via **`NOVEL_DEPLOY_PROFILE`**. Uses **`flock`** to avoid overlapping runs; **`NOVEL_APP_ROOT`** / **`NOVEL_GIT_BRANCH`** / lock path documented in script header.
+
 ## Version 1.9.56 - Dev post-pull helper script
 ### Added
 - **`scripts/deploy/dev_after_pull.sh`:** Run on Cloudways after **`git pull`** on dev/staging — composer, migrate, **`optimize:clear`**, optional **`npm run build`**, queue restart; prints git tip and checks for landing copy marker.
