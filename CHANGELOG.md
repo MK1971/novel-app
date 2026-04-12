@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.58 - Cloudways: copy deploy scripts into public_html
+### Added
+- **`scripts/deploy/cloudways_copy_deploy_scripts.sh`:** On Cloudways SSH, copies **`cron_git_pull_deploy.sh`** and **`dev_after_pull.sh`** from **`git_repo/scripts/deploy`** into **`public_html/scripts/deploy`** when the panel pull updated **`git_repo`** but **`public_html`** does not yet contain those files (needed for Application Cron / **`NOVEL_APP_ROOT`**).
+
 ## Version 1.9.57 - Cron git pull + deploy
 ### Added
 - **`scripts/deploy/cron_git_pull_deploy.sh`:** For **cron** on the app server — **`git fetch`**, skip if already up to date, **`git merge --ff-only`** when GitHub is ahead, then **`dev_after_pull`** or **`server_post_deploy`** via **`NOVEL_DEPLOY_PROFILE`**. Uses **`flock`** to avoid overlapping runs; **`NOVEL_APP_ROOT`** / **`NOVEL_GIT_BRANCH`** / lock path documented in script header.
