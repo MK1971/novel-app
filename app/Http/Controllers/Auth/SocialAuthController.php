@@ -24,19 +24,21 @@ class SocialAuthController extends Controller
     {
         $provider = strtolower($provider);
         abort_unless(in_array($provider, self::PROVIDERS, true), 404);
-        abort_unless(self::providerConfigured($provider), 404);
+        abort_unless(self::providerConfigured($provider, $request->getHost()), 404);
 
-        return Socialite::driver($provider)->redirect();
+        // Stateless OAuth avoids "invalid state" on the first request when the session cookie
+        // is not yet established (common with modal login + immediate Google redirect).
+        return Socialite::driver($provider)->stateless()->redirect();
     }
 
     public function callback(Request $request, string $provider): RedirectResponse
     {
         $provider = strtolower($provider);
         abort_unless(in_array($provider, self::PROVIDERS, true), 404);
-        abort_unless(self::providerConfigured($provider), 404);
+        abort_unless(self::providerConfigured($provider, $request->getHost()), 404);
 
         try {
-            $oauthUser = Socialite::driver($provider)->user();
+            $oauthUser = Socialite::driver($provider)->stateless()->user();
         } catch (\Throwable $e) {
             report($e);
 
@@ -108,27 +110,40 @@ class SocialAuthController extends Controller
         return redirect()->route('dashboard');
     }
 
-    public static function providerConfigured(string $provider): bool
+    public static function providerConfigured(string $provider, ?string $requestHost = null): bool
     {
         return match ($provider) {
-            'google' => self::googleConfigured(),
-            'apple' => (bool) config('services.apple.sign_in_enabled', false) && self::appleConfigured(),
+            'google' => self::googleConfigured($requestHost),
+            'apple' => (bool) config('services.apple.sign_in_enabled', false) && self::appleConfigured($requestHost),
             default => false,
         };
     }
 
-    private static function googleConfigured(): bool
+    private static function googleConfigured(?string $requestHost = null): bool
     {
         $id = trim((string) (config('services.google.client_id') ?? ''));
         $secret = trim((string) (config('services.google.client_secret') ?? ''));
+        $redirect = trim((string) (config('services.google.redirect') ?? ''));
+        if ($id === '' || $secret === '' || $redirect === '') {
+            return false;
+        }
 
-        return $id !== '' && $secret !== '';
+        if (! self::redirectHostMatchesRequest($redirect, $requestHost)) {
+            return false;
+        }
+
+        return true;
     }
 
-    private static function appleConfigured(): bool
+    private static function appleConfigured(?string $requestHost = null): bool
     {
         $c = config('services.apple', []);
-        if (empty(trim((string) ($c['client_id'] ?? ''))) || empty(trim((string) ($c['redirect'] ?? '')))) {
+        $clientId = trim((string) ($c['client_id'] ?? ''));
+        $redirect = trim((string) ($c['redirect'] ?? ''));
+        if ($clientId === '' || $redirect === '') {
+            return false;
+        }
+        if (! self::redirectHostMatchesRequest($redirect, $requestHost)) {
             return false;
         }
         if (! empty($c['client_secret'])) {
@@ -138,5 +153,29 @@ class SocialAuthController extends Controller
         return filled($c['team_id'] ?? null)
             && filled($c['key_id'] ?? null)
             && filled($c['private_key'] ?? null);
+    }
+
+    private static function redirectHostMatchesRequest(string $redirect, ?string $requestHost): bool
+    {
+        if (! is_string($requestHost) || trim($requestHost) === '') {
+            return true;
+        }
+
+        $redirectHost = strtolower((string) parse_url($redirect, PHP_URL_HOST));
+        $currentHost = strtolower(trim($requestHost));
+        if ($redirectHost === '' || $currentHost === '') {
+            return true;
+        }
+
+        if ($redirectHost === $currentHost) {
+            return true;
+        }
+
+        // Same site with or without leading www (e.g. apex vs www) so OAuth buttons show on both URLs.
+        $stripWww = static function (string $host): string {
+            return str_starts_with($host, 'www.') ? substr($host, 4) : $host;
+        };
+
+        return $stripWww($redirectHost) === $stripWww($currentHost);
     }
 }

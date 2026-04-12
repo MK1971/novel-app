@@ -871,10 +871,14 @@ class PaymentController extends Controller
     {
         $keys = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy'];
         $original = [];
+        $canPutenv = \function_exists('putenv');
+        $canGetenv = \function_exists('getenv');
         foreach ($keys as $key) {
-            $value = getenv($key);
+            $value = $canGetenv ? \getenv($key) : ($_ENV[$key] ?? $_SERVER[$key] ?? false);
             $original[$key] = $value === false ? null : $value;
-            putenv($key);
+            if ($canPutenv) {
+                \putenv($key);
+            }
             $_ENV[$key] = '';
             $_SERVER[$key] = '';
         }
@@ -885,10 +889,14 @@ class PaymentController extends Controller
             foreach ($keys as $key) {
                 $value = $original[$key];
                 if ($value === null) {
-                    putenv($key);
+                    if ($canPutenv) {
+                        \putenv($key);
+                    }
                     unset($_ENV[$key], $_SERVER[$key]);
                 } else {
-                    putenv($key.'='.$value);
+                    if ($canPutenv) {
+                        \putenv($key.'='.$value);
+                    }
                     $_ENV[$key] = $value;
                     $_SERVER[$key] = $value;
                 }

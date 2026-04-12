@@ -100,6 +100,9 @@ class ChapterController extends Controller
             abort(404);
         }
 
+        $this->maybeAutoLockPilotChapter($chapter);
+        $chapter->refresh();
+
         $progress = 0;
         $progressBarPercent = null;
         $progressExtentMax = 0;
@@ -280,5 +283,22 @@ class ChapterController extends Controller
         }
 
         return response()->json(['scroll_position' => $progress]);
+    }
+
+    /**
+     * Pilot TBWNN chapters close automatically when accepted-edit count reaches the configured cap.
+     */
+    private function maybeAutoLockPilotChapter(Chapter $chapter): void
+    {
+        if (! $chapter->isPilotManuscriptChapter() || $chapter->is_locked) {
+            return;
+        }
+        if (! $chapter->isPastEditingWindow()) {
+            return;
+        }
+        $chapter->forceFill([
+            'is_locked' => true,
+            'locked_at' => now(),
+        ])->saveQuietly();
     }
 }

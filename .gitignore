@@ -16,6 +16,8 @@
 /auth.json
 # Google OAuth Web client JSON from Cloud Console (contains client_secret; never commit)
 client_secret*.json
+# Production deploy PayPal/live secrets (sourced by scripts/deploy/prod_one_shot.sh)
+/scripts/deploy/prod_secrets.local.sh
 /node_modules
 /public/build
 /public/hot

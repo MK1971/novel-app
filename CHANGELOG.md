@@ -2,6 +2,81 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.55 - Landing: prizes progression + journey copy
+### Changed
+- **`welcome.blade.php`:** Joy-first hero (“Be part of a living novel…”). **The Journey** reframed as “Two books. Two ways to play.” with a clear two-book explanation and **Learn how it all works →** to `#landing-how-steps`. New **What You Could Win** block after the Peter Trull card (prize ladder + leaderboard line + link to **`prizes`**).
+- **`welcome.blade.php`:** Book 1 / Book 2 **Journey** cards — updated teaser copy under **The Book With No Name** and **Peter Trull Solitary Detective** headings (six-lives / Navy CPTSD storylines + $2 / voting lines).
+
+## Version 1.9.54 - OAuth stateless session, pilot chapters, prizes ladder copy
+### Fixed
+- **Google OAuth (first visit):** Socialite **`stateless()`** on Google redirect/callback avoids session/state mismatch on the first OAuth round-trip in a fresh browser session.
+
+### Added
+- **TBWNN pilot chapters:** **`is_pilot`** and **`reader_blurb`** on chapters; pilot rounds close after **`TBWNN_PILOT_CLOSE_AFTER_ACCEPTED`** accepted suggestions (default 50), not the one-month calendar window; optional blurb for Peter Trull / book intros on the chapter page.
+- **Prizes page:** Full **prize ladder** (character → book → cover → lasting recognition) above the grand-prize section.
+
+### Changed
+- **Chapter reader surfaces:** Clearer pilot messaging on chapter index and show; **`config/tbwnn.php`** documents pilot behavior.
+
+## Version 1.9.53 - Security hardening: deps + HTTP headers
+### Fixed
+- **Composer advisories:** Bumped **league/commonmark** to **2.8.2** and **phpseclib/phpseclib** to **3.0.51** (addresses prior `composer audit` findings for embed allowed_domains and SSH2 HMAC handling).
+
+### Added
+- **`SecurityHeadersMiddleware`:** Sends **X-Content-Type-Options**, **Referrer-Policy**, **X-Frame-Options** on all HTTP responses; **Strict-Transport-Security** (with **includeSubDomains**) in **production** when **`APP_URL`** is **https**. Registered globally so **`/up`** and web routes are covered.
+- **`SecurityHeadersTest`:** Asserts baseline headers on the health endpoint.
+
+### Changed
+- **`phpunit.xml`:** Sets **`APP_KEY`** for the test suite so feature tests bootstrap encryption consistently.
+
+## Version 1.9.52 - ADMIN_EMAIL works with config:cache
+### Fixed
+- **Admin gate and `ADMIN_EMAIL`:** `ADMIN_EMAIL` is now **`config('app.admin_email')`**, set from **`.env`** in **`config/app.php`**. Runtime **`env('ADMIN_EMAIL')`** in **`AppServiceProvider`** and related code did not work after **`php artisan config:cache`** (Laravel only loads **`.env`** into config at cache build time), so production admins matched only **`is_admin`** or the wrong default.
+- **Call sites:** **`LeaderboardController`**, **`AdminNotifier`**, **`ResetAppDataCommand`**, and **`AdminOnlySeeder`** now read the same config key.
+
+### Added
+- **`AdminEmailConfigGateTest`:** Asserts the admin gate honors **`app.admin_email`** when **`is_admin`** is false.
+
+## Version 1.9.51 - Inline edit delete respects admin gate
+### Fixed
+- **`InlineEditController::destroy`:** Deleting another user’s inline edit now uses **`Gate::allows('admin')`** instead of **`is_admin`** on the model, so operators granted admin via **`ADMIN_EMAIL`** behave the same as **`is_admin`** users.
+
+## Version 1.9.50 - OAuth: www vs apex host match for Google/Apple UI
+### Fixed
+- **Social login visibility:** `SocialAuthController` now treats the configured OAuth redirect host and the current request host as matching when they differ only by a leading `www.` (e.g. apex vs www), so the Google/Apple buttons show on both URLs while env still uses a single canonical `GOOGLE_REDIRECT_URI`.
+
+## Version 1.9.49 - Production one-shot deploy + NVM for Vite
+### Added
+- **`scripts/deploy/prod_one_shot.sh`:** One-shot production deploy (composer before `key:generate`, merge `APP_*` / PayPal / Google / DB / `MAIL_*` from optional `prod_secrets.local.sh`, migration recovery for `paragraph_reactions`, Vite build, Laravel caches, health curl). Loads **NVM** (`~/.nvm`) before `npm` when present (e.g. Cloudways) and logs which `node` binary runs.
+### Changed
+- **`.gitignore`:** Ignore `scripts/deploy/prod_secrets.local.sh` so deploy credentials are not committed.
+
+## Version 1.9.48 - Admin close flow + public edits column fix + modal usability
+### Fixed
+- **Public edits feed query:** Replaced an invalid `chapters.chapter_number` select with `chapters.number`, resolving SQL 1054 errors on `edits.public`.
+- **Paragraph edit modal accessibility:** The chapter inline-edit modal now supports viewport-safe scrolling and includes a persistent top-right close button so actions remain reachable on small screens.
+### Changed
+- **Admin chapter force-close:** `Close without merged text` for TBWNN now allows locking any open chapter immediately, so admins can proceed to upload the next chapter without moderation gating.
+- **Admin guidance copy:** Updated chapter management instructions and confirmation text to clearly describe force-close behavior and next-step upload flow.
+
+## Version 1.9.47 - Vote warning scales by participation
+### Changed
+- **Vote warning behavior:** On `vote.index`, the large restriction hero now appears only for users with no edit and no vote history; users who already submitted an edit or already voted now always see a compact status message instead.
+- **Participation-aware context:** Added controller view flags for `hasEverSubmittedEdit` / `hasEverVoted` so the vote page can keep warning size consistent after first participation.
+
+## Version 1.9.46 - Dark mode readability + environment-safe social auth
+### Fixed
+- **Dark mode contrast guard:** Added a base CSS safeguard so elements that keep a white background in dark mode cannot render low-contrast light-amber text.
+- **Cross-environment OAuth redirects:** Social login buttons and auth redirects are now gated by host matching, so dev/staging won't surface providers configured with production redirect URLs.
+- **PayPal checkout env handling:** Donation/checkout proxy-env wrapper now safely handles hosts where `putenv`/`getenv` are unavailable, preventing runtime checkout failures.
+### Changed
+- **Environment-scoped password policy:** `Password::defaults()` now enforces strict rules only in `staging` and `production`, while keeping development/local requirements lightweight.
+- **Reader heading formatting:** Special sections (cold open/prolog/epilog) now render title-only headings when a custom title exists, avoiding repeated labels like “Cold open: …”.
+
+## Version 1.9.45 - MySQL: paragraph_reactions unique index name
+### Fixed
+- **`paragraph_reactions` migration:** Gave the composite unique index an explicit short name (`para_react_user_ch_idx_type_unq`) so MySQL no longer rejects the migration with **identifier name too long** (error 1059).
+
 ## Version 1.9.42 - P4-4 / P4-5 reader + dark mode; Tier A public profile follow-ups
 ## Version 1.9.43 - Release B completion + Cloudways deploy runbook
 ## Version 1.9.44 - Legal policy hardening, branding sweep, and deploy identity envs

@@ -8,6 +8,15 @@
         @apply outline-none ring-2 ring-amber-500 dark:ring-amber-400 ring-offset-2 ring-offset-[#fff9f0] dark:ring-offset-stone-950;
     }
 
+    /*
+     * Dark mode readability guard:
+     * if an element stays on a white surface (no dark:bg override),
+     * force a darker text color so "light amber on white" cannot happen.
+     */
+    html.dark [class*="bg-white"]:not([class*="dark:bg-"]) {
+        color: #431407;
+    }
+
     /* P2 reader: literary body text (stack + kerning; Tailwind font-serif on #chapter-content) */
     .novel-reader-body {
         font-feature-settings: "kern" 1, "liga" 1;

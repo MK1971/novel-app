@@ -14,6 +14,20 @@
                             Contributors earn points when paid edits are accepted (full or partial, as shown in the app). Peter Trull voting uses separate vote credits from completed checkouts on The Book With No Name, as described on the vote hub.
                         </p>
 
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Prize ladder (small → bigger)</h2>
+                        <p class="mb-4">
+                            Prizes scale with how much you shape the work. From lighter recognition to the biggest public stamp on the project, the ladder looks like this:
+                        </p>
+                        <ol class="list-decimal pl-6 space-y-3 mb-6 font-medium">
+                            <li><strong>Name a character</strong> — leave a mark inside the story world.</li>
+                            <li><strong>Name the book</strong> — help steer the title readers will see.</li>
+                            <li><strong>Your name on the cover</strong> — top contributors can be credited on the final cover, subject to author and production approval (see below).</li>
+                            <li><strong>Live on in the project</strong> — lasting recognition in the book and on the site so your contribution stays visible for the audience that follows the journey.</li>
+                        </ol>
+                        <p class="text-sm font-bold text-amber-800/70 mb-6">
+                            Tiers and exact wording may vary by campaign; the <a href="{{ route('leaderboard') }}" class="text-amber-700 underline hover:text-amber-900">leaderboard</a> reflects current standings.
+                        </p>
+
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Grand prize: name on the cover</h2>
                         <p class="mb-6">
                             The top contributor on the public <a href="{{ route('leaderboard') }}" class="text-amber-700 underline hover:text-amber-900">leaderboard</a> will have their name featured on the final book cover for the project, subject to author and production approval. Ties or edge cases are resolved at the project team’s reasonable discretion.

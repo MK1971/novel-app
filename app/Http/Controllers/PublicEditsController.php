@@ -13,7 +13,7 @@ class PublicEditsController extends Controller
     public function index()
     {
         $chapterEdits = Edit::query()
-            ->with(['user:id,name', 'chapter:id,book_id,chapter_number,title', 'chapter.book:id,name', 'feedback.user:id,name'])
+            ->with(['user:id,name', 'chapter:id,book_id,number,title', 'chapter.book:id,name', 'feedback.user:id,name'])
             ->where('show_in_public_feed', true)
             ->whereIn('status', ['pending', 'accepted', 'accepted_partial', 'accepted_full', 'rejected'])
             ->orderByDesc('updated_at')
@@ -32,7 +32,7 @@ class PublicEditsController extends Controller
             ]);
 
         $inlineEdits = InlineEdit::query()
-            ->with(['user:id,name', 'chapter:id,book_id,chapter_number,title', 'chapter.book:id,name', 'feedback.user:id,name'])
+            ->with(['user:id,name', 'chapter:id,book_id,number,title', 'chapter.book:id,name', 'feedback.user:id,name'])
             ->where('show_in_public_feed', true)
             ->whereIn('status', ['pending', 'approved', 'rejected'])
             ->orderByDesc('updated_at')

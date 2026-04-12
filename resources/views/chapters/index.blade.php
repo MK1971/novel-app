@@ -208,6 +208,12 @@
                                             Paid editing is closed for this chapter.
                                         @endif
                                     </div>
+                                @elseif($chapter->isPilotManuscriptChapter() && $chapter->manuscriptPaidEditsOpen())
+                                    <div class="text-amber-800 font-bold">
+                                        <span class="text-amber-950 font-black">Pilot chapter</span> — paid edits until we reach
+                                        <strong>{{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}</strong> accepted suggestions
+                                        ({{ $chapter->pilotAcceptedEditsTotal() }} so far).
+                                    </div>
                                 @elseif($chapter->editing_closes_at)
                                     @if($chapter->manuscriptPaidEditsOpen())
                                         <div class="text-amber-800 font-bold">Paid edits open until {{ $chapter->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }} ({{ $chapter->editing_closes_at->diffForHumans() }}).</div>

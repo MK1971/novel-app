@@ -35,7 +35,26 @@
                             @endif
                         </div>
                     @endif
-                    @if(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
+                    @if(! $isPeterTrullBook && $chapter->isPilotManuscriptChapter())
+                        @if($chapter->is_locked)
+                            @php $mClosed = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($mClosed)
+                                    Pilot round closed on {{ $mClosed->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Paid editing is closed for this chapter.
+                                @endif
+                            </p>
+                        @elseif($chapter->manuscriptPaidEditsOpen())
+                            <p class="text-sm font-black text-amber-700 mt-2">
+                                <span class="font-black text-amber-900">Pilot chapter</span> — paid edits until
+                                <strong>{{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}</strong> accepted suggestions
+                                ({{ $chapter->pilotAcceptedEditsTotal() }} / {{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}).
+                            </p>
+                        @else
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">Pilot round complete — editing closed for this release.</p>
+                        @endif
+                    @elseif(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
                         @php $editingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
                         @if($chapter->is_locked)
                             @php $mClosed = $chapter->lockedAtForDisplay(); @endphp
@@ -119,6 +138,17 @@
             </div>
         </div>
     </x-slot>
+
+    @if(filled($chapter->reader_blurb))
+        <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-4 pb-2">
+            <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white px-5 py-4 shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-800/60 mb-2">
+                    {{ $isPeterTrullBook ? 'Peter Trull — note' : 'About this chapter' }}
+                </p>
+                <div class="text-sm md:text-base font-bold text-amber-950/90 leading-relaxed whitespace-pre-wrap">{{ $chapter->reader_blurb }}</div>
+            </div>
+        </div>
+    @endif
 
     @auth
         {{-- Sticky under top nav: stays visible while reading (header scrolls away) --}}
@@ -528,8 +558,16 @@
 
     {{-- Inline Edit Modal --}}
     @auth
-    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl">
+    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-4 overflow-y-auto">
+        <div class="relative my-4 bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
+            <button
+                type="button"
+                onclick="closeInlineEdit()"
+                class="absolute top-4 right-4 w-10 h-10 rounded-xl bg-amber-100 text-amber-900 font-black hover:bg-amber-200 transition-colors"
+                aria-label="Close paragraph edit dialog"
+            >
+                ×
+            </button>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Suggest paragraph edit</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> checkout. Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">

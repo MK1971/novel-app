@@ -1,8 +1,9 @@
 {{-- Apple: hidden until APPLE_SIGN_IN_ENABLED=true in .env + Apple credentials (see config/services.php). --}}
 @php
     $oauthBeforeEmail = $oauthBeforeEmail ?? false;
-    $googleOn = \App\Http\Controllers\Auth\SocialAuthController::providerConfigured('google');
-    $appleOn = \App\Http\Controllers\Auth\SocialAuthController::providerConfigured('apple');
+    $host = request()->getHost();
+    $googleOn = \App\Http\Controllers\Auth\SocialAuthController::providerConfigured('google', $host);
+    $appleOn = \App\Http\Controllers\Auth\SocialAuthController::providerConfigured('apple', $host);
 @endphp
 @if($googleOn || $appleOn)
     <div class="{{ $oauthBeforeEmail ? 'mb-4' : 'mt-4' }} space-y-2">

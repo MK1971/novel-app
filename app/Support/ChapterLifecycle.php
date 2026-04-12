@@ -80,6 +80,10 @@ class ChapterLifecycle
 
     public static function editingWindowExpired(Chapter $chapter): bool
     {
+        if (self::isTbwChapter($chapter) && $chapter->isPilotManuscriptChapter()) {
+            return $chapter->isPastEditingWindow();
+        }
+
         if (! $chapter->editing_closes_at) {
             return false;
         }
@@ -106,19 +110,7 @@ class ChapterLifecycle
             return false;
         }
 
-        if ($chapter->is_locked) {
-            return false;
-        }
-
-        if (! self::editingWindowExpired($chapter)) {
-            return false;
-        }
-
-        if (self::hasAcceptedSuggestionsForChapter($chapter)) {
-            return false;
-        }
-
-        return ! self::hasPendingSuggestionsForChapter($chapter);
+        return ! $chapter->is_locked;
     }
 
     /**

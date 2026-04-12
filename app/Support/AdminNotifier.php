@@ -51,7 +51,7 @@ class AdminNotifier
             return trim($configured);
         }
 
-        $fallback = env('ADMIN_EMAIL');
+        $fallback = config('app.admin_email');
         if (is_string($fallback) && trim($fallback) !== '' && filter_var(trim($fallback), FILTER_VALIDATE_EMAIL)) {
             return trim($fallback);
         }

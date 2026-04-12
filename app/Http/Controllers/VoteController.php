@@ -28,13 +28,19 @@ class VoteController extends Controller
         $hasVoted = [];
         $canVote = false;
         $voteCreditsRemaining = 0;
+        $hasEverVoted = false;
+        $hasEverSubmittedEdit = false;
 
         if (Auth::check()) {
-            AchievementUnlock::syncForUser(Auth::user());
+            $user = Auth::user();
+            AchievementUnlock::syncForUser($user);
 
             $hasVoted = Vote::where('user_id', Auth::id())
                 ->pluck('chapter_id')
                 ->toArray();
+            $hasEverVoted = ! empty($hasVoted);
+
+            $hasEverSubmittedEdit = $user->editSuggestionsSubmittedCount() > 0;
 
             $voteCreditsRemaining = Payment::query()
                 ->where('user_id', Auth::id())
@@ -73,7 +79,18 @@ class VoteController extends Controller
 
         $firstOpenTbwChapter = ChapterLifecycle::latestOpenTbwChapter();
 
-        return view('vote.index', compact('chapters', 'hasVoted', 'canVote', 'voteCounts', 'voteCreditsRemaining', 'archiveChapters', 'latestPtVotePairKey', 'firstOpenTbwChapter'));
+        return view('vote.index', compact(
+            'chapters',
+            'hasVoted',
+            'canVote',
+            'voteCounts',
+            'voteCreditsRemaining',
+            'archiveChapters',
+            'latestPtVotePairKey',
+            'firstOpenTbwChapter',
+            'hasEverVoted',
+            'hasEverSubmittedEdit'
+        ));
     }
 
     public function store(Request $request, Chapter $chapter)

@@ -45,7 +45,7 @@
                 <h3 class="text-2xl font-extrabold text-amber-900 mb-2">📖 The Book With No Name</h3>
                 <p class="text-amber-800/60 font-bold mb-4">Add a new chapter. Previous chapters will be automatically locked for editing.</p>
                 <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">
-                    For each <strong>open</strong> chapter: if you have <strong>accepted</strong> suggestions, use <strong>Publish integrated revision</strong> — the preview highlights accepted contributions in green; edit the merged text in the box if needed, then lock. If you have <strong>no accepted</strong> suggestions (and nothing still pending), paste your <strong>own final text</strong> and use the same button to lock. If the window ended with <strong>all rejected</strong> and nothing pending, you can use <strong>Close without merged text</strong> instead.
+                    For each <strong>open</strong> chapter: if you have <strong>accepted</strong> suggestions, use <strong>Publish integrated revision</strong> — the preview highlights accepted contributions in green; edit the merged text in the box if needed, then lock. If you want to move on without merging suggestion text, use <strong>Close without merged text</strong> to force-lock the chapter and upload the next one.
                 </p>
 
                 @php
@@ -99,6 +99,20 @@
                         <label class="block text-amber-900 font-extrabold mb-2">Content</label>
                         <textarea name="content" rows="6" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" required>{{ old('content', $tbDraft['content'] ?? '') }}</textarea>
                     </div>
+                    <div>
+                        <label class="block text-amber-900 font-extrabold mb-2">Reader / Peter Trull note <span class="text-amber-600 font-bold normal-case">(optional)</span></label>
+                        <textarea name="reader_blurb" rows="3" class="w-full bg-amber-50 border-2 border-amber-100 rounded-xl px-4 py-3 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-all font-bold" placeholder="Short intro for readers — e.g. what this upload is about, or Peter Trull’s angle.">{{ old('reader_blurb', $tbDraft['reader_blurb'] ?? '') }}</textarea>
+                        <p class="text-xs font-bold text-amber-800/50 mt-2">Shown above the chapter body on the public chapter page when filled.</p>
+                    </div>
+                    <div class="flex flex-col gap-2 max-w-xl">
+                        <label class="inline-flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" name="is_pilot" value="1" class="mt-1 rounded border-amber-300 text-amber-600 focus:ring-amber-500" @checked(old('is_pilot', $tbDraft['is_pilot'] ?? false))>
+                            <span>
+                                <span class="block text-amber-900 font-extrabold">Pilot chapter (first upload)</span>
+                                <span class="block text-xs font-bold text-amber-800/70 mt-1">Skips the default 30-day calendar close. Paid editing stops automatically after <strong>{{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}</strong> accepted suggestions (story + inline). Use for the opening round only; later chapters use the normal window.</span>
+                            </span>
+                        </label>
+                    </div>
                     <button type="submit" class="px-8 py-3 bg-amber-600 text-white font-extrabold rounded-xl hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/20">
                         Upload & Lock Previous
                     </button>
@@ -147,7 +161,7 @@
                                         {{ $rev['has_accepted'] ? 'Publish integrated revision & lock' : 'Upload final version & lock' }}
                                     </button>
                                 </form>
-                                <form action="{{ route('admin.chapters.close-story-without-merge', $openCh) }}" method="POST" class="border-t border-amber-100 pt-4" onsubmit="return confirm('Close this chapter without uploading merged text? Only allowed when the window ended and there are no pending suggestions and none accepted.');">
+                                <form action="{{ route('admin.chapters.close-story-without-merge', $openCh) }}" method="POST" class="border-t border-amber-100 pt-4" onsubmit="return confirm('Force-close this chapter without uploading merged text? This locks the chapter immediately so you can upload the next chapter.');">
                                     @csrf
                                     <button type="submit" class="px-6 py-2 bg-amber-200 text-amber-900 font-extrabold rounded-xl hover:bg-amber-300">Close without merged text</button>
                                 </form>

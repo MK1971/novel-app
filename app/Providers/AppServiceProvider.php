@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +28,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Password::defaults(function () {
+            $rule = Password::min(8);
+
+            if (app()->environment(['staging', 'production'])) {
+                return $rule
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised();
+            }
+
+            return $rule;
+        });
+
         // Apple driver stays registered for when APPLE_SIGN_IN_ENABLED=true (no code removal on defer).
         Event::listen(function (SocialiteWasCalled $event): void {
             $event->extendSocialite('apple', \SocialiteProviders\Apple\Provider::class);
@@ -36,11 +51,13 @@ class AppServiceProvider extends ServiceProvider
         Blade::component('layouts.guest', 'guest-layout');
 
         Gate::define('admin', function (User $user) {
-            return $user->is_admin === true || $user->email === env('ADMIN_EMAIL', 'admin@example.com');
+            $adminEmail = (string) config('app.admin_email', 'admin@example.com');
+
+            return $user->is_admin === true || $user->email === $adminEmail;
         });
 
         View::composer(['layouts.app', 'layouts.guest'], function ($view) {
-            $adminEmail = env('ADMIN_EMAIL', 'admin@example.com');
+            $adminEmail = (string) config('app.admin_email', 'admin@example.com');
             $topLeader = Cache::remember('layout.top_leader.v2', 60, function () use ($adminEmail) {
                 return User::query()
                     ->where('email', '!=', $adminEmail)

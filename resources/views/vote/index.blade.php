@@ -1,5 +1,6 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
+    $hasParticipationHistory = (bool) (($hasEverSubmittedEdit ?? false) || ($hasEverVoted ?? false));
 @endphp
 
 <x-dynamic-component :component="$layout">
@@ -53,6 +54,17 @@
 
         <div x-show="ready" x-cloak>
         @if (!($canVote ?? false))
+            @if($hasParticipationHistory)
+            <div class="mb-8 p-5 bg-amber-100 border border-amber-200 rounded-2xl text-amber-900 shadow-sm">
+                <p class="text-sm font-bold leading-relaxed">
+                    @if(($hasEverSubmittedEdit ?? false) && !($hasEverVoted ?? false))
+                        You already submitted an edit. You can vote once your next paid edit credit is available.
+                    @else
+                        You already participated. Additional voting opens when you have an unused paid edit credit.
+                    @endif
+                </p>
+            </div>
+            @else
             <div class="mb-16 p-12 bg-amber-900 rounded-[3rem] text-center text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                 <div class="relative z-10">
                     <div class="w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center mx-auto mb-8">
@@ -77,6 +89,7 @@
                 <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
                 <div class="absolute -top-24 -right-24 w-64 h-64 bg-black/10 rounded-full blur-3xl"></div>
             </div>
+            @endif
         @else
             <div class="mb-16 text-center max-w-3xl mx-auto">
                 <h2 class="text-2xl font-extrabold text-amber-900 mb-4">Compare and decide</h2>

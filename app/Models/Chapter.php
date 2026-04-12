@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\ChapterLifecycle;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,8 @@ class Chapter extends Model
         'published_at',
         'editing_closes_at',
         'editing_deadline_reminder_sent_at',
+        'is_pilot',
+        'reader_blurb',
     ];
 
     protected function casts(): array
@@ -56,6 +59,7 @@ class Chapter extends Model
             'editing_deadline_reminder_sent_at' => 'datetime',
             'locked_at' => 'datetime',
             'is_reader_archive_link' => 'boolean',
+            'is_pilot' => 'boolean',
         ];
     }
 
@@ -185,8 +189,19 @@ class Chapter extends Model
     {
         $t = trim((string) ($this->title ?? ''));
         $p = $this->headingPrefix();
+        $section = (string) ($this->list_section ?? self::LIST_SECTION_CHAPTER);
+        $isSpecialSection = in_array($section, [
+            self::LIST_SECTION_COLD_OPEN,
+            self::LIST_SECTION_PROLOG,
+            self::LIST_SECTION_EPILOG,
+        ], true);
 
-        return $t !== '' ? $p.': '.$t : $p;
+        if ($t !== '') {
+            // For special sections, avoid repeating section labels in reader headings.
+            return $isSpecialSection ? $t : $p.': '.$t;
+        }
+
+        return $p;
     }
 
     /**
@@ -296,7 +311,41 @@ class Chapter extends Model
 
     public function isPastEditingWindow(): bool
     {
+        if ($this->isPilotManuscriptChapter()) {
+            $cap = max(1, (int) config('tbwnn.pilot.close_after_accepted_edits', 50));
+
+            return $this->pilotAcceptedEditsTotal() >= $cap;
+        }
+
         return $this->editing_closes_at !== null && now()->greaterThan($this->editing_closes_at);
+    }
+
+    /**
+     * TBWNN pilot chapter: closes by accepted-edit count (see config tbwnn.pilot), not calendar alone.
+     */
+    public function isPilotManuscriptChapter(): bool
+    {
+        $this->loadMissing('book');
+
+        return (bool) $this->is_pilot
+            && $this->book
+            && $this->book->name === Book::NAME_THE_BOOK_WITH_NO_NAME;
+    }
+
+    /** Accepted story + inline edits for pilot window (same statuses as leaderboard-style counts). */
+    public function pilotAcceptedEditsTotal(): int
+    {
+        $story = Edit::query()
+            ->where('chapter_id', $this->id)
+            ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
+            ->count();
+
+        $inline = InlineEdit::query()
+            ->where('chapter_id', $this->id)
+            ->where('status', 'approved')
+            ->count();
+
+        return (int) $story + (int) $inline;
     }
 
     /** Paid manuscript suggestions (TBWNN index inline) allowed when chapter is open and within editing window. */

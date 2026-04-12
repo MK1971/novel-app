@@ -360,10 +360,8 @@
                             </div>
                             
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
-                                A two-part journey: co-write the living manuscript of <span class="font-black text-inherit">The Book With No Name</span> by suggesting edits. Each completed <span class="font-black text-inherit">$2</span> edit unlocks one ballot to vote on Version A vs B for <span class="font-black text-inherit">Peter Trull Solitary Detective</span>.
-                            </p>
-                            <p class="text-sm md:text-base text-white/90 font-bold mb-8 max-w-2xl leading-relaxed">
-                                The goal is both the joy of collaborative editing and saving enough to publish the finished result.
+                                <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Be part of a living novel.</span>
+                                <span class="block font-bold text-white/95">Read, shape, and leave your mark on a story being written with its readers.</span>
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
@@ -415,9 +413,15 @@
             {{-- The Two-Part Journey --}}
             <section class="py-32 bg-white border-y border-amber-100">
                 <div class="max-w-7xl mx-auto px-6">
-                    <div class="text-center mb-12">
+                    <div class="text-center mb-12 max-w-3xl mx-auto">
                         <h2 class="text-4xl md:text-5xl font-black text-amber-900 mb-6">The Journey</h2>
-                        <p class="text-xl text-amber-900/70 font-bold max-w-2xl mx-auto">Two distinct ways to contribute, earn points, and win prizes.</p>
+                        <p class="text-2xl md:text-3xl font-black text-amber-900 mb-5">Two books. Two ways to play.</p>
+                        <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed mb-6">
+                            This is a two-part adventure. In <span class="text-amber-950">The Book With No Name</span>, you read and edit — your suggestions can become part of the published novel. In <span class="text-amber-950">Peter Trull Solitary Detective</span>, you vote on which version of the story wins. They’re connected: paying to submit edits in Book 1 earns you votes in Book 2.
+                        </p>
+                        <a href="#landing-how-steps" class="inline-flex items-center gap-2 text-amber-700 font-black text-lg hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-lg">
+                            Learn how it all works <span aria-hidden="true">→</span>
+                        </a>
                     </div>
 
                     {{-- How it works — 3 steps for scannability (UX #17) --}}
@@ -450,7 +454,7 @@
                             </div>
                             <h3 class="text-3xl font-black text-amber-900 mb-6">The Book With No Name</h3>
                             <p class="text-lg text-amber-900/70 font-bold mb-8 leading-relaxed">
-                                Read the evolving story and suggest edits. For a small $2 fee, your contribution could become a permanent part of the novel.
+                                Six lives. Six powers. A collision none of them can escape. Each one wields a different ability they don’t fully understand — but as instinct turns to control and control to consequence, a hidden structure pulls them toward an inevitable convergence. Suggest edits for $2 each, and your contribution could become a permanent part of the novel.
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 text-amber-900 font-bold">
@@ -474,7 +478,7 @@
                             </div>
                             <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
-                                Compare two versions of the same chapter and vote for the best one. Your votes decide the final direction of the detective's story.
+                                A damaged officer. An unseen threat. A mystery shaped by you. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
                                 <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 edit payments</strong> in <em>The Book With No Name</em> — one vote per payment.
@@ -494,6 +498,26 @@
                                 Start Voting <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
+                    </div>
+
+                    {{-- Explicit gap so prizes block doesn’t visually merge with the two cards (margins can collapse) --}}
+                    <div class="h-24 md:h-32 lg:h-40 max-w-7xl mx-auto" aria-hidden="true"></div>
+
+                    <div id="landing-prizes-progression" class="max-w-3xl mx-auto rounded-[2rem] border-2 border-amber-200 bg-gradient-to-br from-[#fff9f0] to-amber-50/80 px-8 py-10 md:px-12 md:py-12 shadow-lg shadow-amber-900/5">
+                        <h3 class="text-2xl md:text-3xl font-black text-amber-950 text-center mb-2">What You Could Win</h3>
+                        <p class="text-center text-amber-800/90 font-bold mb-8">Every contribution brings you closer to something lasting.</p>
+                        <ul class="space-y-4 text-left font-bold text-amber-900 leading-relaxed">
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">🏅</span><span><strong class="font-black">Name a character</strong> — Your name appears in the novel as a character</span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">📖</span><span><strong class="font-black">Name the book</strong> — Help choose the final title</span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">✨</span><span><strong class="font-black">Your name on the cover</strong> — Credited as a contributor on the published book</span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">♾️</span><span><strong class="font-black">Live forever in the story</strong> — Become a permanent part of the narrative</span></li>
+                        </ul>
+                        <p class="mt-8 text-center text-sm md:text-base font-black text-amber-900/85 leading-snug">
+                            The higher you climb on the leaderboard, the bigger the reward.
+                        </p>
+                        <p class="mt-4 text-center">
+                            <a href="{{ route('prizes') }}" class="text-amber-700 font-black hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4">Full prizes &amp; rules →</a>
+                        </p>
                     </div>
                 </div>
             </section>

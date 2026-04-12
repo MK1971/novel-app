@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\InlineEdit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class InlineEditController extends Controller
 {
@@ -19,7 +20,7 @@ class InlineEditController extends Controller
     {
         $inlineEdit = InlineEdit::findOrFail($id);
 
-        if (auth()->id() !== $inlineEdit->user_id && ! auth()->user()->is_admin) {
+        if (auth()->id() !== $inlineEdit->user_id && ! Gate::allows('admin')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
