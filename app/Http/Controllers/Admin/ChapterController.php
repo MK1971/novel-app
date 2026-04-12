@@ -66,7 +66,9 @@ class ChapterController extends Controller
             'number' => 'required|integer|min:0',
             'list_section' => ['required', Rule::in(Chapter::LIST_SECTIONS)],
             'content' => 'required|string',
+            'reader_blurb' => ['nullable', 'string', 'max:20000'],
             'editing_closes_on' => ['nullable', 'date', 'date_format:Y-m-d'],
+            'is_pilot' => ['sometimes', 'boolean'],
         ]);
 
         $gate = ChapterLifecycle::canUploadNextStoryChapter();
@@ -76,7 +78,9 @@ class ChapterController extends Controller
                 'number' => $request->input('number'),
                 'list_section' => (string) $request->input('list_section', 'chapter'),
                 'content' => (string) $request->input('content', ''),
+                'reader_blurb' => (string) $request->input('reader_blurb', ''),
                 'editing_closes_on' => (string) $request->input('editing_closes_on', ''),
+                'is_pilot' => $request->boolean('is_pilot'),
             ]);
 
             return redirect()
@@ -101,15 +105,21 @@ class ChapterController extends Controller
 
         $now = now();
         $tz = config('app.timezone');
-        $closesAt = $now->copy()->addDays(30);
-        if ($request->filled('editing_closes_on')) {
-            $day = (string) $request->input('editing_closes_on');
-            $closesAt = Carbon::createFromFormat('Y-m-d', $day, $tz)->endOfDay();
-            $pubDay = $now->copy()->timezone($tz)->format('Y-m-d');
-            if ($day < $pubDay) {
-                return back()
-                    ->withErrors(['editing_closes_on' => 'Close date must be on or after the chapter publication day (today).'])
-                    ->withInput();
+        $isPilot = $request->boolean('is_pilot');
+
+        if ($isPilot) {
+            $closesAt = null;
+        } else {
+            $closesAt = $now->copy()->addDays(30);
+            if ($request->filled('editing_closes_on')) {
+                $day = (string) $request->input('editing_closes_on');
+                $closesAt = Carbon::createFromFormat('Y-m-d', $day, $tz)->endOfDay();
+                $pubDay = $now->copy()->timezone($tz)->format('Y-m-d');
+                if ($day < $pubDay) {
+                    return back()
+                        ->withErrors(['editing_closes_on' => 'Close date must be on or after the chapter publication day (today).'])
+                        ->withInput();
+                }
             }
         }
 
@@ -119,9 +129,11 @@ class ChapterController extends Controller
             'number' => $request->number,
             'list_section' => $request->list_section,
             'content' => $request->content,
+            'reader_blurb' => $request->filled('reader_blurb') ? trim((string) $request->input('reader_blurb')) : null,
             'version' => 'A',
             'status' => 'published',
             'is_locked' => false,
+            'is_pilot' => $isPilot,
             'published_at' => $now,
             'editing_closes_at' => $closesAt,
         ]);

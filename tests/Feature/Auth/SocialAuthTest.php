@@ -71,6 +71,7 @@ class SocialAuthTest extends TestCase
         ]);
 
         $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider->shouldReceive('stateless')->andReturnSelf();
         $provider->shouldReceive('redirect')->andReturn(redirect()->away('https://accounts.google.com/o/oauth2/v2/auth'));
 
         Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
@@ -95,6 +96,7 @@ class SocialAuthTest extends TestCase
         $abstractUser->shouldReceive('getAvatar')->andReturn(null);
 
         $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider->shouldReceive('stateless')->andReturnSelf();
         $provider->shouldReceive('user')->andReturn($abstractUser);
 
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
@@ -136,6 +138,7 @@ class SocialAuthTest extends TestCase
         $abstractUser->shouldReceive('getAvatar')->andReturn(null);
 
         $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider->shouldReceive('stateless')->andReturnSelf();
         $provider->shouldReceive('user')->andReturn($abstractUser);
 
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
@@ -170,6 +173,7 @@ class SocialAuthTest extends TestCase
         $abstractUser->shouldReceive('getAvatar')->andReturn(null);
 
         $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+        $provider->shouldReceive('stateless')->andReturnSelf();
         $provider->shouldReceive('user')->andReturn($abstractUser);
 
         Socialite::shouldReceive('driver')->with('google')->andReturn($provider);

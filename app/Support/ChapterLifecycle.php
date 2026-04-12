@@ -80,6 +80,10 @@ class ChapterLifecycle
 
     public static function editingWindowExpired(Chapter $chapter): bool
     {
+        if (self::isTbwChapter($chapter) && $chapter->isPilotManuscriptChapter()) {
+            return $chapter->isPastEditingWindow();
+        }
+
         if (! $chapter->editing_closes_at) {
             return false;
         }

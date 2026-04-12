@@ -35,7 +35,26 @@
                             @endif
                         </div>
                     @endif
-                    @if(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
+                    @if(! $isPeterTrullBook && $chapter->isPilotManuscriptChapter())
+                        @if($chapter->is_locked)
+                            @php $mClosed = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($mClosed)
+                                    Pilot round closed on {{ $mClosed->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Paid editing is closed for this chapter.
+                                @endif
+                            </p>
+                        @elseif($chapter->manuscriptPaidEditsOpen())
+                            <p class="text-sm font-black text-amber-700 mt-2">
+                                <span class="font-black text-amber-900">Pilot chapter</span> — paid edits until
+                                <strong>{{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}</strong> accepted suggestions
+                                ({{ $chapter->pilotAcceptedEditsTotal() }} / {{ config('tbwnn.pilot.close_after_accepted_edits', 50) }}).
+                            </p>
+                        @else
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">Pilot round complete — editing closed for this release.</p>
+                        @endif
+                    @elseif(! $isPeterTrullBook && ($editingWindowEndsAt ?? null))
                         @php $editingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
                         @if($chapter->is_locked)
                             @php $mClosed = $chapter->lockedAtForDisplay(); @endphp
@@ -119,6 +138,17 @@
             </div>
         </div>
     </x-slot>
+
+    @if(filled($chapter->reader_blurb))
+        <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-4 pb-2">
+            <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white px-5 py-4 shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-800/60 mb-2">
+                    {{ $isPeterTrullBook ? 'Peter Trull — note' : 'About this chapter' }}
+                </p>
+                <div class="text-sm md:text-base font-bold text-amber-950/90 leading-relaxed whitespace-pre-wrap">{{ $chapter->reader_blurb }}</div>
+            </div>
+        </div>
+    @endif
 
     @auth
         {{-- Sticky under top nav: stays visible while reading (header scrolls away) --}}

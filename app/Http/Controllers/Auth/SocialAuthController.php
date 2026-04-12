@@ -26,7 +26,9 @@ class SocialAuthController extends Controller
         abort_unless(in_array($provider, self::PROVIDERS, true), 404);
         abort_unless(self::providerConfigured($provider, $request->getHost()), 404);
 
-        return Socialite::driver($provider)->redirect();
+        // Stateless OAuth avoids "invalid state" on the first request when the session cookie
+        // is not yet established (common with modal login + immediate Google redirect).
+        return Socialite::driver($provider)->stateless()->redirect();
     }
 
     public function callback(Request $request, string $provider): RedirectResponse
@@ -36,7 +38,7 @@ class SocialAuthController extends Controller
         abort_unless(self::providerConfigured($provider, $request->getHost()), 404);
 
         try {
-            $oauthUser = Socialite::driver($provider)->user();
+            $oauthUser = Socialite::driver($provider)->stateless()->user();
         } catch (\Throwable $e) {
             report($e);
 

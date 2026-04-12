@@ -2,6 +2,22 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.55 - Landing: prizes progression + journey copy
+### Changed
+- **`welcome.blade.php`:** Joy-first hero (“Be part of a living novel…”). **The Journey** reframed as “Two books. Two ways to play.” with a clear two-book explanation and **Learn how it all works →** to `#landing-how-steps`. New **What You Could Win** block after the Peter Trull card (prize ladder + leaderboard line + link to **`prizes`**).
+- **`welcome.blade.php`:** Book 1 / Book 2 **Journey** cards — updated teaser copy under **The Book With No Name** and **Peter Trull Solitary Detective** headings (six-lives / Navy CPTSD storylines + $2 / voting lines).
+
+## Version 1.9.54 - OAuth stateless session, pilot chapters, prizes ladder copy
+### Fixed
+- **Google OAuth (first visit):** Socialite **`stateless()`** on Google redirect/callback avoids session/state mismatch on the first OAuth round-trip in a fresh browser session.
+
+### Added
+- **TBWNN pilot chapters:** **`is_pilot`** and **`reader_blurb`** on chapters; pilot rounds close after **`TBWNN_PILOT_CLOSE_AFTER_ACCEPTED`** accepted suggestions (default 50), not the one-month calendar window; optional blurb for Peter Trull / book intros on the chapter page.
+- **Prizes page:** Full **prize ladder** (character → book → cover → lasting recognition) above the grand-prize section.
+
+### Changed
+- **Chapter reader surfaces:** Clearer pilot messaging on chapter index and show; **`config/tbwnn.php`** documents pilot behavior.
+
 ## Version 1.9.53 - Security hardening: deps + HTTP headers
 ### Fixed
 - **Composer advisories:** Bumped **league/commonmark** to **2.8.2** and **phpseclib/phpseclib** to **3.0.51** (addresses prior `composer audit` findings for embed allowed_domains and SSH2 HMAC handling).
