@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.59 - Landing: Peter Trull card copy tweak
+### Changed
+- **`welcome.blade.php`:** Peter Trull teaser — “A mystery shaped by you” → “A mystery shaped by ghosts that haunt the traumatized.”
+
 ## Version 1.9.58 - Cloudways: copy deploy scripts into public_html
 ### Added
 - **`scripts/deploy/cloudways_copy_deploy_scripts.sh`:** On Cloudways SSH, copies **`cron_git_pull_deploy.sh`** and **`dev_after_pull.sh`** from **`git_repo/scripts/deploy`** into **`public_html/scripts/deploy`** when the panel pull updated **`git_repo`** but **`public_html`** does not yet contain those files (needed for Application Cron / **`NOVEL_APP_ROOT`**).

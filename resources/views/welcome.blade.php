@@ -478,7 +478,7 @@
                             </div>
                             <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
-                                A damaged officer. An unseen threat. A mystery shaped by you. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
+                                A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
                                 <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 edit payments</strong> in <em>The Book With No Name</em> — one vote per payment.
