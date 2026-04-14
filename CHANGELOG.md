@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.65 - Hide internal env keys on legal page
+### Fixed
+- **Public legal page copy:** Removed internal environment variable key names from `legal` hub so users only see user-facing legal content.
+
 ## Version 1.9.64 - Peter Trull pilot voting mode
 ### Added
 - **Peter Trull pilot config:** Added `config/peter_trull.php` plus `.env.example` guidance for `PETER_TRULL_PILOT_CLOSE_AFTER_VOTES` so pilot voting rounds can close by total vote count.
