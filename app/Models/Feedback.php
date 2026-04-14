@@ -38,6 +38,7 @@ class Feedback extends Model
             'account' => 'Account / login',
             'payment' => 'Payment / PayPal',
             'content_issue' => 'Content / typo',
+            'waitlist' => 'Updates waitlist',
             default => Str::title(str_replace('_', ' ', $this->type)),
         };
     }

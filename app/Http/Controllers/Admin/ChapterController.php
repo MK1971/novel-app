@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Chapter;
 use App\Support\ChapterLifecycle;
+use App\Support\ReleaseNotificationService;
 use App\Support\TbwRevisionMergePreview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -123,7 +124,7 @@ class ChapterController extends Controller
             }
         }
 
-        Chapter::create([
+        $newChapter = Chapter::create([
             'book_id' => $book->id,
             'title' => trim((string) ($request->input('title') ?? '')),
             'number' => $request->number,
@@ -137,6 +138,17 @@ class ChapterController extends Controller
             'published_at' => $now,
             'editing_closes_at' => $closesAt,
         ]);
+
+        $releaseTitle = trim((string) $newChapter->readerHeadingLine()) !== ''
+            ? $newChapter->readerHeadingLine()
+            : 'A new chapter is now live';
+        app(ReleaseNotificationService::class)->sendReleaseAnnouncement(
+            subjectLine: 'New chapter released on WhatsMyBookName',
+            headline: $releaseTitle,
+            summary: 'A new manuscript chapter just opened. Read it now and contribute your version when you are ready.',
+            actionUrl: route('chapters.show', $newChapter),
+            actionLabel: 'Read the new chapter'
+        );
 
         return back()->with('success', 'Chapter added and previous chapters locked.');
     }
@@ -406,6 +418,14 @@ class ChapterController extends Controller
                 'published_at' => $now,
                 'editing_closes_at' => $closesAt,
             ]);
+
+            app(ReleaseNotificationService::class)->sendReleaseAnnouncement(
+                subjectLine: 'New Peter Trull voting round is live',
+                headline: 'A new Peter Trull voting round just opened',
+                summary: 'Version A and Version B are now available. Use your vote credits to choose which path survives.',
+                actionUrl: route('vote.index'),
+                actionLabel: 'Open voting hub'
+            );
 
             Log::info('admin.peter_trull.upload.success', [
                 'book_id' => $book->id,

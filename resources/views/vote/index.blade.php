@@ -12,7 +12,7 @@
                 </h1>
                 <p class="text-amber-800/60 font-bold mt-1">Part 2: Vote on the final versions of each chapter.</p>
                 <p class="text-amber-800/50 text-sm font-bold mt-2 max-w-2xl leading-relaxed">
-                    Each pair has a voting deadline (same 30-day calendar as paid edits on The Book With No Name). Vote credits come from completed $2 edits there. The author can still lock a version early.
+                    Each pair has a voting deadline (same 30-day calendar as contribution-backed edits on The Book With No Name). Vote credits come from completed $2 contributions there. The author can still lock a version early.
                 </p>
             </div>
             <div class="flex items-center gap-4">
@@ -25,7 +25,7 @@
                     @else
                         <div class="px-4 py-2 bg-amber-900 text-white text-sm font-black rounded-2xl shadow-lg shadow-amber-900/20 flex items-center gap-2">
                             <span aria-hidden="true">ℹ️</span>
-                            <span>Ballots from $2 edit checkouts</span>
+                            <span>Ballots from $2 contributions</span>
                         </div>
                     @endif
                 @else
@@ -58,9 +58,9 @@
             <div class="mb-8 p-5 bg-amber-100 border border-amber-200 rounded-2xl text-amber-900 shadow-sm">
                 <p class="text-sm font-bold leading-relaxed">
                     @if(($hasEverSubmittedEdit ?? false) && !($hasEverVoted ?? false))
-                        You already submitted an edit. You can vote once your next paid edit credit is available.
+                        You already submitted an edit. You can vote once your next contribution credit is available.
                     @else
-                        You already participated. Additional voting opens when you have an unused paid edit credit.
+                        You already participated. Additional voting opens when you have an unused contribution credit.
                     @endif
                 </p>
             </div>
@@ -71,19 +71,11 @@
                         <svg class="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
                     <h2 class="text-3xl font-extrabold mb-4">Voting is restricted</h2>
-                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed"><span class="text-white font-black">Peter Trull Solitary Detective</span> uses <strong>paid edit credits</strong> only: each completed <strong>$2</strong> edit payment in <strong>The Book With No Name</strong> gives <strong>one vote</strong> here. There are no free votes based on accepted edits alone.</p>
+                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed"><span class="text-white font-black">Peter Trull Solitary Detective</span> uses <strong>contribution credits</strong> only: each completed <strong>$2</strong> contribution in <strong>The Book With No Name</strong> gives <strong>one vote</strong> here. There are no free votes based on accepted edits alone.</p>
                     <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                        Start Contributing Now
+                        Enter the manuscript
                         <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
-                    @if($firstOpenTbwChapter ?? null)
-                        <div class="mt-6">
-                            <a href="{{ route('chapters.show', $firstOpenTbwChapter) }}" class="inline-flex items-center px-10 py-4 bg-white/10 text-white text-lg font-extrabold rounded-full border-2 border-white/30 hover:bg-white/15 transition-all">
-                                Open the live TBWNN chapter
-                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                            </a>
-                        </div>
-                    @endif
                 </div>
                 {{-- Decorative circles --}}
                 <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
@@ -96,7 +88,7 @@
                 @if (($voteCreditsRemaining ?? 0) > 0)
                     <p class="mb-4 text-amber-900 font-black text-sm uppercase tracking-widest">Unused vote credits: {{ $voteCreditsRemaining }}</p>
                 @endif
-                <p class="text-amber-800/85 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Casting a vote uses one paid edit credit. You can vote only once per chapter pair.</p>
+                <p class="text-amber-800/85 text-lg font-bold leading-relaxed">Review Version A and Version B of each chapter. Casting a vote uses one contribution credit. You can vote only once per chapter pair.</p>
             </div>
         @endif
 

@@ -369,7 +369,7 @@
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
-                                    <a href="{{ route('chapters.index') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
+                                    <a href="{{ route('chapters.index') }}" data-track-event="landing_cta_primary_click" data-track-label="hero_enter_manuscript" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
                                         {{ $hasLiveChapters ? 'Enter the Manuscript' : 'Explore the Manuscript (Opening Soon)' }}
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
@@ -377,7 +377,7 @@
                                     </p>
                                 </div>
                                 @guest
-                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
+                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
                                         Become a Contributor (Sign Up)
                                     </button>
                                 @else
@@ -413,6 +413,54 @@
                 </div>
             </header>
 
+            {{-- What this is --}}
+            <section class="py-20 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-what-is-heading">
+                <div class="max-w-4xl mx-auto px-6 text-center">
+                    <h2 id="landing-what-is-heading" class="text-3xl md:text-4xl font-black text-amber-900 mb-5">What this is</h2>
+                    <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed">
+                        This is not a finished book. It is a manuscript released in stages.
+                        You read first, then decide whether to submit your version.
+                        Accepted edits shape the text, and each completed $2 contribution gives you one vote credit in Peter Trull Solitary Detective.
+                    </p>
+                </div>
+            </section>
+
+            {{-- Compact rewards teaser (higher visibility) --}}
+            <section class="py-14 bg-white border-b border-amber-100" aria-labelledby="landing-rewards-teaser-heading">
+                <div class="max-w-6xl mx-auto px-6">
+                    <div class="rounded-[2rem] border border-amber-200 bg-gradient-to-br from-amber-50 via-[#fff9f0] to-amber-100/70 p-6 md:p-8 shadow-xl shadow-amber-900/10">
+                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-6">
+                            <div>
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700/70">Recognition ladder</p>
+                                <h2 id="landing-rewards-teaser-heading" class="mt-1 text-2xl md:text-3xl font-black text-amber-950">Earn your place in the story</h2>
+                                <p class="mt-2 text-sm md:text-base font-bold text-amber-900/80">Every accepted contribution can move you up from visible credit to the grand prize.</p>
+                            </div>
+                            <a href="{{ route('prizes') }}" data-track-event="landing_rewards_rules_click" data-track-label="rewards_teaser_rules" class="inline-flex items-center gap-2 rounded-xl bg-amber-900 px-4 py-2.5 text-white font-black hover:bg-black transition-colors">
+                                Full prizes &amp; rules <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 1</p>
+                                <p class="text-sm font-black text-amber-900">Name a character</p>
+                            </div>
+                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 2</p>
+                                <p class="text-sm font-black text-amber-900">Influence the title</p>
+                            </div>
+                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 3</p>
+                                <p class="text-sm font-black text-amber-900">Long-term story recognition</p>
+                            </div>
+                            <div class="rounded-2xl border-2 border-amber-500 bg-amber-500 text-black px-4 py-4 shadow-lg shadow-amber-500/25">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-black/70 mb-1">Grand prize</p>
+                                <p class="text-sm font-black">Contributor cover credit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {{-- The Two-Part Journey --}}
             <section class="py-32 bg-white border-y border-amber-100">
                 <div class="max-w-7xl mx-auto px-6">
@@ -422,7 +470,7 @@
                         <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed mb-6">
                             In <span class="text-amber-950">The Book With No Name (Collaborative Novel)</span>, you read live chapters and submit contribution-backed edits that can be accepted into the manuscript. In <span class="text-amber-950">Peter Trull Solitary Detective (Interactive Mystery)</span>, you use vote credits to decide which version survives. The connection is simple: each completed $2 contribution in Book 1 grants one vote in Book 2.
                         </p>
-                        <a href="#landing-how-steps" class="inline-flex items-center gap-2 text-amber-700 font-black text-lg hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-lg">
+                        <a href="#landing-how-steps" data-track-event="landing_how_it_works_click" data-track-label="journey_how_it_works" class="inline-flex items-center gap-2 text-amber-700 font-black text-lg hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-lg">
                             Learn how it all works <span aria-hidden="true">→</span>
                         </a>
                     </div>
@@ -469,7 +517,7 @@
                                     Climb the global leaderboard
                                 </li>
                             </ul>
-                            <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
+                            <a href="{{ route('chapters.index') }}" data-track-event="landing_cta_chapters_card_click" data-track-label="book1_card" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
                                 {{ $hasLiveChapters ? 'Read the manuscript' : 'View upcoming chapters' }} <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
@@ -480,6 +528,10 @@
                                 <span class="text-2xl font-black text-amber-400">02</span>
                             </div>
                             <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
+                            <div class="mb-6 inline-flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-black/30 px-4 py-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-black font-black">PT</span>
+                                <span class="text-xs font-black uppercase tracking-widest text-amber-200">Interactive mystery track</span>
+                            </div>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
                                 A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
                             </p>
@@ -497,7 +549,7 @@
                                     Shape the final mystery
                                 </li>
                             </ul>
-                            <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
+                            <a href="{{ route('vote.index') }}" data-track-event="landing_cta_vote_card_click" data-track-label="book2_card" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
                                 Open voting hub <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
@@ -519,24 +571,30 @@
                             The higher you climb on the leaderboard, the bigger the reward.
                         </p>
                         <p class="mt-4 text-center">
-                            <a href="{{ route('prizes') }}" class="text-amber-700 font-black hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4">Full prizes &amp; rules →</a>
+                            <a href="{{ route('prizes') }}" data-track-event="landing_prizes_bottom_click" data-track-label="what_you_could_win_rules" class="text-amber-700 font-black hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4">Full prizes &amp; rules →</a>
                         </p>
                     </div>
                 </div>
             </section>
 
-            {{-- Social proof — project voice / tagline (UX #15) --}}
-            <section id="landing-social-proof" class="py-16 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-social-proof-heading">
-                <h2 id="landing-social-proof-heading" class="sr-only">Community voices</h2>
-                <div class="max-w-3xl mx-auto px-6 text-center">
-                    <blockquote class="text-2xl md:text-3xl font-black text-amber-900 leading-snug tracking-tight">
-                        <p>“A collaborative masterpiece in the making.”</p>
-                    </blockquote>
-                    <p class="mt-5 text-sm font-bold text-amber-800/75">
-                        From the living manuscript —
-                        <cite class="not-italic font-black text-amber-900">The Book With No Name</cite>
-                    </p>
-                    <p class="mt-8 text-xs font-black uppercase tracking-widest text-amber-800/55">Reader-powered fiction</p>
+            {{-- Trust and contribution clarity --}}
+            <section id="landing-trust" class="py-16 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-trust-heading">
+                <div class="max-w-4xl mx-auto px-6">
+                    <h2 id="landing-trust-heading" class="text-center text-2xl md:text-3xl font-black text-amber-900 tracking-tight">How decisions are made</h2>
+                    <div class="mt-8 grid md:grid-cols-3 gap-4">
+                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
+                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Moderation</p>
+                            <p class="text-sm font-bold text-amber-900">Every submission is reviewed. Acceptance is not guaranteed.</p>
+                        </div>
+                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
+                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Scoring</p>
+                            <p class="text-sm font-bold text-amber-900">Accepted edits earn points (2 full, 1 partial, 0 rejected).</p>
+                        </div>
+                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
+                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Voting</p>
+                            <p class="text-sm font-bold text-amber-900">Each completed $2 contribution adds one vote credit for Peter Trull.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -546,26 +604,26 @@
                 <div class="max-w-7xl mx-auto px-6">
                     @if (! empty($landingStatsQuiet))
                         <p id="landing-stats-quiet-lead" class="text-center text-lg md:text-xl font-black text-amber-900 max-w-2xl mx-auto leading-snug">
-                            Early days — be among the first on the living manuscript.
+                            Early days — be among the first contributors on the living manuscript.
                         </p>
                         <p class="mt-3 text-center text-sm font-bold text-amber-800/70 max-w-xl mx-auto">
                             Contributor counts, accepted edits, and live chapters will appear here as the community grows. The fund goal below is already set for the campaign.
                         </p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14 opacity-70">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14">
                             <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Contributors</div>
-                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">With an accepted edit</div>
+                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Contributors</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">With an accepted edit</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Edits Accepted</div>
-                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">Story and inline</div>
+                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Edits Accepted</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Story and inline</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900/50 mb-2">—</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/60">Chapters Live</div>
-                                <div class="text-xs font-bold text-amber-800/45 mt-2 leading-snug">On the chapter list</div>
+                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Chapters Live</div>
+                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">On the chapter list</div>
                             </div>
                             <div class="text-center opacity-100">
                                 <div class="text-5xl font-black text-amber-900 mb-2">
@@ -575,6 +633,9 @@
                                 <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced target · not a live balance</div>
                             </div>
                         </div>
+                        <p class="mt-8 text-center">
+                            <a href="{{ route('chapters.index') }}" data-track-event="landing_stats_quiet_cta_click" data-track-label="stats_be_first" class="inline-flex items-center px-6 py-3 bg-amber-500 text-black font-black rounded-xl hover:bg-amber-600 transition-colors">Be the first contributor</a>
+                        </p>
                     @else
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                             <div class="text-center">
@@ -608,20 +669,25 @@
             </section>
             </main>
 
-            <section class="relative z-10 py-16 bg-amber-50 border-t border-amber-100">
+            <section id="landing-updates-signup" class="relative z-10 py-16 bg-amber-50 border-t border-amber-100">
                 <div class="max-w-4xl mx-auto px-6 text-center">
-                    <h2 class="text-3xl font-black text-amber-900">Stay connected with the project</h2>
+                    <h2 class="text-3xl font-black text-amber-900">Get chapter release updates</h2>
                     <p class="mt-3 text-amber-800/75 font-bold max-w-2xl mx-auto">
-                        Want updates on chapter releases and funding milestones? Send us a note through Feedback and we will include you in update planning.
+                        Join the updates list and we will email you when new chapters open or major rounds begin.
                     </p>
-                    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition inline-flex items-center px-6 py-3 bg-amber-600 text-white font-black rounded-xl hover:bg-amber-700">Share ideas and feedback</a>
-                        @auth
-                            <a href="{{ route('dashboard') }}#publishing-fund" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">View live funding progress</a>
-                        @else
-                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">Create account to participate</button>
-                        @endauth
-                    </div>
+                    <form method="POST" action="{{ route('feedback.store') }}" class="mt-8 max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3" data-track-form-event="landing_waitlist_submit">
+                        @csrf
+                        <input type="hidden" name="type" value="waitlist">
+                        <input type="hidden" name="content" value="Landing updates waitlist signup form">
+                        @guest
+                            <label for="landing-waitlist-email" class="sr-only">Email for updates</label>
+                            <input id="landing-waitlist-email" type="email" name="email" required placeholder="you@example.com" class="w-full sm:flex-1 rounded-xl border border-amber-300 bg-white px-4 py-3 text-sm font-bold text-amber-900 placeholder:text-amber-700/60 focus:border-amber-500 focus:ring-amber-500">
+                        @endguest
+                        <button type="submit" data-track-event="landing_waitlist_button_click" data-track-label="stay_connected_waitlist" class="landing-ui-transition inline-flex items-center justify-center px-6 py-3 bg-amber-600 text-white font-black rounded-xl hover:bg-amber-700">
+                            Join updates list
+                        </button>
+                    </form>
+                    <p class="mt-4 text-xs font-bold text-amber-800/65">Prefer open feedback instead? <a href="{{ route('feedback.index') }}" class="underline decoration-amber-300 hover:text-amber-950">Send feedback</a>.</p>
                 </div>
             </section>
 

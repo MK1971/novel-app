@@ -21,6 +21,28 @@
             @endif
             @can('admin')
                 {{-- ADMIN DASHBOARD --}}
+                @if(app()->isLocal())
+                    <div class="mb-8 rounded-[2rem] border-2 border-red-300 bg-red-50 px-6 py-6">
+                        <h3 class="text-xl font-extrabold text-red-900">Local testing tools</h3>
+                        <p class="mt-2 text-sm font-bold text-red-800/80 max-w-3xl">
+                            These controls are available only in this local environment. Use them to reset data quickly while testing flows.
+                        </p>
+                        <div class="mt-5 flex flex-col sm:flex-row gap-3">
+                            <form method="POST" action="{{ route('dev.tools.reset-all') }}" onsubmit="return confirm('Clear all data and reseed admin? This will remove users and sign you out.')">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center rounded-xl bg-amber-600 px-5 py-3 text-sm font-black text-white hover:bg-amber-700">
+                                    Clear all (including users)
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('dev.tools.reset-content') }}" onsubmit="return confirm('Clear app content but keep users?')">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center rounded-xl bg-amber-600 px-5 py-3 text-sm font-black text-white hover:bg-amber-700">
+                                    Clear content (keep users)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
                 
                 {{-- Key Metrics --}}
                 <div class="grid md:grid-cols-4 gap-6 mb-12">

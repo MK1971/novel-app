@@ -33,6 +33,8 @@ use App\Models\User;
 use App\Support\AchievementUnlock;
 use App\Support\ChapterLifecycle;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -127,6 +129,23 @@ Route::get('/people/{slug}', [PublicProfileController::class, 'show'])
 Route::get('/vote', [VoteController::class, 'index'])->name('vote.index');
 Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 Route::get('/analytics/export', [AnalyticsController::class, 'exportCsv'])->name('analytics.export');
+Route::post('/analytics/event', function (\Illuminate\Http\Request $request) {
+    $validated = $request->validate([
+        'event' => 'required|string|max:80',
+        'context' => 'nullable|array',
+    ]);
+
+    Log::info('frontend.analytics.event', [
+        'event' => $validated['event'],
+        'context' => $validated['context'] ?? [],
+        'url' => $request->headers->get('referer'),
+        'ip' => $request->ip(),
+        'user_id' => auth()->id(),
+        'user_agent' => (string) $request->userAgent(),
+    ]);
+
+    return response()->json(['ok' => true]);
+})->middleware('throttle:120,1')->name('analytics.event');
 Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
 Route::get('/achievements/{achievement}', [AchievementController::class, 'show'])->name('achievements.show');
 Route::get('/archive/chapters', [ArchiveController::class, 'chapters'])->name('archive.chapters');
@@ -190,6 +209,26 @@ Route::middleware('auth')->group(function () {
 
         return redirect()->route('dashboard');
     })->name('onboarding.dismiss');
+
+    Route::post('/dev/tools/reset-all', function () {
+        abort_unless(app()->isLocal(), 404);
+
+        Artisan::call('db:reset-app-data', ['--force' => true]);
+
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login')->with('warning', 'Local reset complete: all app data cleared and admin reseeded. Please sign in again.');
+    })->middleware('admin')->name('dev.tools.reset-all');
+
+    Route::post('/dev/tools/reset-content', function () {
+        abort_unless(app()->isLocal(), 404);
+
+        Artisan::call('db:reset-content-keep-users', ['--force' => true]);
+
+        return redirect()->route('dashboard')->with('warning', 'Local reset complete: content cleared, users preserved.');
+    })->middleware('admin')->name('dev.tools.reset-content');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/payments', PaymentHistoryController::class)->name('profile.payments');

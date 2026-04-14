@@ -23,6 +23,7 @@
                     <option value="account">Account / login</option>
                     <option value="payment">Payment / PayPal</option>
                     <option value="content_issue">Content / typo</option>
+                    <option value="waitlist">Updates waitlist</option>
                 </select>
             </div>
         @endif

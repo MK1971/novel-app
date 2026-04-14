@@ -102,6 +102,62 @@ function openAuthModalFromLandingQuery() {
 
 openAuthModalFromLandingQuery();
 
+function sendFrontendAnalyticsEvent(eventName, context = {}) {
+    if (! eventName) {
+        return;
+    }
+
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (! token) {
+        return;
+    }
+
+    fetch('/analytics/event', {
+        method: 'POST',
+        credentials: 'same-origin',
+        keepalive: true,
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            Accept: 'application/json',
+        },
+        body: JSON.stringify({
+            event: eventName,
+            context,
+        }),
+    }).catch(() => {});
+}
+
+window.trackLandingEvent = sendFrontendAnalyticsEvent;
+
+function bindFrontendEventTracking() {
+    document.querySelectorAll('[data-track-event]').forEach((el) => {
+        el.addEventListener('click', () => {
+            const eventName = el.getAttribute('data-track-event');
+            const eventLabel = el.getAttribute('data-track-label');
+            sendFrontendAnalyticsEvent(eventName, {
+                label: eventLabel || null,
+                path: window.location.pathname,
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-track-form-event]').forEach((form) => {
+        form.addEventListener('submit', () => {
+            const eventName = form.getAttribute('data-track-form-event');
+            sendFrontendAnalyticsEvent(eventName, {
+                path: window.location.pathname,
+            });
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindFrontendEventTracking);
+} else {
+    bindFrontendEventTracking();
+}
+
 /**
  * Landing hero: typewriter headline. Keeps Blade fallback text in DOM until animation runs;
  * never wipes the headline on failure (empty h1 if JS breaks was a bug).
@@ -136,8 +192,10 @@ function initLandingHeroTypewriter() {
     h1.setAttribute('aria-label', full);
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const smallScreen = window.matchMedia('(max-width: 640px)').matches;
 
-    if (reduceMotion) {
+    // On reduced motion or small screens, prefer immediate full text over animation.
+    if (reduceMotion || smallScreen) {
         span.textContent = full;
         caret.remove();
 

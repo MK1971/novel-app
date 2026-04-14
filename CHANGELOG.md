@@ -2,6 +2,19 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.63 - UX phases 0-9 pass, local reset tools, and release notifications
+### Added
+- **Local testing controls (dashboard):** In local admin only, added one-click actions for **Clear all (including users)** and **Clear content (keep users)** with confirmation prompts, powered by new routes and a new command **`db:reset-content-keep-users`**.
+- **Waitlist + email notifications:** Added homepage updates waitlist handling, confirmation email on signup, and release announcement emails when new TBWNN chapters or Peter Trull voting rounds are published.
+- **Frontend analytics endpoint + CTA tracking:** Added **`POST /analytics/event`** logging plus lightweight client-side click/form tracking for key landing CTAs and waitlist submission.
+- **Copy standards document:** Added **`docs/phase0-phase1-copy-dictionary.md`** to lock terminology, CTA wording, and empty-state guidance.
+
+### Changed
+- **Landing + subpage copy rollout (Phases 0-9):** Updated value proposition clarity, terminology consistency (`$2 contribution` / vote credits), CTA hierarchy, empty-state guidance, trust messaging, and rewards visibility across homepage, about, chapters, vote, leaderboard, public edits, and prizes.
+- **Homepage credibility and lead capture:** Replaced weak quote-based social proof with factual trust mechanics, switched quiet stats from placeholders to actionable zero-state messaging, and added chapter updates signup flow.
+- **Mobile headline behavior:** Hero typewriter now shows full static text on small screens/reduced-motion to avoid cut-off perception.
+- **Mail config docs/compatibility:** Added Cloudways-oriented mail guidance in `.env.example` and docs, and updated SMTP scheme fallback to support `MAIL_ENCRYPTION` compatibility.
+
 ## Version 1.9.62 - Landing copy and CTA clarity pass (Phase 1/2 start)
 ### Changed
 - **`welcome.blade.php` hero + journey copy:** Clarified the two-book participation model, standardized contributor-facing terminology (`$2 contribution`), and tightened the value proposition language.

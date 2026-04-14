@@ -95,6 +95,7 @@ See [local-development.md](local-development.md) for local URL vs cookie pitfall
 | Variable | Required | Notes |
 |----------|----------|--------|
 | `MAIL_MAILER` | Yes | `smtp`, `log`, `postmark`, etc. |
+| `MAIL_SCHEME` | Recommended for SMTP | Usually `tls` on port `587` (Cloudways and most providers). |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` | If SMTP | From provider. |
 | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Yes | Must be allowed by your mail provider. |
 
@@ -237,6 +238,7 @@ CACHE_STORE=
 QUEUE_CONNECTION=
 
 MAIL_MAILER=
+MAIL_SCHEME=
 MAIL_HOST=
 MAIL_PORT=
 MAIL_USERNAME=

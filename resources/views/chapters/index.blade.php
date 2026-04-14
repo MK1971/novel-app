@@ -9,7 +9,7 @@
                 <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
                     The Book With No Name
                 </h2>
-                <p class="text-amber-800/60 font-bold mt-1">Read the story and shape the narrative.</p>
+                <p class="text-amber-800/60 font-bold mt-1">Enter the manuscript, read what is live, and submit your version when a chapter is open for contributions.</p>
             </div>
         </div>
     </x-slot>
@@ -247,8 +247,11 @@
                     <div class="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
                         <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                     </div>
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-2">The ink is still drying...</h3>
-                    <p class="text-amber-800/50 text-lg font-bold">No chapters have been published yet. Check back soon!</p>
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-2">The ink is not dry...</h3>
+                    <p class="text-amber-800/70 text-lg font-bold max-w-2xl mx-auto">Chapters are released in stages. Early contributors set the tone, pacing, and voice of what follows.</p>
+                    <a href="{{ route('feedback.index') }}" class="mt-8 inline-flex items-center px-8 py-4 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                        Share ideas and feedback
+                    </a>
                 </div>
             @endforelse
 

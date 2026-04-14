@@ -1,6 +1,6 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
-    $pointsExplainer = 'Accepted edits earn up to 2 points: 2 for a full accept, 1 for partial, 0 if rejected. Peter Trull Solitary Detective votes use paid edit credits: each completed $2 checkout gives one vote.';
+    $pointsExplainer = 'Accepted edits earn up to 2 points: 2 for a full accept, 1 for partial, 0 if rejected. Peter Trull Solitary Detective votes use contribution credits: each completed $2 contribution gives one vote.';
 @endphp
 
 <x-dynamic-component :component="$layout">
@@ -43,7 +43,7 @@
                 </div>
                 @if(($period ?? 'all') === '30d')
                     <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No points in the last 30 days</h3>
-                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">No paid suggestions were approved in this window yet, or scores are still syncing. Try the all-time board for cumulative ranks.</p>
+                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">No contribution-backed suggestions were approved in this window yet, or scores are still syncing. Try the all-time board for cumulative ranks.</p>
                     <a href="{{ route('leaderboard', ['period' => 'all']) }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25 mb-8">
                         View all-time leaderboard
                     </a>
@@ -54,18 +54,18 @@
                 @auth
                     @if(($period ?? 'all') !== '30d')
                         <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
-                            Read chapters &amp; suggest an edit
+                            Enter the manuscript
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                         </a>
                     @endif
                 @else
-                    <p class="text-sm font-bold text-amber-800 mb-4">Sign in or create an account to contribute and appear on the leaderboard.</p>
-                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
-                            Sign in
+                    <p class="text-sm font-bold text-amber-800 mb-4">Create an account to contribute and appear on the leaderboard.</p>
+                    <div class="flex flex-col items-center justify-center gap-3">
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-10 py-4 bg-amber-500 text-black text-lg font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/25">
+                            Become a Contributor (Sign Up)
                         </button>
-                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-10 py-4 border-2 border-amber-300 text-amber-900 text-lg font-extrabold rounded-full hover:bg-amber-50 transition-all">
-                            Create account
+                        <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="text-sm font-bold text-amber-800 underline decoration-amber-300 hover:text-amber-950">
+                            Already have an account? Sign in
                         </button>
                     </div>
                 @endauth
@@ -158,17 +158,17 @@
             <p class="text-amber-800/85 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.@if(($period ?? 'all') === '30d') <span class="block mt-2 text-base">The <strong>Last 30 days</strong> view only includes points from suggestions approved in that window; the grand prize uses the <strong>all-time</strong> board unless stated otherwise.</span>@endif</p>
             @auth
                 <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                    Start Contributing Now
+                    Enter the manuscript
                     <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </a>
             @else
                 <p class="text-amber-800/80 font-bold mb-6 max-w-lg mx-auto">Sign in or create a free account to read chapters, suggest edits, and earn points.</p>
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                        Sign in to contribute
+                <div class="flex flex-col items-center justify-center gap-4">
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                        Become a Contributor (Sign Up)
                     </button>
-                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="inline-flex items-center px-12 py-5 border-2 border-amber-400 text-amber-900 text-xl font-extrabold rounded-full hover:bg-amber-50 transition-all">
-                        Create account
+                    <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="text-sm font-bold text-amber-800 underline decoration-amber-300 hover:text-amber-950">
+                        Already have an account? Sign in
                     </button>
                 </div>
             @endauth

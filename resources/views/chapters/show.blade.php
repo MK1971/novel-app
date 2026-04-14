@@ -96,7 +96,7 @@
                                 Voting period ended {{ $votingEndLocal->format('M j, Y') }}.
                             </p>
                         @endif
-                        <p class="text-xs font-bold text-amber-800/60 mt-1">No paid edits on this book. Vote credits come from completed $2 checkouts in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Go to the vote page</a>.</p>
+                        <p class="text-xs font-bold text-amber-800/60 mt-1">No contribution submissions on this book. Vote credits come from completed $2 contributions in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Go to the vote page</a>.</p>
                     @elseif($isPeterTrullBook)
                         @if($chapter->is_locked)
                             @php $vClosedNoDeadline = $chapter->lockedAtForDisplay(); @endphp
@@ -108,7 +108,7 @@
                                 @endif
                             </p>
                         @endif
-                        <p class="text-sm font-bold text-amber-800/70 mt-2 max-w-2xl">Voting only — no paid edits. Vote credits come from $2 checkouts in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Vote here</a>.</p>
+                        <p class="text-sm font-bold text-amber-800/70 mt-2 max-w-2xl">Voting only — no contribution submissions. Vote credits come from completed $2 contributions in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Vote here</a>.</p>
                     @endif
                 </div>
             </div>
@@ -262,7 +262,7 @@
                                                     type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
                                                     class="absolute -right-8 top-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 text-amber-700 hover:text-amber-900 focus-visible:opacity-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg bg-amber-50/80 md:bg-transparent"
-                                                    title="Paragraph edit ($2): suggest a change to this paragraph only. Whole-chapter rewrites use the sidebar form."
+                                                    title="Paragraph contribution ($2): submit your version for this paragraph only. Whole-chapter rewrites use the sidebar form."
                                                 >
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </button>
@@ -373,16 +373,16 @@
                             @endif
                             <div id="edit-submission-box" class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                                 <div class="relative z-10">
-                                    <h3 class="text-2xl font-extrabold mb-6">Suggest an Edit</h3>
+                                    <h3 class="text-2xl font-extrabold mb-6">Submit your version of the text</h3>
                                     <div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20 text-amber-100/90 text-sm font-bold leading-relaxed">
-                                        <p class="mb-2"><span class="text-white font-extrabold">Two ways to suggest</span> (each uses a <span class="text-white">$2</span> PayPal checkout):</p>
+                                        <p class="mb-2"><span class="text-white font-extrabold">Two ways to contribute</span> (each uses a <span class="text-white">$2</span> contribution checkout):</p>
                                         <ul class="list-disc list-inside space-y-1.5 text-amber-100/85">
                                             <li><span class="text-white">Paragraph</span> — Hover a paragraph and tap the pencil to suggest a change to <em>that paragraph only</em>. Moderators use the same scale as full-chapter edits: <span class="text-white">2 pts</span> full accept, <span class="text-white">1 pt</span> partial, <span class="text-white">0</span> if rejected.</li>
                                             <li><span class="text-white">Writing / Phrase</span> (below) — Replace the <em>entire chapter text</em>. Same <span class="text-white">2 / 1 / 0</span> scale: full accept, partial accept, reject.</li>
                                         </ul>
                                     </div>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        After a successful <strong class="text-white">$2</strong> payment, your suggestion is queued for review. <strong class="text-white">Only paid submissions</strong> earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed payment also adds <strong class="text-white">one vote</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
+                                        After a successful <strong class="text-white">$2</strong> contribution, your submission is queued for moderation review (acceptance is not guaranteed). Only completed contribution submissions can earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed contribution also adds <strong class="text-white">one vote credit</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
                                     </p>
                                     
                                     <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
@@ -441,7 +441,7 @@
                                         
                                         <div class="grid gap-3 sm:grid-cols-2">
                                             <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                                Submit current + queued & Pay (${{ $payNowTotalDisplay }})
+                                                Submit your version + checkout (${{ $payNowTotalDisplay }})
                                             </button>
                                             <button type="submit" name="queue_only" value="1" class="w-full py-5 bg-white/15 border border-white/30 text-white text-lg font-extrabold rounded-2xl hover:bg-white/20 transition-all">
                                                 Add another edit
@@ -474,7 +474,7 @@
                     @endif
 
                     <div class="p-8 bg-white border border-amber-100 rounded-[2.5rem] shadow-sm">
-                        <h4 class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-6">Chapter Stats</h4>
+                        <h4 class="text-xs font-black uppercase tracking-widest text-amber-900/30 mb-6">Chapter stats</h4>
                         <div class="space-y-6">
                             <div class="flex items-center justify-between">
                                 <span class="text-amber-900/60 font-bold">📖 Total Reads</span>
@@ -568,8 +568,8 @@
             >
                 ×
             </button>
-            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Suggest paragraph edit</h3>
-            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> checkout. Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
+            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Submit your paragraph version</h3>
+            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> contribution checkout. Moderators review every submission (acceptance is not guaranteed). Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
                 @csrf
                 <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
@@ -607,10 +607,10 @@
                     </span>
                 </label>
 
-                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph suggestions use the same <strong class="text-amber-900">$2</strong> PayPal checkout. Points apply only after payment succeeds and a moderator accepts your edit.</p>
+                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph submissions use the same <strong class="text-amber-900">$2</strong> contribution checkout. Points apply only after contribution succeeds and a moderator accepts your edit.</p>
                 <div class="flex flex-wrap items-center gap-4 pt-4">
                     <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Submit current + queued & Pay (${{ $payNowTotalDisplay }})
+                        Submit your version + checkout (${{ $payNowTotalDisplay }})
                     </button>
                     <button type="submit" name="queue_only" value="1" class="px-10 py-4 bg-amber-100 border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all">
                         Add another edit
