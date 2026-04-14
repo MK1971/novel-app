@@ -107,7 +107,10 @@
                         $votesA = (int) ($voteCounts[$versionA->id] ?? 0);
                         $votesB = (int) ($voteCounts[$versionB->id] ?? 0);
                         $totalVotes = $votesA + $votesB;
-                        $votePeriodEnded = $versionA->editing_closes_at && $versionA->isPastEditingWindow();
+                        $isPilotPair = $versionA->isPilotPeterTrullChapter();
+                        $pilotVoteCap = max(1, (int) config('peter_trull.pilot.close_after_votes', 50));
+                        $pilotVoteTotal = $isPilotPair ? $versionA->pilotPeterTrullVotesTotal() : 0;
+                        $votePeriodEnded = $versionA->isPastEditingWindow();
                         $voteADisabled = $userHasVoted || $lockA || $votePeriodEnded;
                         $voteBDisabled = $userHasVoted || $lockB || $votePeriodEnded;
                         $caLocked = $versionA->lockedAtForDisplay();
@@ -130,6 +133,12 @@
                                         @else
                                             <p class="text-sm font-bold text-amber-800/80 mt-2">Voting is closed for this pair.</p>
                                         @endif
+                                    @elseif($isPilotPair)
+                                        @if($votePeriodEnded)
+                                            <p class="text-sm font-bold text-amber-800/80 mt-2">Pilot voting cap reached ({{ $pilotVoteTotal }}/{{ $pilotVoteCap }} votes).</p>
+                                        @else
+                                            <p class="text-sm font-black text-amber-700 mt-2">Pilot round: closes at {{ $pilotVoteCap }} total votes (A+B). Current: {{ $pilotVoteTotal }}/{{ $pilotVoteCap }}.</p>
+                                        @endif
                                     @elseif($versionA->editing_closes_at)
                                         @if($votePeriodEnded)
                                             <p class="text-sm font-bold text-amber-800/80 mt-2">Voting period ended {{ $versionA->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }}.</p>
@@ -147,7 +156,7 @@
                                     @if($pairFullyClosed)
                                         <span class="px-4 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">🔒</span> Locked</span>
                                     @elseif($votePeriodEnded)
-                                        <span class="px-4 py-1 bg-amber-200 text-amber-900 text-xs font-black rounded-full uppercase tracking-widest">Period ended</span>
+                                        <span class="px-4 py-1 bg-amber-200 text-amber-900 text-xs font-black rounded-full uppercase tracking-widest">{{ $isPilotPair ? 'Pilot cap reached' : 'Period ended' }}</span>
                                     @elseif($userHasVoted)
                                         <span class="px-4 py-1 bg-green-100 text-green-700 text-xs font-black rounded-full uppercase tracking-widest"><span aria-hidden="true">✓</span> Voted</span>
                                     @else
@@ -174,7 +183,7 @@
                                     <form action="{{ route('vote.store', $versionA) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full px-8 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-900 disabled:hover:translate-y-0" {{ $voteADisabled ? 'disabled' : '' }}>
-                                            @if($lockA) 🔒 Voting closed for A @elseif($votePeriodEnded) ⏱ Voting period ended @elseif($userHasVoted) ✓ Already Voted @else Vote for Version A @endif
+                                            @if($lockA) 🔒 Voting closed for A @elseif($votePeriodEnded) ⏱ {{ $isPilotPair ? 'Pilot cap reached' : 'Voting period ended' }} @elseif($userHasVoted) ✓ Already Voted @else Vote for Version A @endif
                                         </button>
                                     </form>
                                 @endif
@@ -192,7 +201,7 @@
                                     <form action="{{ route('vote.store', $versionB) }}" method="POST">
                                         @csrf
                                         <button type="submit" class="w-full px-8 py-4 bg-amber-500 text-black font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/20 transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-amber-500 disabled:hover:translate-y-0" {{ $voteBDisabled ? 'disabled' : '' }}>
-                                            @if($lockB) 🔒 Voting closed for B @elseif($votePeriodEnded) ⏱ Voting period ended @elseif($userHasVoted) ✓ Already Voted @else Vote for Version B @endif
+                                            @if($lockB) 🔒 Voting closed for B @elseif($votePeriodEnded) ⏱ {{ $isPilotPair ? 'Pilot cap reached' : 'Voting period ended' }} @elseif($userHasVoted) ✓ Already Voted @else Vote for Version B @endif
                                         </button>
                                     </form>
                                 @endif

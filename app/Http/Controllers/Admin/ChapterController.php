@@ -299,6 +299,7 @@ class ChapterController extends Controller
             'content_a' => (string) $request->input('content_a', ''),
             'content_b' => (string) $request->input('content_b', ''),
             'archive_winning_version' => (string) $request->input('archive_winning_version', 'auto'),
+            'is_pilot' => $request->boolean('is_pilot'),
         ]);
 
         try {
@@ -309,6 +310,7 @@ class ChapterController extends Controller
                 'content_a' => 'required|string',
                 'content_b' => 'required|string',
                 'archive_winning_version' => ['nullable', Rule::in(['auto', 'A', 'B'])],
+                'is_pilot' => ['sometimes', 'boolean'],
             ]);
         } catch (ValidationException $e) {
             return redirect()
@@ -392,7 +394,8 @@ class ChapterController extends Controller
                 ->update(['is_locked' => true, 'locked_at' => now()]);
 
             $now = now();
-            $closesAt = $now->copy()->addDays(30);
+            $isPilot = $request->boolean('is_pilot');
+            $closesAt = $isPilot ? null : $now->copy()->addDays(30);
 
             $chA = Chapter::create([
                 'book_id' => $book->id,
@@ -403,6 +406,7 @@ class ChapterController extends Controller
                 'version' => 'A',
                 'status' => 'published',
                 'is_locked' => false,
+                'is_pilot' => $isPilot,
                 'published_at' => $now,
                 'editing_closes_at' => $closesAt,
             ]);
@@ -415,6 +419,7 @@ class ChapterController extends Controller
                 'version' => 'B',
                 'status' => 'published',
                 'is_locked' => false,
+                'is_pilot' => $isPilot,
                 'published_at' => $now,
                 'editing_closes_at' => $closesAt,
             ]);

@@ -75,6 +75,30 @@
                                 Paid editing for this release ended {{ $editingEndLocal->format('M j, Y') }}.
                             </p>
                         @endif
+                    @elseif($isPeterTrullBook && $chapter->isPilotPeterTrullChapter())
+                        @php
+                            $pilotVoteCap = max(1, (int) config('peter_trull.pilot.close_after_votes', 50));
+                            $pilotVotes = $chapter->pilotPeterTrullVotesTotal();
+                        @endphp
+                        @if($chapter->is_locked)
+                            @php $vClosedPilot = $chapter->lockedAtForDisplay(); @endphp
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                @if($vClosedPilot)
+                                    Pilot voting closed on {{ $vClosedPilot->timezone(config('app.timezone'))->format('M j, Y') }}.
+                                @else
+                                    Pilot voting is closed for this chapter.
+                                @endif
+                            </p>
+                        @elseif(! $chapter->isPastEditingWindow())
+                            <p class="text-sm font-black text-amber-700 mt-2">
+                                Pilot voting closes at {{ $pilotVoteCap }} total votes (A+B). Current: {{ $pilotVotes }}/{{ $pilotVoteCap }}.
+                            </p>
+                        @else
+                            <p class="text-sm font-bold text-amber-800/80 mt-2">
+                                Pilot voting cap reached ({{ $pilotVotes }}/{{ $pilotVoteCap }} votes).
+                            </p>
+                        @endif
+                        <p class="text-xs font-bold text-amber-800/60 mt-1">No contribution submissions on this book. Vote credits come from completed $2 contributions in The Book With No Name. <a href="{{ route('vote.index') }}" class="underline font-black">Go to the vote page</a>.</p>
                     @elseif($isPeterTrullBook && ($editingWindowEndsAt ?? null))
                         @php $votingEndLocal = $editingWindowEndsAt->timezone(config('app.timezone')); @endphp
                         @if($chapter->is_locked)

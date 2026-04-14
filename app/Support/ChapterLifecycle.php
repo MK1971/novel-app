@@ -84,6 +84,10 @@ class ChapterLifecycle
             return $chapter->isPastEditingWindow();
         }
 
+        if (self::isPeterTrullChapter($chapter) && $chapter->isPilotPeterTrullChapter()) {
+            return $chapter->isPastEditingWindow();
+        }
+
         if (! $chapter->editing_closes_at) {
             return false;
         }

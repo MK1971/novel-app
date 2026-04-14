@@ -295,6 +295,18 @@
                             <option value="B" @selected(old('archive_winning_version', $ptDraft['archive_winning_version'] ?? '') === 'B')>Force version B</option>
                         </select>
                     </div>
+                    <label class="inline-flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-200 bg-amber-50/70">
+                        <input
+                            type="checkbox"
+                            name="is_pilot"
+                            value="1"
+                            class="rounded border-amber-300 text-amber-700 focus:ring-amber-500"
+                            @checked((bool) old('is_pilot', $ptDraft['is_pilot'] ?? false))
+                        >
+                        <span class="text-sm font-bold text-amber-900">
+                            Mark as pilot pair (close by votes at {{ config('peter_trull.pilot.close_after_votes', 50) }} total votes across A+B)
+                        </span>
+                    </label>
                     <button type="submit" class="px-8 py-3 bg-green-600 text-white font-extrabold rounded-xl hover:bg-green-700 transition-all shadow-lg shadow-green-600/20">
                         Upload Pair & Lock Previous
                     </button>
@@ -319,7 +331,13 @@
                                                 <p class="text-xs font-bold {{ $vers->every(fn ($v) => $v->is_locked) ? 'text-red-500' : 'text-green-500' }}">
                                                     {{ $vers->every(fn ($v) => $v->is_locked) ? '🔒 Locked' : '🔓 Open for Voting' }}
                                                 </p>
-                                                @if($ptRep->editing_closes_at)
+                                                @if($ptRep->isPilotPeterTrullChapter())
+                                                    @php
+                                                        $ptPilotCap = max(1, (int) config('peter_trull.pilot.close_after_votes', 50));
+                                                        $ptPilotVotes = $ptRep->pilotPeterTrullVotesTotal();
+                                                    @endphp
+                                                    <p class="text-xs font-bold text-amber-800 mt-1">Pilot pair: closes at {{ $ptPilotCap }} total votes (A+B). Current: {{ $ptPilotVotes }}/{{ $ptPilotCap }}</p>
+                                                @elseif($ptRep->editing_closes_at)
                                                     <p class="text-xs font-bold text-amber-800 mt-1">Voting closes (calendar day, {{ config('app.timezone') }}): {{ $ptRep->editing_closes_at->timezone(config('app.timezone'))->format('M j, Y') }}</p>
                                                 @endif
                                             </div>
@@ -342,7 +360,7 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                    @if($ptPairHasUnlocked)
+                                    @if($ptPairHasUnlocked && ! $ptRep->isPilotPeterTrullChapter())
                                         <form action="{{ route('admin.chapters.extend-editing-window', $ptRep) }}" method="POST" class="flex flex-wrap items-end gap-3 border-t border-amber-200/60 pt-4">
                                             @csrf
                                             <div>

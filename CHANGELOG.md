@@ -2,6 +2,15 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.64 - Peter Trull pilot voting mode
+### Added
+- **Peter Trull pilot config:** Added `config/peter_trull.php` plus `.env.example` guidance for `PETER_TRULL_PILOT_CLOSE_AFTER_VOTES` so pilot voting rounds can close by total vote count.
+
+### Changed
+- **Pilot lifecycle parity across both books:** `Chapter::isPastEditingWindow()` and `ChapterLifecycle::editingWindowExpired()` now recognize Peter Trull pilot pairs (`is_pilot`) and close them by vote-count threshold instead of calendar date.
+- **Admin upload + controls:** Peter Trull upload form now includes an `is_pilot` toggle, stores draft state for it, and shows pilot vote progress for existing pairs.
+- **Public voting/chapter messaging:** Vote hub and chapter reader now display pilot-specific status text (`current/cap`) and use pilot-cap closure labels when applicable.
+
 ## Version 1.9.63 - UX phases 0-9 pass, local reset tools, and release notifications
 ### Added
 - **Local testing controls (dashboard):** In local admin only, added one-click actions for **Clear all (including users)** and **Clear content (keep users)** with confirmation prompts, powered by new routes and a new command **`db:reset-content-keep-users`**.

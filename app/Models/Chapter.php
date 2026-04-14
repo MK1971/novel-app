@@ -317,6 +317,12 @@ class Chapter extends Model
             return $this->pilotAcceptedEditsTotal() >= $cap;
         }
 
+        if ($this->isPilotPeterTrullChapter()) {
+            $cap = max(1, (int) config('peter_trull.pilot.close_after_votes', 50));
+
+            return $this->pilotPeterTrullVotesTotal() >= $cap;
+        }
+
         return $this->editing_closes_at !== null && now()->greaterThan($this->editing_closes_at);
     }
 
@@ -330,6 +336,18 @@ class Chapter extends Model
         return (bool) $this->is_pilot
             && $this->book
             && $this->book->name === Book::NAME_THE_BOOK_WITH_NO_NAME;
+    }
+
+    /**
+     * Peter Trull pilot voting pair: closes by vote-count cap, not calendar.
+     */
+    public function isPilotPeterTrullChapter(): bool
+    {
+        $this->loadMissing('book');
+
+        return (bool) $this->is_pilot
+            && $this->book
+            && $this->book->name === Book::NAME_PETER_TRULL;
     }
 
     /** Accepted story + inline edits for pilot window (same statuses as leaderboard-style counts). */
@@ -346,6 +364,29 @@ class Chapter extends Model
             ->count();
 
         return (int) $story + (int) $inline;
+    }
+
+    /**
+     * Total votes across both A/B rows for this Peter Trull pair.
+     */
+    public function pilotPeterTrullVotesTotal(): int
+    {
+        if (! $this->isPilotPeterTrullChapter()) {
+            return 0;
+        }
+
+        $pairIds = static::query()
+            ->where('book_id', $this->book_id)
+            ->where('number', $this->number)
+            ->where('is_archived', false)
+            ->whereRaw('COALESCE(list_section, ?) = ?', [self::LIST_SECTION_CHAPTER, $this->manuscriptListSectionKey()])
+            ->pluck('id');
+
+        if ($pairIds->isEmpty()) {
+            return 0;
+        }
+
+        return (int) Vote::query()->whereIn('chapter_id', $pairIds)->count();
     }
 
     /** Paid manuscript suggestions (TBWNN index inline) allowed when chapter is open and within editing window. */
