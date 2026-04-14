@@ -2,6 +2,12 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.62 - Landing copy and CTA clarity pass (Phase 1/2 start)
+### Changed
+- **`welcome.blade.php` hero + journey copy:** Clarified the two-book participation model, standardized contributor-facing terminology (`$2 contribution`), and tightened the value proposition language.
+- **Homepage CTA labels:** Replaced ambiguous wording with clearer action text (for example `Enter the Manuscript`, `Become a Contributor (Sign Up)`, and `Open voting hub`) while preserving existing route targets.
+- **Chapter-aware CTA microcopy:** Added a live/empty-state-aware hero CTA label and subline based on `landingStats['chapters_live']`.
+
 ## Version 1.9.61 - Cloudways: verify all envs + deploy-all wrapper
 ### Added
 - **`scripts/deploy/cloudways_verify_all_envs.sh`:** Read-only SSH check — branch/HEAD per app and **`git_repo` → `public_html`** sync on **`routes/web.php`** and **`cron_git_pull_deploy.sh`**.

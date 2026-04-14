@@ -334,6 +334,9 @@
                 </div>
             </nav>
 
+            @php
+                $hasLiveChapters = (int) ($landingStats['chapters_live'] ?? 0) > 0;
+            @endphp
             <main id="main-content" class="relative z-10" tabindex="-1">
             {{-- Hero Section --}}
             <header class="relative flex-grow flex items-center pt-20 pb-32 overflow-hidden">
@@ -352,34 +355,34 @@
                                 <h1
                                     class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.2] break-words"
                                     id="landing-hero-headline"
-                                    data-type-text="Where your edits shape the narrative…"
+                                    data-type-text="Help shape a novel while it is still being written."
                                 >
                                     {{-- Visible before/without JS; typewriter replaces span content when script runs --}}
-                                    <span class="landing-hero-typewriter" aria-hidden="true">Where your edits shape the narrative…</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
+                                    <span class="landing-hero-typewriter" aria-hidden="true">Help shape a novel while it is still being written.</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
                                 </h1>
                             </div>
                             
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
-                                <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Be part of a living novel.</span>
-                                <span class="block font-bold text-white/95">Read, shape, and leave your mark on a story being written with its readers.</span>
+                                <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Read live chapters. Submit edits. Influence what becomes the final book.</span>
+                                <span class="block font-bold text-white/95">Book 1 lets you propose edits to The Book With No Name. Each approved contribution can raise your standing and each $2 contribution fee grants one vote in Peter Trull Solitary Detective.</span>
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
                                     <a href="{{ route('chapters.index') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
-                                        Start Your Adventure
+                                        {{ $hasLiveChapters ? 'Enter the Manuscript' : 'Explore the Manuscript (Opening Soon)' }}
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
-                                        Opens the chapter list — read the story and jump in with edits when you’re ready.
+                                        {{ $hasLiveChapters ? 'Opens the chapter list so you can read now and submit your version when you are ready.' : 'Opens the manuscript hub. Chapters are staged release drops, and this page shows when the first one opens.' }}
                                     </p>
                                 </div>
                                 @guest
                                     <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
-                                        Join the Community
+                                        Become a Contributor (Sign Up)
                                     </button>
                                 @else
                                     <a href="{{ route('dashboard') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
-                                        Go to Dashboard
+                                        Continue in Dashboard
                                     </a>
                                 @endguest
                                 @auth
@@ -415,9 +418,9 @@
                 <div class="max-w-7xl mx-auto px-6">
                     <div class="text-center mb-12 max-w-3xl mx-auto">
                         <h2 class="text-4xl md:text-5xl font-black text-amber-900 mb-6">The Journey</h2>
-                        <p class="text-2xl md:text-3xl font-black text-amber-900 mb-5">Two books. Two ways to play.</p>
+                        <p class="text-2xl md:text-3xl font-black text-amber-900 mb-5">Two connected books. One contribution system.</p>
                         <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed mb-6">
-                            This is a two-part adventure. In <span class="text-amber-950">The Book With No Name</span>, you read and edit — your suggestions can become part of the published novel. In <span class="text-amber-950">Peter Trull Solitary Detective</span>, you vote on which version of the story wins. They’re connected: paying to submit edits in Book 1 earns you votes in Book 2.
+                            In <span class="text-amber-950">The Book With No Name (Collaborative Novel)</span>, you read live chapters and submit contribution-backed edits that can be accepted into the manuscript. In <span class="text-amber-950">Peter Trull Solitary Detective (Interactive Mystery)</span>, you use vote credits to decide which version survives. The connection is simple: each completed $2 contribution in Book 1 grants one vote in Book 2.
                         </p>
                         <a href="#landing-how-steps" class="inline-flex items-center gap-2 text-amber-700 font-black text-lg hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-lg">
                             Learn how it all works <span aria-hidden="true">→</span>
@@ -430,13 +433,13 @@
                         <ol class="grid md:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0">
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">1</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Read &amp; contribute</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Open <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit paid edit suggestions.</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Read and submit your version</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Open <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit edits through a $2 contribution fee.</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Earn points</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard — each <strong class="text-amber-900">completed $2 payment</strong> adds <strong class="text-amber-900">one vote</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong> (no free votes).</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Earn placement and vote credits</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard, and each <strong class="text-amber-900">completed $2 contribution</strong> adds <strong class="text-amber-900">one vote credit</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong>.</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
@@ -467,7 +470,7 @@
                                 </li>
                             </ul>
                             <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
-                                Browse Chapters <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                {{ $hasLiveChapters ? 'Read the manuscript' : 'View upcoming chapters' }} <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
 
@@ -481,13 +484,13 @@
                                 A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
-                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 edit payments</strong> in <em>The Book With No Name</em> — one vote per payment.
+                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 contributions</strong> in <em>The Book With No Name</em> — one vote per contribution.
                                 <a href="{{ route('chapters.index') }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                    One vote per paid edit submission
+                                    One vote per $2 contribution submission
                                 </li>
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -495,7 +498,7 @@
                                 </li>
                             </ul>
                             <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
-                                Start Voting <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                Open voting hub <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
                     </div>
@@ -612,11 +615,11 @@
                         Want updates on chapter releases and funding milestones? Send us a note through Feedback and we will include you in update planning.
                     </p>
                     <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition inline-flex items-center px-6 py-3 bg-amber-600 text-white font-black rounded-xl hover:bg-amber-700">Open feedback</a>
+                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition inline-flex items-center px-6 py-3 bg-amber-600 text-white font-black rounded-xl hover:bg-amber-700">Share ideas and feedback</a>
                         @auth
                             <a href="{{ route('dashboard') }}#publishing-fund" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">View live funding progress</a>
                         @else
-                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">Create account to support</button>
+                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center px-6 py-3 border border-amber-300 text-amber-900 font-black rounded-xl hover:bg-white">Create account to participate</button>
                         @endauth
                     </div>
                 </div>
