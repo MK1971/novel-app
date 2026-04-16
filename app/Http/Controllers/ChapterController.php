@@ -6,10 +6,12 @@ use App\Models\Book;
 use App\Models\Chapter;
 use App\Models\Edit;
 use App\Models\ReadingProgress;
+use App\Models\User;
 use App\Support\AchievementUnlock;
 use App\Support\ChapterLifecycle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ChapterController extends Controller
 {
@@ -146,6 +148,7 @@ class ChapterController extends Controller
         $tbwArchiveSiblings = collect();
         $tbwLiveForNav = null;
         $tbwOtherArchiveSiblings = collect();
+        $chapterPrizeLeader = $this->chapterPrizeLeader($chapter->id);
         if ($chapter->book && $chapter->book->name === Book::NAME_THE_BOOK_WITH_NO_NAME) {
             if (! $chapter->is_archived) {
                 $tbwArchiveSiblings = $chapter->tbwArchiveSiblingsForReader();
@@ -170,6 +173,7 @@ class ChapterController extends Controller
             'tbwArchiveSiblings',
             'tbwLiveForNav',
             'tbwOtherArchiveSiblings',
+            'chapterPrizeLeader',
         ));
     }
 
@@ -300,5 +304,45 @@ class ChapterController extends Controller
             'is_locked' => true,
             'locked_at' => now(),
         ])->saveQuietly();
+    }
+
+    private function chapterPrizeLeader(int $chapterId): ?object
+    {
+        $adminEmail = (string) config('app.admin_email', 'admin@example.com');
+        $excludedUserId = User::query()->where('email', $adminEmail)->value('id');
+
+        $chapterAccepted = DB::table('edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('chapter_id', $chapterId)
+            ->where('type', '!=', 'inline_edit')
+            ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
+            ->groupBy('user_id');
+
+        $inlineAccepted = DB::table('inline_edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('chapter_id', $chapterId)
+            ->where('status', 'approved')
+            ->groupBy('user_id');
+
+        $query = User::query()
+            ->select('users.id', 'users.name', 'users.public_profile_enabled', 'users.public_slug', 'users.points')
+            ->selectRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) as accepted_total')
+            ->leftJoinSub($chapterAccepted, 'ch', function ($join): void {
+                $join->on('ch.user_id', '=', 'users.id');
+            })
+            ->leftJoinSub($inlineAccepted, 'ia', function ($join): void {
+                $join->on('ia.user_id', '=', 'users.id');
+            })
+            ->where('users.leaderboard_visible', true)
+            ->whereRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) > 0')
+            ->orderByDesc('accepted_total')
+            ->orderByDesc('users.points')
+            ->orderBy('users.id');
+
+        if ($excludedUserId) {
+            $query->where('users.id', '!=', $excludedUserId);
+        }
+
+        return $query->first();
     }
 }

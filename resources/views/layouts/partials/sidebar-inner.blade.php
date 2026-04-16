@@ -17,6 +17,9 @@
             <x-sidebar-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" icon="trophy">
                 Leaderboard
             </x-sidebar-link>
+            <x-sidebar-link :href="route('hall-of-fame')" :active="request()->routeIs('hall-of-fame')" icon="trophy">
+                Hall of Fame
+            </x-sidebar-link>
             <x-sidebar-link :href="route('edits.public')" :active="request()->routeIs('edits.public')" icon="archive">
                 Public edits feed
             </x-sidebar-link>

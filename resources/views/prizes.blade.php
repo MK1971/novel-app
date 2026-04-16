@@ -14,20 +14,24 @@
                             Contributors earn points when contribution-backed edits are accepted (full or partial, as shown in the app). Peter Trull voting uses separate vote credits from completed contributions on The Book With No Name, as described on the vote hub.
                         </p>
 
-                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Prize ladder (small → bigger)</h2>
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Placement prizes (Top 3)</h2>
                         <p class="mb-4">
-                            Prizes scale with how much you shape the work. From lighter recognition to the biggest public stamp on the project, the ladder looks like this:
+                            Final placement on the all-time leaderboard determines the top awards:
                         </p>
                         <ol class="list-decimal pl-6 space-y-3 mb-6 font-medium">
-                            <li><strong>Name a character</strong> — leave a mark inside the story world.</li>
-                            <li><strong>Name the book</strong> — help steer the title readers will see.</li>
-                            <li><strong>Grand prize: your name on the cover</strong> — top contributors can be credited on the final cover, subject to author and production approval (see below).</li>
+                            <li><strong>#1 — Grand prize: your name on the cover</strong> — first place receives cover credit on the final release, subject to author and production approval (see below).</li>
+                            <li><strong>#2 — Name the book</strong> — second place helps set the final book title.</li>
+                            <li><strong>#3 — Name a character</strong> — third place names a permanent character in the story.</li>
                         </ol>
-                        <p class="mb-6">
-                            <strong>Bonus once achieved:</strong> <strong>live forever in the project</strong> — lasting recognition in the book and on the site after top-tier milestones are secured.
-                        </p>
+
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Additional recognition rewards</h2>
+                        <ul class="list-disc pl-6 space-y-3 mb-6 font-medium">
+                            <li><strong>Top 10 — Signed first print</strong> to commemorate your contribution run.</li>
+                            <li><strong>Top 50 — Editor Hall of Fame</strong> listed on a permanent recognition page.</li>
+                            <li><strong>Chapter sponsor note</strong> — each live chapter may highlight its highest-impact contributor in a note below the chapter.</li>
+                        </ul>
                         <p class="text-sm font-bold text-amber-800/70 mb-6">
-                            Tiers and exact wording may vary by campaign; the <a href="{{ route('leaderboard') }}" class="text-amber-700 underline hover:text-amber-900">leaderboard</a> reflects current standings.
+                            Reward details and exact wording may vary by campaign; the <a href="{{ route('leaderboard') }}" class="text-amber-700 underline hover:text-amber-900">leaderboard</a> reflects current standings.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Grand prize: name on the cover</h2>

@@ -2,6 +2,21 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.69 - Automatic prize standings, hall of fame, and dashboard recognition
+### Added
+- **Hall of Fame route and page:** Added a live `Top 50` Editor Hall of Fame (`/hall-of-fame`) ranked by accepted replacements (full chapter + paragraph), with public-profile linking where enabled.
+- **Leaderboard reward visibility:** Added a dedicated `Top 10` signed-print candidates block and a live `Top 3` placement summary driven by accepted-replacement rankings.
+- **Dashboard recognition status:** Added a new recognition panel in the dashboard achievements area with live placement badges (`#1`, `Top 3`, `Top 10`, `Top 50`) and milestone tracking.
+- **Rank-based achievement definitions:** Added achievement definitions for accepted-rank milestones (`Top 50`, `Top 10`, `Top 3`, `#1`).
+
+### Changed
+- **Achievement sync behavior:** `AchievementUnlock::ensureDefinitionsExist()` now upserts configured definitions even when achievements already exist, so new definitions are automatically introduced in existing environments.
+- **Accepted-rank unlock support:** Achievement evaluation and progress now support `accepted_rank_at_or_better` requirements using the same accepted-replacement ranking logic as prize standings.
+- **Navigation discoverability:** Added `Hall of Fame` links in primary and sidebar navigation.
+
+### Fixed
+- **Prize messaging clarity:** Replaced generic leaderboard heading copy with clearer live-status labeling for automatic prize placement sections.
+
 ## Version 1.9.68 - Landing accepted-replacement query is schema-safe
 ### Fixed
 - **Cross-environment chapter relation loading:** Home-route social-proof queries no longer hard-select `chapters.custom_title`; they now eager-load `chapter` without schema-specific column lists so dev/staging/prod with slight column drift do not throw SQL 1054 on landing.

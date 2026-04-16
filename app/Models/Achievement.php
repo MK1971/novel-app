@@ -31,6 +31,7 @@ class Achievement extends Model
             'points_earned' => $n === 1 ? '1 leaderboard point' : $n.' leaderboard points',
             'chapters_read' => $n === 1 ? '1 chapter with reading progress' : $n.' chapters with reading progress',
             'completed_payments' => $n === 1 ? '1 completed $2 checkout' : $n.' completed $2 checkouts',
+            'accepted_rank_at_or_better' => '#'.$n.' or better by accepted replacements',
             default => ($this->requirement_type ?? '') !== ''
                 ? $n.' × ('.$this->requirement_type.')'
                 : 'See description',

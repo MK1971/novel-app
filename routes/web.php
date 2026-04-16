@@ -34,6 +34,7 @@ use App\Support\AchievementUnlock;
 use App\Support\ChapterLifecycle;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
@@ -91,21 +92,27 @@ Route::get('/', function () {
             ->first();
 
     $previewExcerpt = null;
+    $previewExcerptLines = [];
     $previewUrgencyLabel = null;
     if ($previewChapter) {
         $lines = preg_split("/\r\n|\r|\n/", (string) $previewChapter->content) ?: [];
-        $firstNonEmpty = null;
+        $nonEmptyLines = [];
         foreach ($lines as $line) {
             $t = trim((string) $line);
             if ($t !== '') {
-                $firstNonEmpty = $t;
+                $nonEmptyLines[] = $t;
+            }
+            if (count($nonEmptyLines) >= 2) {
                 break;
             }
         }
-        if ($firstNonEmpty !== null) {
-            $previewExcerpt = mb_strlen($firstNonEmpty) > 220
-                ? mb_substr($firstNonEmpty, 0, 220).'...'
-                : $firstNonEmpty;
+        if ($nonEmptyLines !== []) {
+            $previewExcerptLines = array_map(static function (string $line): string {
+                return mb_strlen($line) > 180 ? mb_substr($line, 0, 180).'...' : $line;
+            }, $nonEmptyLines);
+
+            $firstNonEmpty = $nonEmptyLines[0];
+            $previewExcerpt = mb_strlen($firstNonEmpty) > 220 ? mb_substr($firstNonEmpty, 0, 220).'...' : $firstNonEmpty;
         }
 
         if (! $previewChapter->is_locked && $previewChapter->editing_closes_at) {
@@ -166,6 +173,7 @@ Route::get('/', function () {
         'landingStatsQuiet' => $landingStatsQuiet,
         'previewChapter' => $previewChapter,
         'previewExcerpt' => $previewExcerpt,
+        'previewExcerptLines' => $previewExcerptLines,
         'previewUrgencyLabel' => $previewUrgencyLabel,
         'latestReplacement' => $latestReplacement,
         'guestFirstVisitNav' => $guestFirstVisitNav,
@@ -209,6 +217,54 @@ Route::post('/chapters/{chapter}/track-progress', [ChapterController::class, 'tr
 Route::get('/chapters/{chapter}/get-progress', [ChapterController::class, 'getProgress'])->middleware('auth')->name('chapters.get-progress');
 
 Route::get('/leaderboard', LeaderboardController::class)->name('leaderboard');
+
+Route::get('/hall-of-fame', function () {
+    $adminEmail = (string) config('app.admin_email', 'admin@example.com');
+    $excludeUserId = User::query()->where('email', $adminEmail)->value('id');
+    $hiddenUserIds = User::query()
+        ->where('leaderboard_visible', false)
+        ->pluck('id')
+        ->all();
+
+    $chapterAccepted = DB::table('edits')
+        ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+        ->where('type', '!=', 'inline_edit')
+        ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
+        ->groupBy('user_id');
+
+    $inlineAccepted = DB::table('inline_edits')
+        ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+        ->where('status', 'approved')
+        ->groupBy('user_id');
+
+    $query = User::query()
+        ->select('users.id', 'users.name', 'users.public_profile_enabled', 'users.public_slug', 'users.points')
+        ->selectRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) as accepted_total')
+        ->leftJoinSub($chapterAccepted, 'ch', function ($join): void {
+            $join->on('ch.user_id', '=', 'users.id');
+        })
+        ->leftJoinSub($inlineAccepted, 'ia', function ($join): void {
+            $join->on('ia.user_id', '=', 'users.id');
+        })
+        ->where('users.leaderboard_visible', true)
+        ->whereRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) > 0')
+        ->orderByDesc('accepted_total')
+        ->orderByDesc('users.points')
+        ->orderBy('users.id');
+
+    if ($excludeUserId) {
+        $query->where('users.id', '!=', $excludeUserId);
+    }
+    if ($hiddenUserIds !== []) {
+        $query->whereNotIn('users.id', $hiddenUserIds);
+    }
+
+    $hallOfFameUsers = $query->limit(50)->get();
+
+    return view('hall-of-fame', [
+        'hallOfFameUsers' => $hallOfFameUsers,
+    ]);
+})->name('hall-of-fame');
 
 Route::get('/people/{slug}', [PublicProfileController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
@@ -278,6 +334,89 @@ Route::middleware('auth')->group(function () {
 
         $firstOpenTbwChapter = ChapterLifecycle::latestOpenTbwChapter();
 
+        $adminEmail = (string) config('app.admin_email', 'admin@example.com');
+        $excludeUserId = User::query()->where('email', $adminEmail)->value('id');
+        $hiddenUserIds = User::query()
+            ->where('leaderboard_visible', false)
+            ->pluck('id')
+            ->all();
+
+        $chapterAccepted = DB::table('edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('type', '!=', 'inline_edit')
+            ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
+            ->groupBy('user_id');
+
+        $inlineAccepted = DB::table('inline_edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('status', 'approved')
+            ->groupBy('user_id');
+
+        $acceptedRankQuery = User::query()
+            ->select('users.id')
+            ->selectRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) as accepted_total')
+            ->leftJoinSub($chapterAccepted, 'ch', function ($join): void {
+                $join->on('ch.user_id', '=', 'users.id');
+            })
+            ->leftJoinSub($inlineAccepted, 'ia', function ($join): void {
+                $join->on('ia.user_id', '=', 'users.id');
+            })
+            ->where('users.leaderboard_visible', true)
+            ->whereRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) > 0')
+            ->orderByDesc('accepted_total')
+            ->orderByDesc('users.points')
+            ->orderBy('users.id');
+
+        if ($excludeUserId) {
+            $acceptedRankQuery->where('users.id', '!=', $excludeUserId);
+        }
+        if ($hiddenUserIds !== []) {
+            $acceptedRankQuery->whereNotIn('users.id', $hiddenUserIds);
+        }
+
+        $acceptedRankedIds = $acceptedRankQuery->pluck('users.id')->values();
+        $acceptedRankPos = $acceptedRankedIds->search(fn ($id) => (int) $id === (int) $user->id);
+        $acceptedPrizeRank = $acceptedRankPos === false ? null : $acceptedRankPos + 1;
+        $acceptedReplacementsTotal = $user->acceptedChapterAndParagraphEditCount();
+
+        $liveRecognitionBadges = [
+            [
+                'label' => '#1 Cover leader',
+                'detail' => 'Current cover-credit holder',
+                'active' => $acceptedPrizeRank === 1,
+            ],
+            [
+                'label' => 'Top 3 Podium',
+                'detail' => 'Current placement prize holder',
+                'active' => $acceptedPrizeRank !== null && $acceptedPrizeRank <= 3,
+            ],
+            [
+                'label' => 'Top 10 Signed print',
+                'detail' => 'Within signed first print range',
+                'active' => $acceptedPrizeRank !== null && $acceptedPrizeRank <= 10,
+            ],
+            [
+                'label' => 'Top 50 Hall of Fame',
+                'detail' => 'Within Editor Hall of Fame range',
+                'active' => $acceptedPrizeRank !== null && $acceptedPrizeRank <= 50,
+            ],
+        ];
+
+        $recognitionMilestones = $achievements
+            ->where('requirement_type', 'accepted_rank_at_or_better')
+            ->map(function (\App\Models\Achievement $achievement) use ($userAchievements) {
+                return [
+                    'name' => $achievement->name,
+                    'icon' => $achievement->icon_emoji,
+                    'description' => $achievement->description,
+                    'requirement' => $achievement->requirementLabel(),
+                    'rank_target' => (int) $achievement->requirement_value,
+                    'unlocked' => in_array($achievement->id, $userAchievements, true),
+                ];
+            })
+            ->sortBy('rank_target')
+            ->values();
+
         return view('dashboard', compact(
             'achievements',
             'userAchievements',
@@ -288,7 +427,11 @@ Route::middleware('auth')->group(function () {
             'contributionCents',
             'competitorCents',
             'totalCents',
-            'fundingProgressPercent'
+            'fundingProgressPercent',
+            'acceptedPrizeRank',
+            'acceptedReplacementsTotal',
+            'liveRecognitionBadges',
+            'recognitionMilestones'
         ));
     })->name('dashboard');
 

@@ -48,6 +48,34 @@ return [
             'requirement_type' => 'points_earned',
             'requirement_value' => 10,
         ],
+        [
+            'name' => 'Hall of fame entrant',
+            'description' => 'Reach Top 50 by accepted replacements.',
+            'icon_emoji' => '🏅',
+            'requirement_type' => 'accepted_rank_at_or_better',
+            'requirement_value' => 50,
+        ],
+        [
+            'name' => 'Signed print range',
+            'description' => 'Reach Top 10 by accepted replacements.',
+            'icon_emoji' => '📚',
+            'requirement_type' => 'accepted_rank_at_or_better',
+            'requirement_value' => 10,
+        ],
+        [
+            'name' => 'Podium finisher',
+            'description' => 'Reach Top 3 by accepted replacements.',
+            'icon_emoji' => '🥉',
+            'requirement_type' => 'accepted_rank_at_or_better',
+            'requirement_value' => 3,
+        ],
+        [
+            'name' => 'Cover leader',
+            'description' => 'Reach #1 by accepted replacements.',
+            'icon_emoji' => '✨',
+            'requirement_type' => 'accepted_rank_at_or_better',
+            'requirement_value' => 1,
+        ],
     ],
 
 ];

@@ -28,6 +28,9 @@
                     <x-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                         Leaderboard
                     </x-nav-link>
+                    <x-nav-link :href="route('hall-of-fame')" :active="request()->routeIs('hall-of-fame')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                        Hall of Fame
+                    </x-nav-link>
                     <x-nav-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                         Vote
                     </x-nav-link>
@@ -115,6 +118,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-semibold">
                 Leaderboard
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('hall-of-fame')" :active="request()->routeIs('hall-of-fame')" class="text-amber-900 font-semibold">
+                Hall of Fame
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('vote.index')" :active="request()->routeIs('vote.*')" class="text-amber-900 font-semibold">
                 Vote

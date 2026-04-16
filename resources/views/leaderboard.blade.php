@@ -51,6 +51,68 @@
     </x-slot>
 
     <div class="py-12">
+        @if(($acceptedPrizeLeaders ?? collect())->isNotEmpty())
+            <div class="mb-8 rounded-[2rem] border border-amber-300 bg-gradient-to-br from-amber-50 to-white px-8 py-6 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800/70">Live prize standings (auto-updated)</p>
+                <p class="mt-2 text-sm font-bold text-amber-900/80">Based on total accepted replacements (full chapter + paragraph). These update automatically when accepted totals change.</p>
+                <div class="mt-5 grid gap-3 md:grid-cols-3">
+                    @foreach($acceptedPrizeLeaders as $prizeIndex => $prizeUser)
+                        @php
+                            $placement = $prizeIndex + 1;
+                            $placementLabel = match ($placement) {
+                                1 => '#1 Name on the cover',
+                                2 => '#2 Name the book',
+                                3 => '#3 Name a character',
+                                default => '#'.$placement,
+                            };
+                        @endphp
+                        <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
+                            <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70">{{ $placementLabel }}</p>
+                            <p class="mt-1 text-base font-extrabold text-amber-950">
+                                @if ($prizeUser->public_profile_enabled && filled($prizeUser->public_slug))
+                                    <a href="{{ route('profile.public', ['slug' => $prizeUser->public_slug]) }}" class="hover:underline focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded">
+                                        {{ $prizeUser->name }}
+                                    </a>
+                                @else
+                                    {{ $prizeUser->name }}
+                                @endif
+                            </p>
+                            <p class="mt-1 text-xs font-bold text-amber-800/80">{{ number_format((int) ($prizeUser->accepted_total ?? 0)) }} accepted replacements</p>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="mt-4 text-xs font-bold text-amber-800/80">
+                    Additional rewards: Top 10 qualify for signed first print, Top 50 qualify for Editor Hall of Fame.
+                </p>
+                <p class="mt-2">
+                    <a href="{{ route('hall-of-fame') }}" class="inline-flex items-center rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-100">
+                        View top 50 hall of fame
+                    </a>
+                </p>
+            </div>
+        @endif
+
+        @if(($acceptedPrizeTopTen ?? collect())->isNotEmpty())
+            <div class="mb-8 rounded-[2rem] border border-amber-200 bg-white px-8 py-6 shadow-sm">
+                <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800/70">Signed first print candidates (Top 10)</p>
+                <div class="mt-4 grid gap-3 md:grid-cols-2">
+                    @foreach($acceptedPrizeTopTen as $i => $topTenUser)
+                        <div class="flex items-center justify-between rounded-2xl border border-amber-100 bg-amber-50/50 px-4 py-3">
+                            <p class="text-sm font-extrabold text-amber-950">
+                                #{{ $i + 1 }}
+                                @if ($topTenUser->public_profile_enabled && filled($topTenUser->public_slug))
+                                    <a href="{{ route('profile.public', ['slug' => $topTenUser->public_slug]) }}" class="ml-1 hover:underline">{{ $topTenUser->name }}</a>
+                                @else
+                                    <span class="ml-1">{{ $topTenUser->name }}</span>
+                                @endif
+                            </p>
+                            <p class="text-xs font-bold text-amber-800/80">{{ number_format((int) ($topTenUser->accepted_total ?? 0)) }} accepted</p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         @if($users->isEmpty())
             <div class="max-w-xl mx-auto text-center bg-white border border-amber-100 shadow-sm rounded-[3rem] px-10 py-16">
                 <div class="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
@@ -105,6 +167,20 @@
                             {{ number_format($yourPoints ?? 0) }} points
                             @if($yourRank > 20)
                                 <span class="block mt-2 text-amber-800/70">You’re outside the top 20 shown in the table — keep contributing to move up.</span>
+                            @endif
+                            @if(($period ?? 'all') === 'all' && $yourAcceptedPrizeRank)
+                                <span class="block mt-2 text-amber-800/80">
+                                    Accepted-edits prize rank: <strong>#{{ $yourAcceptedPrizeRank }}</strong>
+                                    @if($yourAcceptedPrizeRank === 1)
+                                        — current cover-credit holder.
+                                    @elseif($yourAcceptedPrizeRank <= 3)
+                                        — currently in Top 3 placement prizes.
+                                    @elseif($yourAcceptedPrizeRank <= 10)
+                                        — currently in signed-print range (Top 10).
+                                    @elseif($yourAcceptedPrizeRank <= 50)
+                                        — currently in Editor Hall of Fame range (Top 50).
+                                    @endif
+                                </span>
                             @endif
                         </p>
                         <div class="mt-4 rounded-2xl border border-amber-300/60 bg-white/70 px-4 py-4">

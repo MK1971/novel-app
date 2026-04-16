@@ -372,15 +372,15 @@
                                 <h1
                                     class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.2] break-words"
                                     id="landing-hero-headline"
-                                    data-type-text="Challenge the manuscript. Change the story."
+                                    data-type-text="The manuscript is not final. You can change it."
                                 >
-                                    <span class="landing-hero-typewriter" aria-hidden="true">Challenge the manuscript. Change the story.</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
+                                    <span class="landing-hero-typewriter" aria-hidden="true">The manuscript is not final. You can change it.</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
                                 </h1>
                             </div>
                             
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
-                                <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Read live chapters. Submit edits. Influence what becomes the final book.</span>
-                                <span class="block font-bold text-white/95">Book 1 lets you propose edits to The Book With No Name. Approved contributions raise your standing and unlock voting power in Peter Trull Solitary Detective.</span>
+                                <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Each chapter is released before it is decided.</span>
+                                <span class="block font-bold text-white/95">Read live chapters, submit your version, and vote on what survives. What you change here may become permanent.</span>
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
@@ -394,7 +394,7 @@
                                 </div>
                                 @guest
                                     <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-stone-900 text-amber-100 text-lg font-black rounded-2xl border-2 border-amber-500/70 hover:bg-black hover:border-amber-400 transition-all shadow-xl shadow-black/35 transform hover:-translate-y-1">
-                                        Submit your first edit
+                                        Make your mark
                                     </button>
                                 @else
                                     <a href="{{ route('dashboard') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
@@ -408,26 +408,35 @@
                                 @endauth
                             </div>
 
-                            @if($previewChapter && filled($previewExcerpt))
-                                <div class="mt-12 max-w-2xl rounded-[2rem] border border-white/20 bg-black/35 backdrop-blur-md p-6 shadow-xl shadow-black/20">
-                                    <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-300/90 mb-3">Chapter preview</p>
-                                    <p class="text-white text-xl font-black leading-snug mb-2">{{ $previewChapter->readerHeadingLine() }}</p>
-                                    @if(filled($previewUrgencyLabel ?? null))
-                                        <p class="mb-3 inline-flex items-center rounded-xl border border-amber-400/35 bg-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-200">{{ $previewUrgencyLabel }}</p>
-                                    @endif
-                                    <p class="text-white/85 font-bold leading-relaxed">
-                                        “{{ $previewExcerpt }}”
-                                    </p>
-                                    <div class="mt-5 flex flex-wrap gap-3">
-                                        <a href="{{ route('chapters.show', $previewChapter) }}" data-track-event="landing_preview_read_click" data-track-label="hero_preview_read" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-black hover:bg-amber-600">
-                                            Read the full chapter
-                                        </a>
-                                        <a href="{{ route('chapters.index') }}" data-track-event="landing_preview_all_chapters_click" data-track-label="hero_preview_all" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/15">
-                                            Browse chapters
-                                        </a>
-                                    </div>
+                            <div class="mt-12 max-w-2xl rounded-[2rem] border border-white/20 bg-black/35 backdrop-blur-md p-6 shadow-xl shadow-black/20">
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-300/90 mb-3">Chapter preview</p>
+                                <p class="text-white text-xl font-black leading-snug mb-2">{{ $previewChapter ? $previewChapter->readerHeadingLine() : 'Chapter 1' }}</p>
+                                @if($previewChapter && filled($previewUrgencyLabel ?? null))
+                                    <p class="mb-3 inline-flex items-center rounded-xl border border-amber-400/35 bg-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-200">{{ $previewUrgencyLabel }}</p>
+                                @endif
+                                @php
+                                    $heroPreviewLines = $previewExcerptLines ?? [];
+                                    if ($heroPreviewLines === []) {
+                                        $heroPreviewLines = [
+                                            'He didn’t notice the door was already open.',
+                                            'That was the first mistake.',
+                                        ];
+                                    }
+                                @endphp
+                                <div class="space-y-2 text-white/90 font-bold leading-relaxed">
+                                    @foreach($heroPreviewLines as $line)
+                                        <p>“{{ $line }}”</p>
+                                    @endforeach
                                 </div>
-                            @endif
+                                <div class="mt-5 flex flex-wrap gap-3">
+                                    <a href="{{ $previewChapter ? route('chapters.show', $previewChapter) : route('chapters.index') }}" data-track-event="landing_preview_read_click" data-track-label="hero_preview_read" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-black hover:bg-amber-600">
+                                        Continue reading
+                                    </a>
+                                    <a href="{{ route('chapters.index') }}" data-track-event="landing_preview_all_chapters_click" data-track-label="hero_preview_all" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/15">
+                                        Read chapters
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="hidden lg:flex justify-center book-mockup">
@@ -449,67 +458,6 @@
                     </div>
                 </div>
             </header>
-
-            <section class="relative z-10 bg-[#fff9f0] border-y border-amber-100 py-16" aria-labelledby="landing-social-proof">
-                <div class="max-w-5xl mx-auto px-6">
-                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
-                        <div>
-                            <h2 id="landing-social-proof" class="text-2xl md:text-3xl font-black text-amber-950">Latest accepted replacement</h2>
-                            <p class="mt-2 text-sm font-bold text-amber-900/70 max-w-2xl">Proof the manuscript moves. A single accepted line can change the tone for everyone who follows.</p>
-                        </div>
-                        <a href="{{ route('edits.public') }}" class="landing-ui-transition inline-flex items-center rounded-2xl border border-amber-200 bg-white px-5 py-3 text-sm font-black text-amber-900 hover:bg-amber-50">
-                            Read accepted edits
-                        </a>
-                    </div>
-
-                    @php
-                        $fallbackReplacement = [
-                            'label' => 'Example (shown until the first live acceptance)',
-                            'user_name' => 'Contributor',
-                            'chapter_heading' => 'Chapter 1 (preview)',
-                            'original' => 'He didn’t notice the door was already open.',
-                            'suggested' => 'He didn’t notice the door had already been open.',
-                        ];
-                        $hasLiveReplacement = is_array($latestReplacement ?? null) && filled($latestReplacement['original'] ?? null) && filled($latestReplacement['suggested'] ?? null);
-                    @endphp
-
-                    <div class="rounded-[2rem] border border-amber-200 bg-white shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 bg-amber-50/60 border-b border-amber-100 flex flex-wrap items-center justify-between gap-3">
-                            <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800/70">
-                                {{ $hasLiveReplacement ? 'Live acceptance' : $fallbackReplacement['label'] }}
-                            </p>
-                            <p class="text-xs font-bold text-amber-800/70">
-                                {{ $hasLiveReplacement ? ($latestReplacement['chapter_heading'] ?? 'Chapter') : $fallbackReplacement['chapter_heading'] }}
-                                @if($hasLiveReplacement && filled($latestReplacement['user_name'] ?? null))
-                                    <span class="text-amber-800/40" aria-hidden="true">·</span> accepted from {{ $latestReplacement['user_name'] }}
-                                @endif
-                            </p>
-                        </div>
-                        <div class="grid md:grid-cols-2 gap-0">
-                            <div class="p-6 border-b md:border-b-0 md:border-r border-amber-100">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Published text</p>
-                                <p class="text-amber-950 font-bold leading-relaxed">
-                                    {{ $hasLiveReplacement ? ($latestReplacement['original'] ?? '') : $fallbackReplacement['original'] }}
-                                </p>
-                            </div>
-                            <div class="p-6 bg-amber-50/40">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Accepted replacement</p>
-                                <p class="text-amber-950 font-black leading-relaxed">
-                                    {{ $hasLiveReplacement ? ($latestReplacement['suggested'] ?? '') : $fallbackReplacement['suggested'] }}
-                                </p>
-                            </div>
-                        </div>
-                        @if($hasLiveReplacement && filled($latestReplacement['chapter_url'] ?? null))
-                            <div class="px-6 py-4 border-t border-amber-100 bg-white flex flex-wrap items-center justify-between gap-3">
-                                <p class="text-xs font-bold text-amber-900/70">Want context? Read the chapter where this landed.</p>
-                                <a href="{{ $latestReplacement['chapter_url'] }}" class="landing-ui-transition inline-flex items-center rounded-2xl bg-amber-900 px-5 py-3 text-sm font-black text-white hover:bg-black">
-                                    Read the chapter
-                                </a>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </section>
 
             {{-- The Two-Part Journey --}}
             <section class="py-32 bg-white border-y border-amber-100">
@@ -567,7 +515,7 @@
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                    One vote per $2 contribution submission
+                                    One vote per completed contribution
                                 </li>
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
@@ -585,15 +533,31 @@
 
                     <div id="landing-prizes-progression" class="max-w-3xl mx-auto rounded-[2rem] border-2 border-amber-200 bg-gradient-to-br from-[#fff9f0] to-amber-50/80 px-8 py-10 md:px-12 md:py-12 shadow-lg shadow-amber-900/5">
                         <h3 class="text-2xl md:text-3xl font-black text-amber-950 text-center mb-2">Recognition ladder</h3>
-                        <p class="text-center text-amber-800/90 font-bold mb-8">Move up by accepted replacements and leaderboard position.</p>
+                        <p class="text-center text-amber-800/90 font-bold mb-8">Final rewards are based on all-time leaderboard placement.</p>
                         <ul class="space-y-4 text-left font-bold text-amber-900 leading-relaxed">
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">🏅</span><span><strong class="font-black">Tier 1 — Name a character</strong><br><span class="text-amber-800/80 text-sm">Start with accepted replacements and establish your rank.</span></span></li>
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">📖</span><span><strong class="font-black">Tier 2 — Name the book</strong><br><span class="text-amber-800/80 text-sm">Sustain high placements to influence the final title.</span></span></li>
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">✨</span><span><strong class="font-black">Tier 3 — Your name on the cover (top reward)</strong><br><span class="text-amber-800/80 text-sm">Top contributors compete for cover credit on the final release.</span></span></li>
+                            <li class="flex gap-3">
+                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg" aria-hidden="true">
+                                    🏅
+                                </span>
+                                <span><strong class="font-black">#3 — Name a character</strong><br><span class="text-amber-800/80 text-sm">Third place adds a permanent character name to the story world.</span></span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg" aria-hidden="true">
+                                    📖
+                                </span>
+                                <span><strong class="font-black">#2 — Name the book</strong><br><span class="text-amber-800/80 text-sm">Second place helps set the final title seen by every reader.</span></span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-lg" aria-hidden="true">
+                                    ✨
+                                </span>
+                                <span><strong class="font-black">#1 — Your name on the cover (top reward)</strong><br><span class="text-amber-800/80 text-sm">First place receives final cover credit, subject to production approval.</span></span>
+                            </li>
                         </ul>
-                        <p class="mt-5 rounded-xl border border-amber-200 bg-white/60 px-4 py-3 text-sm font-bold text-amber-900/90">
-                            Bonus once achieved: <strong>Live forever in the story</strong> as ongoing recognition after top-tier milestones are secured.
-                        </p>
+                        <div class="mt-5 rounded-xl border border-amber-200 bg-white/60 px-4 py-3 text-sm font-bold text-amber-900/90 space-y-2">
+                            <p><strong>Additional rewards:</strong> Top 10 receive a signed first print, and Top 50 are listed in the Editor Hall of Fame.</p>
+                            <p><strong>Chapter sponsor note:</strong> Each live chapter can credit its highest-impact contributor in a sponsor note below that chapter.</p>
+                        </div>
                         <p class="mt-8 text-center text-sm md:text-base font-black text-amber-900/85 leading-snug">
                             Precision compounds. The higher your accepted-replacement rate, the higher you climb.
                         </p>
@@ -626,33 +590,63 @@
                 </div>
             </section>
 
-            <section class="py-20 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-what-is-heading">
-                <div class="max-w-4xl mx-auto px-6 text-center">
-                    <h2 id="landing-what-is-heading" class="text-3xl md:text-4xl font-black text-amber-900 mb-5">A living novel you help write</h2>
-                    <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed">
-                        Chapters release before they are final. You read the live text, submit your version, and accepted replacements become canon.
-                        Every completed $2 contribution also gives one vote credit for Peter Trull Solitary Detective.
-                    </p>
-                </div>
-            </section>
+            <section class="relative z-10 bg-[#fff9f0] border-y border-amber-100 py-16" aria-labelledby="landing-social-proof">
+                <div class="max-w-5xl mx-auto px-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+                        <div>
+                            <h2 id="landing-social-proof" class="text-2xl md:text-3xl font-black text-amber-950">Latest accepted replacement</h2>
+                            <p class="mt-2 text-sm font-bold text-amber-900/70 max-w-2xl">Proof the manuscript moves. A single accepted line can define how the story evolves.</p>
+                        </div>
+                        <a href="{{ route('edits.public') }}" class="landing-ui-transition inline-flex items-center rounded-2xl border border-amber-200 bg-white px-5 py-3 text-sm font-black text-amber-900 hover:bg-amber-50">
+                            Read accepted replacements
+                        </a>
+                    </div>
 
-            {{-- Trust and contribution clarity --}}
-            <section id="landing-trust" class="py-16 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-trust-heading">
-                <div class="max-w-4xl mx-auto px-6">
-                    <h2 id="landing-trust-heading" class="text-center text-2xl md:text-3xl font-black text-amber-900 tracking-tight">How decisions are made</h2>
-                    <div class="mt-8 grid md:grid-cols-3 gap-4">
-                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
-                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Moderation</p>
-                            <p class="text-sm font-bold text-amber-900">Every submission is reviewed. Acceptance is not guaranteed.</p>
+                    @php
+                        $fallbackReplacement = [
+                            'label' => 'Example (shown until the first live acceptance)',
+                            'user_name' => 'Contributor',
+                            'chapter_heading' => 'Chapter 1 (preview)',
+                            'original' => 'He didn’t notice the door was already open.',
+                            'suggested' => 'He didn’t notice the door had already been open.',
+                        ];
+                        $hasLiveReplacement = is_array($latestReplacement ?? null) && filled($latestReplacement['original'] ?? null) && filled($latestReplacement['suggested'] ?? null);
+                    @endphp
+
+                    <div class="rounded-[2rem] border border-amber-200 bg-white shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 bg-amber-50/60 border-b border-amber-100 flex flex-wrap items-center justify-between gap-3">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800/70">
+                                {{ $hasLiveReplacement ? 'Live acceptance' : $fallbackReplacement['label'] }}
+                            </p>
+                            <p class="text-xs font-bold text-amber-800/70">
+                                {{ $hasLiveReplacement ? ($latestReplacement['chapter_heading'] ?? 'Chapter') : $fallbackReplacement['chapter_heading'] }}
+                                @if($hasLiveReplacement && filled($latestReplacement['user_name'] ?? null))
+                                    <span class="text-amber-800/40" aria-hidden="true">·</span> accepted from {{ $latestReplacement['user_name'] }}
+                                @endif
+                            </p>
                         </div>
-                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
-                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Scoring</p>
-                            <p class="text-sm font-bold text-amber-900">Accepted edits earn points (2 full, 1 partial, 0 rejected).</p>
+                        <div class="grid md:grid-cols-2 gap-0">
+                            <div class="p-6 border-b md:border-b-0 md:border-r border-amber-100">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Published text</p>
+                                <p class="text-amber-950 font-bold leading-relaxed">
+                                    {{ $hasLiveReplacement ? ($latestReplacement['original'] ?? '') : $fallbackReplacement['original'] }}
+                                </p>
+                            </div>
+                            <div class="p-6 bg-amber-50/40">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Accepted replacement</p>
+                                <p class="text-amber-950 font-black leading-relaxed">
+                                    {{ $hasLiveReplacement ? ($latestReplacement['suggested'] ?? '') : $fallbackReplacement['suggested'] }}
+                                </p>
+                            </div>
                         </div>
-                        <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
-                            <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Voting</p>
-                            <p class="text-sm font-bold text-amber-900">Each completed contribution adds one vote credit for Peter Trull.</p>
-                        </div>
+                        @if($hasLiveReplacement && filled($latestReplacement['chapter_url'] ?? null))
+                            <div class="px-6 py-4 border-t border-amber-100 bg-white flex flex-wrap items-center justify-between gap-3">
+                                <p class="text-xs font-bold text-amber-900/70">Want context? Read the chapter where this landed.</p>
+                                <a href="{{ $latestReplacement['chapter_url'] }}" class="landing-ui-transition inline-flex items-center rounded-2xl bg-amber-900 px-5 py-3 text-sm font-black text-white hover:bg-black">
+                                    Continue reading
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </section>
@@ -699,7 +693,7 @@
                             </div>
                             <div class="text-center">
                                 <div class="text-5xl font-black text-amber-900 mb-2">{{ $landingStats['edits_accepted'] }}</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Edits Accepted</div>
+                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Replacements Accepted</div>
                                 <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Story and inline</div>
                             </div>
                             <div class="text-center">

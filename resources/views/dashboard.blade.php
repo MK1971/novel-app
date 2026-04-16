@@ -371,6 +371,43 @@
                     >
                         <h3 class="text-2xl font-extrabold text-amber-900 mb-2">🎖️ Your Achievements</h3>
                         <p class="text-sm font-bold text-amber-800/65 mb-6">Earned badges look normal; not-yet-earned ones stay grayed out (hover a faded tile to see it clearly). Use <span class="text-amber-900">How it works</span> for requirements and progress.</p>
+                        <div class="mb-6 rounded-2xl border border-amber-200 bg-amber-50/80 p-4">
+                            <p class="text-[10px] font-black uppercase tracking-widest text-amber-800/60">Live recognition status</p>
+                            <p class="mt-1 text-xs font-bold text-amber-900/80">
+                                Accepted replacements: <strong class="text-amber-950">{{ number_format((int) ($acceptedReplacementsTotal ?? 0)) }}</strong>
+                                @if($acceptedPrizeRank)
+                                    · Current accepted-edits rank: <strong class="text-amber-950">#{{ $acceptedPrizeRank }}</strong>
+                                @else
+                                    · No accepted-rank placement yet
+                                @endif
+                            </p>
+                            <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                                @foreach(($liveRecognitionBadges ?? []) as $badge)
+                                    <div class="rounded-xl border px-3 py-2 {{ !empty($badge['active']) ? 'border-amber-300 bg-white text-amber-950' : 'border-amber-200 bg-white/60 text-amber-800/70' }}">
+                                        <p class="text-xs font-black uppercase tracking-wide">{{ $badge['label'] }}</p>
+                                        <p class="text-[11px] font-bold">{{ $badge['detail'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @php
+                            $milestoneRows = collect($recognitionMilestones ?? []);
+                            $milestonesUnlocked = $milestoneRows->where('unlocked', true)->count();
+                        @endphp
+                        @if($milestoneRows->isNotEmpty())
+                            <div class="mb-6 rounded-2xl border border-amber-200 bg-white p-4">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-amber-800/60">Career recognition milestones</p>
+                                <p class="mt-1 text-xs font-bold text-amber-900/80">{{ $milestonesUnlocked }} of {{ $milestoneRows->count() }} unlocked.</p>
+                                <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                                    @foreach($milestoneRows as $row)
+                                        <div class="rounded-xl border px-3 py-2 {{ !empty($row['unlocked']) ? 'border-green-200 bg-green-50/70 text-green-900' : 'border-amber-100 bg-amber-50/40 text-amber-900/70' }}">
+                                            <p class="text-xs font-black uppercase tracking-wide">{{ $row['icon'] }} {{ $row['name'] }}</p>
+                                            <p class="text-[11px] font-bold">{{ $row['requirement'] }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                         <div class="grid grid-cols-3 gap-4">
                             @foreach($achievements as $achievement)
                                 @php

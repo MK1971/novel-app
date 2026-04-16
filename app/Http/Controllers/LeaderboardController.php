@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Support\LeaderboardScoring;
+use App\Support\ChapterLifecycle;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -86,10 +88,20 @@ class LeaderboardController extends Controller
         }
 
         $acceptedCountsByUser = $this->acceptedCountsForUserIds($users->pluck('id')->all());
+        $acceptedPrizeRows = $this->acceptedPrizeRankingRows($excludeUserId, $leaderboardHiddenUserIds);
+        $acceptedPrizeLeaders = $acceptedPrizeRows->take(3)->values();
+        $acceptedPrizeTopTen = $acceptedPrizeRows->take(10)->values();
+        $acceptedRankByUserId = [];
+        foreach ($acceptedPrizeRows as $idx => $row) {
+            $acceptedRankByUserId[(int) $row->id] = $idx + 1;
+        }
+
         $yourAcceptedCount = null;
+        $yourAcceptedPrizeRank = null;
         if (auth()->check()) {
             $yourId = (int) auth()->id();
             $yourAcceptedCount = (int) ($acceptedCountsByUser[$yourId] ?? $this->acceptedCountsForUserIds([$yourId])[$yourId] ?? 0);
+            $yourAcceptedPrizeRank = $acceptedRankByUserId[$yourId] ?? null;
         }
 
         return view('leaderboard', compact(
@@ -99,8 +111,53 @@ class LeaderboardController extends Controller
             'totalRanked',
             'period',
             'acceptedCountsByUser',
-            'yourAcceptedCount'
+            'yourAcceptedCount',
+            'acceptedPrizeLeaders',
+            'acceptedPrizeTopTen',
+            'yourAcceptedPrizeRank'
         ));
+    }
+
+    /**
+     * @param  array<int>  $leaderboardHiddenUserIds
+     * @return Collection<int, object{id:int,name:string,public_profile_enabled:bool,public_slug:?string,points:int,accepted_total:int}>
+     */
+    private function acceptedPrizeRankingRows(?int $excludeUserId, array $leaderboardHiddenUserIds): Collection
+    {
+        $chapterAccepted = DB::table('edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('type', '!=', 'inline_edit')
+            ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
+            ->groupBy('user_id');
+
+        $inlineAccepted = DB::table('inline_edits')
+            ->select('user_id', DB::raw('COUNT(*) as accepted_total'))
+            ->where('status', 'approved')
+            ->groupBy('user_id');
+
+        $query = User::query()
+            ->select('users.id', 'users.name', 'users.public_profile_enabled', 'users.public_slug', 'users.points')
+            ->selectRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) as accepted_total')
+            ->leftJoinSub($chapterAccepted, 'ch', function ($join): void {
+                $join->on('ch.user_id', '=', 'users.id');
+            })
+            ->leftJoinSub($inlineAccepted, 'ia', function ($join): void {
+                $join->on('ia.user_id', '=', 'users.id');
+            })
+            ->where('users.leaderboard_visible', true)
+            ->whereRaw('(COALESCE(ch.accepted_total, 0) + COALESCE(ia.accepted_total, 0)) > 0')
+            ->orderByDesc('accepted_total')
+            ->orderByDesc('users.points')
+            ->orderBy('users.id');
+
+        if ($excludeUserId) {
+            $query->where('users.id', '!=', $excludeUserId);
+        }
+        if ($leaderboardHiddenUserIds !== []) {
+            $query->whereNotIn('users.id', $leaderboardHiddenUserIds);
+        }
+
+        return $query->get();
     }
 
     /**
@@ -118,7 +175,7 @@ class LeaderboardController extends Controller
             ->select('user_id', DB::raw('COUNT(*) as c'))
             ->whereIn('user_id', $ids)
             ->where('type', '!=', 'inline_edit')
-            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+            ->whereIn('status', ChapterLifecycle::ACCEPTED_EDIT_STATUSES)
             ->groupBy('user_id')
             ->pluck('c', 'user_id')
             ->all();

@@ -174,6 +174,25 @@
         </div>
     @endif
 
+    @if($chapterPrizeLeader)
+        <div class="max-w-5xl mx-auto px-4 sm:px-8 pt-2 pb-2">
+            <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4 shadow-sm">
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-800/60 mb-2">Chapter sponsor note (current leader)</p>
+                <p class="text-sm md:text-base font-bold text-amber-950/90 leading-relaxed">
+                    This chapter's highest-impact contributor is
+                    @if ($chapterPrizeLeader->public_profile_enabled && filled($chapterPrizeLeader->public_slug))
+                        <a href="{{ route('profile.public', ['slug' => $chapterPrizeLeader->public_slug]) }}" class="underline decoration-amber-300 hover:text-amber-700">
+                            {{ $chapterPrizeLeader->name }}
+                        </a>
+                    @else
+                        <strong>{{ $chapterPrizeLeader->name }}</strong>
+                    @endif
+                    with {{ number_format((int) ($chapterPrizeLeader->accepted_total ?? 0)) }} accepted replacements in this chapter.
+                </p>
+            </div>
+        </div>
+    @endif
+
     @auth
         {{-- Sticky under top nav: stays visible while reading (header scrolls away) --}}
         <div
@@ -598,10 +617,10 @@
             <button
                 type="button"
                 onclick="closeInlineEdit()"
-                class="absolute top-4 right-4 w-10 h-10 rounded-xl bg-amber-100 text-amber-900 font-black hover:bg-amber-200 transition-colors"
+                class="absolute top-4 right-4 rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
                 aria-label="Close paragraph edit dialog"
             >
-                ×
+                Close
             </button>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Replace this line</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are replacing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for full chapter replacement). Free to read; payment applies only when you submit. Moderators review every submission (acceptance is not guaranteed).</p>

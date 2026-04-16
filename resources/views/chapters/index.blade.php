@@ -310,10 +310,10 @@
             <button
                 type="button"
                 onclick="closeInlineEdit()"
-                class="absolute top-3 right-3 sm:top-4 sm:right-4 w-10 h-10 rounded-xl bg-amber-100 text-amber-900 font-black hover:bg-amber-200 transition-colors"
+                class="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
                 aria-label="Close paragraph edit dialog"
             >
-                ×
+                Close
             </button>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Replace this line</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">Challenge <strong class="text-amber-900">one paragraph</strong> with your own version. For full-chapter replacement, use the chapter page sidebar. Submission enters moderation review (acceptance is not guaranteed).</p>
