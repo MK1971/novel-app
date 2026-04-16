@@ -2,6 +2,17 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.67 - Landing conversion polish, preview urgency, and deterministic guest nav
+### Added
+- **Hero-adjacent chapter preview context:** Added live urgency labeling to the chapter preview card (`window closes ...` or pilot acceptance progress) so visitors see timing pressure immediately.
+- **Homepage trust strip:** Added a `Latest accepted replacement` block with real accepted edit data and a clearly labeled example fallback when no live accepted replacement exists yet.
+
+### Changed
+- **Hero message and early narrative pull:** Updated headline and supporting copy to emphasize challenge/action language and immediate manuscript entry.
+- **Top-nav first-visit behavior for guests:** Moved first-visit nav gating to server/session logic so guest navigation is deterministic (minimal on first session visit, expanded on subsequent visits), with full nav preserved for authenticated users.
+- **Public copy tone + progressive pricing:** Reduced upfront pricing exposure in landing explanation blocks and tightened wording to prioritize `Read / Submit / Vote` action framing.
+- **Footer information architecture:** Grouped legal links under a `Policies` heading and separated support links for cleaner scanability.
+
 ## Version 1.9.66 - Checkout intent UX hardening, onboarding mission, and funnel tracking
 ### Added
 - **Starter mission onboarding (chapters surfaces):** Added early-session mission cards on `/chapters` and chapter reader sidebar to guide first contribution attempts with visible progress (`submitted/3`, accepted count) and direct next-step CTAs.

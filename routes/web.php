@@ -78,9 +78,97 @@ Route::get('/', function () {
         && $editsAcceptedCount === 0
         && $chaptersLiveCount === 0;
 
+    $guestFirstVisitNav = false;
+    if (! auth()->check()) {
+        $guestFirstVisitNav = ! session()->has('landing_guest_seen');
+        session(['landing_guest_seen' => true]);
+    }
+
+    $previewChapter = ChapterLifecycle::latestOpenTbwChapter()
+        ?? Chapter::query()
+            ->where('is_archived', false)
+            ->orderByDesc('id')
+            ->first();
+
+    $previewExcerpt = null;
+    $previewUrgencyLabel = null;
+    if ($previewChapter) {
+        $lines = preg_split("/\r\n|\r|\n/", (string) $previewChapter->content) ?: [];
+        $firstNonEmpty = null;
+        foreach ($lines as $line) {
+            $t = trim((string) $line);
+            if ($t !== '') {
+                $firstNonEmpty = $t;
+                break;
+            }
+        }
+        if ($firstNonEmpty !== null) {
+            $previewExcerpt = mb_strlen($firstNonEmpty) > 220
+                ? mb_substr($firstNonEmpty, 0, 220).'...'
+                : $firstNonEmpty;
+        }
+
+        if (! $previewChapter->is_locked && $previewChapter->editing_closes_at) {
+            $previewUrgencyLabel = 'Window closes '.$previewChapter->editing_closes_at->diffForHumans();
+        } elseif (! $previewChapter->is_locked && $previewChapter->isPilotManuscriptChapter()) {
+            $cap = max(1, (int) config('tbwnn.pilot.close_after_accepted_edits', 50));
+            $previewUrgencyLabel = 'Pilot target: '.$previewChapter->pilotAcceptedEditsTotal().'/'.$cap.' accepted edits';
+        }
+    }
+
+    $latestChapterEdit = Edit::query()
+        ->whereIn('status', $acceptedEditStatuses)
+        ->where('type', '!=', 'inline_edit')
+        ->where('show_in_public_feed', true)
+        ->with(['user:id,name', 'chapter:id,book_id,number,list_section,custom_title,title,version,is_archived,published_at,created_at'])
+        ->orderByDesc('updated_at')
+        ->first();
+
+    $latestInlineEdit = InlineEdit::query()
+        ->where('status', 'approved')
+        ->where('show_in_public_feed', true)
+        ->with(['user:id,name', 'chapter:id,book_id,number,list_section,custom_title,title,version,is_archived,published_at,created_at'])
+        ->orderByDesc('updated_at')
+        ->first();
+
+    $latestReplacement = null;
+    $latestCandidate = null;
+    if ($latestChapterEdit && $latestInlineEdit) {
+        $latestCandidate = $latestChapterEdit->updated_at?->greaterThan($latestInlineEdit->updated_at) ? $latestChapterEdit : $latestInlineEdit;
+    } else {
+        $latestCandidate = $latestChapterEdit ?: $latestInlineEdit;
+    }
+    if ($latestCandidate instanceof Edit) {
+        $latestReplacement = [
+            'kind' => 'chapter',
+            'user_name' => $latestCandidate->user?->name,
+            'chapter_heading' => $latestCandidate->chapter?->readerHeadingLine(),
+            'chapter_url' => $latestCandidate->chapter ? route('chapters.show', $latestCandidate->chapter) : null,
+            'original' => (string) ($latestCandidate->original_text ?? ''),
+            'suggested' => (string) ($latestCandidate->edited_text ?? ''),
+            'at' => $latestCandidate->updated_at,
+        ];
+    }
+    if ($latestCandidate instanceof InlineEdit) {
+        $latestReplacement = [
+            'kind' => 'inline',
+            'user_name' => $latestCandidate->user?->name,
+            'chapter_heading' => $latestCandidate->chapter?->readerHeadingLine(),
+            'chapter_url' => $latestCandidate->chapter ? route('chapters.show', $latestCandidate->chapter) : null,
+            'original' => (string) ($latestCandidate->original_text ?? ''),
+            'suggested' => (string) ($latestCandidate->suggested_text ?? ''),
+            'at' => $latestCandidate->updated_at,
+        ];
+    }
+
     return view('welcome', [
         'landingStats' => $landingStats,
         'landingStatsQuiet' => $landingStatsQuiet,
+        'previewChapter' => $previewChapter,
+        'previewExcerpt' => $previewExcerpt,
+        'previewUrgencyLabel' => $previewUrgencyLabel,
+        'latestReplacement' => $latestReplacement,
+        'guestFirstVisitNav' => $guestFirstVisitNav,
     ]);
 })->name('home');
 

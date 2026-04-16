@@ -261,10 +261,18 @@
                     </a>
 
                     <div class="hidden md:flex items-center gap-8">
-                        <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Chapters</a>
-                        <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
-                        <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 max-w-[11rem] md:max-w-none text-xs md:text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg text-center md:text-left leading-snug whitespace-normal">Peter Trull Solitary Detective</a>
-                        <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">About</a>
+                        <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Read</a>
+                        <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">How it works</a>
+                        @guest
+                            @if(!($guestFirstVisitNav ?? false))
+                                <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
+                                <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 max-w-[11rem] md:max-w-none text-xs md:text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg text-center md:text-left leading-snug whitespace-normal">Vote</a>
+                            @endif
+                        @endguest
+                        @auth
+                            <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
+                            <a href="{{ route('vote.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 max-w-[11rem] md:max-w-none text-xs md:text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg text-center md:text-left leading-snug whitespace-normal">Vote</a>
+                        @endauth
                     </div>
 
                     <div class="hidden md:flex items-center gap-4">
@@ -310,10 +318,18 @@
                         >
                             <div class="w-[10.25rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-white/15 bg-stone-950/92 backdrop-blur-xl shadow-xl shadow-black/40 overflow-hidden max-h-[min(72vh,20rem)] flex flex-col">
                                 <nav class="flex flex-col gap-0.5 p-1.5 overflow-y-auto shrink" aria-label="Mobile navigation">
-                                    <a href="{{ route('chapters.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Chapters</a>
-                                    <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
-                                    <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-xs font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors leading-snug">Peter Trull Solitary Detective</a>
-                                    <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">About</a>
+                                    <a href="{{ route('chapters.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Read</a>
+                                    <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">How it works</a>
+                                    @guest
+                                        @if(!($guestFirstVisitNav ?? false))
+                                            <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
+                                            <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-xs font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors leading-snug">Vote</a>
+                                        @endif
+                                    @endguest
+                                    @auth
+                                        <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>
+                                        <a href="{{ route('vote.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-xs font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors leading-snug">Vote</a>
+                                    @endauth
                                 </nav>
                                 @auth
                                     <div class="p-2 space-y-2 bg-black/20">
@@ -356,30 +372,29 @@
                                 <h1
                                     class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.2] break-words"
                                     id="landing-hero-headline"
-                                    data-type-text="Help shape a novel while it is still being written."
+                                    data-type-text="Challenge the manuscript. Change the story."
                                 >
-                                    {{-- Visible before/without JS; typewriter replaces span content when script runs --}}
-                                    <span class="landing-hero-typewriter" aria-hidden="true">Help shape a novel while it is still being written.</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
+                                    <span class="landing-hero-typewriter" aria-hidden="true">Challenge the manuscript. Change the story.</span><span class="landing-hero-typewriter-caret" aria-hidden="true"></span>
                                 </h1>
                             </div>
                             
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
                                 <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Read live chapters. Submit edits. Influence what becomes the final book.</span>
-                                <span class="block font-bold text-white/95">Book 1 lets you propose edits to The Book With No Name. Each approved contribution can raise your standing and each $2 contribution fee grants one vote in Peter Trull Solitary Detective.</span>
+                                <span class="block font-bold text-white/95">Book 1 lets you propose edits to The Book With No Name. Approved contributions raise your standing and unlock voting power in Peter Trull Solitary Detective.</span>
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
                                 <div class="flex flex-col items-center sm:items-start gap-2 w-full sm:w-auto">
                                     <a href="{{ route('chapters.index') }}" data-track-event="landing_cta_primary_click" data-track-label="hero_enter_manuscript" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-amber-500 text-black text-lg font-black rounded-2xl hover:bg-amber-600 transition-all shadow-2xl shadow-amber-500/30 transform hover:-translate-y-1 text-center">
-                                        {{ $hasLiveChapters ? 'Enter the Manuscript' : 'Explore the Manuscript (Opening Soon)' }}
+                                        {{ $hasLiveChapters ? 'Read the manuscript' : 'Read the manuscript (Opening Soon)' }}
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
-                                        {{ $hasLiveChapters ? 'Start reading now — contribute when you are ready.' : 'Explore the manuscript hub and get ready for the first chapter drop.' }}
+                                        {{ $hasLiveChapters ? 'Read now. Submit when your wording is ready.' : 'Read the setup and prepare your first submission for Chapter 1.' }}
                                     </p>
                                 </div>
                                 @guest
                                     <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-stone-900 text-amber-100 text-lg font-black rounded-2xl border-2 border-amber-500/70 hover:bg-black hover:border-amber-400 transition-all shadow-xl shadow-black/35 transform hover:-translate-y-1">
-                                        Become a Contributor (Sign Up)
+                                        Submit your first edit
                                     </button>
                                 @else
                                     <a href="{{ route('dashboard') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
@@ -392,6 +407,27 @@
                                     </a>
                                 @endauth
                             </div>
+
+                            @if($previewChapter && filled($previewExcerpt))
+                                <div class="mt-12 max-w-2xl rounded-[2rem] border border-white/20 bg-black/35 backdrop-blur-md p-6 shadow-xl shadow-black/20">
+                                    <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-300/90 mb-3">Chapter preview</p>
+                                    <p class="text-white text-xl font-black leading-snug mb-2">{{ $previewChapter->readerHeadingLine() }}</p>
+                                    @if(filled($previewUrgencyLabel ?? null))
+                                        <p class="mb-3 inline-flex items-center rounded-xl border border-amber-400/35 bg-amber-500/20 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-200">{{ $previewUrgencyLabel }}</p>
+                                    @endif
+                                    <p class="text-white/85 font-bold leading-relaxed">
+                                        “{{ $previewExcerpt }}”
+                                    </p>
+                                    <div class="mt-5 flex flex-wrap gap-3">
+                                        <a href="{{ route('chapters.show', $previewChapter) }}" data-track-event="landing_preview_read_click" data-track-label="hero_preview_read" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-black hover:bg-amber-600">
+                                            Read the full chapter
+                                        </a>
+                                        <a href="{{ route('chapters.index') }}" data-track-event="landing_preview_all_chapters_click" data-track-label="hero_preview_all" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/15">
+                                            Browse chapters
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         <div class="hidden lg:flex justify-center book-mockup">
@@ -414,15 +450,64 @@
                 </div>
             </header>
 
-            {{-- What this is --}}
-            <section class="py-20 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-what-is-heading">
-                <div class="max-w-4xl mx-auto px-6 text-center">
-                    <h2 id="landing-what-is-heading" class="text-3xl md:text-4xl font-black text-amber-900 mb-5">What this is</h2>
-                    <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed">
-                        A novel being written live — and you are part of it.
-                        Chapters open in controlled release windows where you can challenge specific lines with your own version.
-                        Accepted replacements become part of the manuscript, and each completed $2 contribution gives you one vote credit in Peter Trull Solitary Detective.
-                    </p>
+            <section class="relative z-10 bg-[#fff9f0] border-y border-amber-100 py-16" aria-labelledby="landing-social-proof">
+                <div class="max-w-5xl mx-auto px-6">
+                    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+                        <div>
+                            <h2 id="landing-social-proof" class="text-2xl md:text-3xl font-black text-amber-950">Latest accepted replacement</h2>
+                            <p class="mt-2 text-sm font-bold text-amber-900/70 max-w-2xl">Proof the manuscript moves. A single accepted line can change the tone for everyone who follows.</p>
+                        </div>
+                        <a href="{{ route('edits.public') }}" class="landing-ui-transition inline-flex items-center rounded-2xl border border-amber-200 bg-white px-5 py-3 text-sm font-black text-amber-900 hover:bg-amber-50">
+                            Read accepted edits
+                        </a>
+                    </div>
+
+                    @php
+                        $fallbackReplacement = [
+                            'label' => 'Example (shown until the first live acceptance)',
+                            'user_name' => 'Contributor',
+                            'chapter_heading' => 'Chapter 1 (preview)',
+                            'original' => 'He didn’t notice the door was already open.',
+                            'suggested' => 'He didn’t notice the door had already been open.',
+                        ];
+                        $hasLiveReplacement = is_array($latestReplacement ?? null) && filled($latestReplacement['original'] ?? null) && filled($latestReplacement['suggested'] ?? null);
+                    @endphp
+
+                    <div class="rounded-[2rem] border border-amber-200 bg-white shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 bg-amber-50/60 border-b border-amber-100 flex flex-wrap items-center justify-between gap-3">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800/70">
+                                {{ $hasLiveReplacement ? 'Live acceptance' : $fallbackReplacement['label'] }}
+                            </p>
+                            <p class="text-xs font-bold text-amber-800/70">
+                                {{ $hasLiveReplacement ? ($latestReplacement['chapter_heading'] ?? 'Chapter') : $fallbackReplacement['chapter_heading'] }}
+                                @if($hasLiveReplacement && filled($latestReplacement['user_name'] ?? null))
+                                    <span class="text-amber-800/40" aria-hidden="true">·</span> accepted from {{ $latestReplacement['user_name'] }}
+                                @endif
+                            </p>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-0">
+                            <div class="p-6 border-b md:border-b-0 md:border-r border-amber-100">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Published text</p>
+                                <p class="text-amber-950 font-bold leading-relaxed">
+                                    {{ $hasLiveReplacement ? ($latestReplacement['original'] ?? '') : $fallbackReplacement['original'] }}
+                                </p>
+                            </div>
+                            <div class="p-6 bg-amber-50/40">
+                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/55 mb-3">Accepted replacement</p>
+                                <p class="text-amber-950 font-black leading-relaxed">
+                                    {{ $hasLiveReplacement ? ($latestReplacement['suggested'] ?? '') : $fallbackReplacement['suggested'] }}
+                                </p>
+                            </div>
+                        </div>
+                        @if($hasLiveReplacement && filled($latestReplacement['chapter_url'] ?? null))
+                            <div class="px-6 py-4 border-t border-amber-100 bg-white flex flex-wrap items-center justify-between gap-3">
+                                <p class="text-xs font-bold text-amber-900/70">Want context? Read the chapter where this landed.</p>
+                                <a href="{{ $latestReplacement['chapter_url'] }}" class="landing-ui-transition inline-flex items-center rounded-2xl bg-amber-900 px-5 py-3 text-sm font-black text-white hover:bg-black">
+                                    Read the chapter
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </section>
 
@@ -433,11 +518,8 @@
                         <h2 class="text-4xl md:text-5xl font-black text-amber-900 mb-6">The Journey</h2>
                         <p class="text-2xl md:text-3xl font-black text-amber-900 mb-5">Two connected books. One contribution system.</p>
                         <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed mb-6">
-                            In <span class="text-amber-950">The Book With No Name (Collaborative Novel)</span>, you read live chapters and submit contribution-backed edits that can be accepted into the manuscript. In <span class="text-amber-950">Peter Trull Solitary Detective (Interactive Mystery)</span>, you use vote credits to decide which version survives. The connection is simple: each completed $2 contribution in Book 1 grants one vote in Book 2.
+                            In <span class="text-amber-950">The Book With No Name (Collaborative Novel)</span>, you read live chapters and submit edits that can be accepted into the manuscript. In <span class="text-amber-950">Peter Trull Solitary Detective (Interactive Mystery)</span>, you use vote credits to decide which version survives. Completed contributions in Book 1 grant vote credits in Book 2.
                         </p>
-                        <a href="#landing-how-steps" data-track-event="landing_how_it_works_click" data-track-label="journey_how_it_works" class="inline-flex items-center gap-2 text-amber-700 font-black text-lg hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-lg">
-                            Learn how it all works <span aria-hidden="true">→</span>
-                        </a>
                     </div>
 
                     <div class="grid md:grid-cols-2 gap-12">
@@ -448,7 +530,7 @@
                             </div>
                             <h3 class="text-3xl font-black text-amber-900 mb-6">The Book With No Name</h3>
                             <p class="text-lg text-amber-900/70 font-bold mb-8 leading-relaxed">
-                                Six lives. Six powers. A collision none of them can escape. Each one wields a different ability they do not fully understand — but as instinct turns to control and control to consequence, a hidden structure pulls them toward an inevitable convergence. Challenge the text for $2 per submission, and your accepted replacement can become a permanent part of the novel.
+                                Six lives. Six powers. A collision none of them can escape. Each one wields a different ability they do not fully understand — but as instinct turns to control and control to consequence, a hidden structure pulls them toward an inevitable convergence. Challenge the text, and accepted replacements can become permanent parts of the novel.
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 text-amber-900 font-bold">
@@ -461,7 +543,7 @@
                                 </li>
                             </ul>
                             <a href="{{ route('chapters.index') }}" data-track-event="landing_cta_chapters_card_click" data-track-label="book1_card" class="landing-ui-transition inline-flex items-center gap-2 text-amber-600 font-black hover:gap-4 transition-all">
-                                {{ $hasLiveChapters ? 'Read the manuscript' : 'View upcoming chapters' }} <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                {{ $hasLiveChapters ? 'Read the manuscript' : 'Read chapter previews' }} <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
 
@@ -473,13 +555,13 @@
                             <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
                             <div class="mb-6 inline-flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-black/30 px-4 py-3">
                                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-black font-black">PT</span>
-                                <span class="text-xs font-black uppercase tracking-widest text-amber-200">Companion decision track</span>
+                                <span class="text-xs font-black uppercase tracking-widest text-amber-200">An interactive mystery</span>
                             </div>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
                                 A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. At each split, you decide which path survives.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
-                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 contributions</strong> in <em>The Book With No Name</em> — one vote per contribution.
+                                <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed contributions</strong> in <em>The Book With No Name</em> — one vote per contribution.
                                 <a href="{{ route('chapters.index') }}" class="mt-3 block text-amber-300 font-black underline decoration-amber-400/60 underline-offset-2 hover:text-white w-fit">Start with chapters <span aria-hidden="true">→</span></a>
                             </p>
                             <ul class="space-y-4 mb-10">
@@ -493,7 +575,7 @@
                                 </li>
                             </ul>
                             <a href="{{ route('vote.index') }}" data-track-event="landing_cta_vote_card_click" data-track-label="book2_card" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
-                                Decide which path survives <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                Vote on which path survives <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
                     </div>
@@ -526,21 +608,31 @@
                         <ol class="grid md:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0">
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">1</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Read and challenge the text</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Enter <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit your version through a $2 contribution.</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Read the chapter</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Open the live manuscript chapter and read the current version.</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Earn rank and voting rights</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Accepted replacements earn <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Each <strong class="text-amber-900">completed $2 contribution</strong> adds <strong class="text-amber-900">one vote credit</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong>.</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Submit your version</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Replace a line or chapter section. If accepted, your wording becomes part of the manuscript.</p>
                             </li>
                             <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
                                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Choose which version survives</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Compare Version A vs B and decide which branch remains canon in the companion mystery.</p>
+                                <p class="text-lg font-black text-amber-900 mb-2">Vote on what survives</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Use vote credits in Peter Trull Solitary Detective to decide which branch remains canon.</p>
                             </li>
                         </ol>
                     </div>
+                </div>
+            </section>
+
+            <section class="py-20 bg-[#fff9f0] border-y border-amber-100" aria-labelledby="landing-what-is-heading">
+                <div class="max-w-4xl mx-auto px-6 text-center">
+                    <h2 id="landing-what-is-heading" class="text-3xl md:text-4xl font-black text-amber-900 mb-5">A living novel you help write</h2>
+                    <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed">
+                        Chapters release before they are final. You read the live text, submit your version, and accepted replacements become canon.
+                        Every completed $2 contribution also gives one vote credit for Peter Trull Solitary Detective.
+                    </p>
                 </div>
             </section>
 
@@ -559,7 +651,7 @@
                         </div>
                         <div class="rounded-2xl border border-amber-200 bg-white px-5 py-4">
                             <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-1">Voting</p>
-                            <p class="text-sm font-bold text-amber-900">Each completed $2 contribution adds one vote credit for Peter Trull.</p>
+                            <p class="text-sm font-bold text-amber-900">Each completed contribution adds one vote credit for Peter Trull.</p>
                         </div>
                     </div>
                 </div>
@@ -633,7 +725,7 @@
 
             <section id="landing-updates-signup" class="relative z-10 py-16 bg-amber-50 border-t border-amber-100">
                 <div class="max-w-4xl mx-auto px-6 text-center">
-                    <h2 class="text-3xl font-black text-amber-900">Get chapter release updates</h2>
+                    <h2 class="text-3xl font-black text-amber-900">Don't miss the next chapter</h2>
                     <p class="mt-3 text-amber-800/75 font-bold max-w-2xl mx-auto">
                         Join the updates list and we will email you when new chapters open or major rounds begin.
                     </p>
@@ -663,15 +755,21 @@
                         <span class="text-lg font-black tracking-tight text-amber-900">WhatsMyBookName</span>
                     </div>
                     <p class="text-amber-900/55 font-bold mb-8">© {{ date('Y') }} WhatsMyBookName. All rights reserved.</p>
-                    <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm font-bold text-amber-900/70" aria-label="Legal">
-                        <a href="{{ route('legal.index') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Legal</a>
-                        <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
-                        <a href="{{ route('privacy') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Privacy</a>
-                        <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
-                        <a href="{{ route('terms') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Terms</a>
-                        <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
-                        <a href="{{ route('feedback.index') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Feedback</a>
-                    </nav>
+                    <div class="space-y-3">
+                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-amber-800/60">Policies</p>
+                        <nav class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm font-bold text-amber-900/70" aria-label="Policies">
+                            <a href="{{ route('legal.index') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Legal</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('privacy') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Privacy</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('terms') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Terms</a>
+                        </nav>
+                        <nav class="flex items-center justify-center gap-3 text-sm font-bold text-amber-900/70" aria-label="Support">
+                            <a href="{{ route('about') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">About</a>
+                            <span class="text-amber-300 select-none pointer-events-none" aria-hidden="true">·</span>
+                            <a href="{{ route('feedback.index') }}" class="landing-ui-transition whitespace-nowrap transition-colors hover:text-amber-900">Feedback</a>
+                        </nav>
+                    </div>
                 </div>
             </footer>
         </div>
