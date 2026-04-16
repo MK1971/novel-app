@@ -145,6 +145,7 @@
             .landing-hero-headline-slot h1 {
                 margin: 0;
                 letter-spacing: -0.02em;
+                overflow: visible;
             }
             .landing-hero-typewriter-caret {
                 display: inline-block;
@@ -278,7 +279,7 @@
                             </div>
                         @else
                             <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="landing-ui-transition inline-flex items-center min-h-11 px-2 -mx-2 text-sm font-bold text-amber-900 hover:text-amber-700 transition-colors rounded-lg">Sign In</button>
-                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Join Now</button>
+                            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center min-h-11 px-6 bg-amber-500 text-black text-sm font-black rounded-xl hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/25">Become a Contributor</button>
                         @endauth
                     </div>
 
@@ -325,7 +326,7 @@
                                 @else
                                     <div class="p-2 flex flex-col gap-1.5 bg-black/20">
                                         <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="landing-ui-transition flex items-center justify-center w-full min-h-11 text-xs font-bold text-white rounded-xl bg-white/5 hover:bg-white/12 transition-colors">Sign In</button>
-                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors">Join Now</button>
+                                        <button type="button" @click="mobileNavOpen = false; window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="landing-ui-transition inline-flex items-center justify-center w-full min-h-11 px-4 bg-amber-500 text-black text-xs font-black rounded-xl hover:bg-amber-600 transition-colors">Become a Contributor</button>
                                     </div>
                                 @endauth
                             </div>
@@ -373,11 +374,11 @@
                                         {{ $hasLiveChapters ? 'Enter the Manuscript' : 'Explore the Manuscript (Opening Soon)' }}
                                     </a>
                                     <p id="landing-hero-cta-subline" class="text-sm font-bold text-white/90 text-center sm:text-left max-w-xs sm:max-w-sm leading-snug hero-cta-subline-shadow">
-                                        {{ $hasLiveChapters ? 'Opens the chapter list so you can read now and submit your version when you are ready.' : 'Opens the manuscript hub. Chapters are staged release drops, and this page shows when the first one opens.' }}
+                                        {{ $hasLiveChapters ? 'Start reading now — contribute when you are ready.' : 'Explore the manuscript hub and get ready for the first chapter drop.' }}
                                     </p>
                                 </div>
                                 @guest
-                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
+                                    <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-stone-900 text-amber-100 text-lg font-black rounded-2xl border-2 border-amber-500/70 hover:bg-black hover:border-amber-400 transition-all shadow-xl shadow-black/35 transform hover:-translate-y-1">
                                         Become a Contributor (Sign Up)
                                     </button>
                                 @else
@@ -418,46 +419,10 @@
                 <div class="max-w-4xl mx-auto px-6 text-center">
                     <h2 id="landing-what-is-heading" class="text-3xl md:text-4xl font-black text-amber-900 mb-5">What this is</h2>
                     <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed">
-                        This is not a finished book. It is a manuscript released in stages.
-                        You read first, then decide whether to submit your version.
-                        Accepted edits shape the text, and each completed $2 contribution gives you one vote credit in Peter Trull Solitary Detective.
+                        A novel being written live — and you are part of it.
+                        Chapters open in controlled release windows where you can challenge specific lines with your own version.
+                        Accepted replacements become part of the manuscript, and each completed $2 contribution gives you one vote credit in Peter Trull Solitary Detective.
                     </p>
-                </div>
-            </section>
-
-            {{-- Compact rewards teaser (higher visibility) --}}
-            <section class="py-14 bg-white border-b border-amber-100" aria-labelledby="landing-rewards-teaser-heading">
-                <div class="max-w-6xl mx-auto px-6">
-                    <div class="rounded-[2rem] border border-amber-200 bg-gradient-to-br from-amber-50 via-[#fff9f0] to-amber-100/70 p-6 md:p-8 shadow-xl shadow-amber-900/10">
-                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-5 mb-6">
-                            <div>
-                                <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700/70">Recognition ladder</p>
-                                <h2 id="landing-rewards-teaser-heading" class="mt-1 text-2xl md:text-3xl font-black text-amber-950">Earn your place in the story</h2>
-                                <p class="mt-2 text-sm md:text-base font-bold text-amber-900/80">Every accepted contribution can move you up from visible credit to the grand prize.</p>
-                            </div>
-                            <a href="{{ route('prizes') }}" data-track-event="landing_rewards_rules_click" data-track-label="rewards_teaser_rules" class="inline-flex items-center gap-2 rounded-xl bg-amber-900 px-4 py-2.5 text-white font-black hover:bg-black transition-colors">
-                                Full prizes &amp; rules <span aria-hidden="true">→</span>
-                            </a>
-                        </div>
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 1</p>
-                                <p class="text-sm font-black text-amber-900">Name a character</p>
-                            </div>
-                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 2</p>
-                                <p class="text-sm font-black text-amber-900">Influence the title</p>
-                            </div>
-                            <div class="rounded-2xl border border-amber-200 bg-white px-4 py-4">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-amber-700/70 mb-1">Tier 3</p>
-                                <p class="text-sm font-black text-amber-900">Long-term story recognition</p>
-                            </div>
-                            <div class="rounded-2xl border-2 border-amber-500 bg-amber-500 text-black px-4 py-4 shadow-lg shadow-amber-500/25">
-                                <p class="text-[11px] font-black uppercase tracking-widest text-black/70 mb-1">Grand prize</p>
-                                <p class="text-sm font-black">Contributor cover credit</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -475,28 +440,6 @@
                         </a>
                     </div>
 
-                    {{-- How it works — 3 steps for scannability (UX #17) --}}
-                    <div id="landing-how-steps" class="mb-20 max-w-5xl mx-auto" aria-labelledby="landing-how-heading">
-                        <h3 id="landing-how-heading" class="text-center text-xs font-black uppercase tracking-[0.2em] text-amber-800/70 mb-8">How it works</h3>
-                        <ol class="grid md:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0">
-                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
-                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">1</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Read and submit your version</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Open <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit edits through a $2 contribution fee.</p>
-                            </li>
-                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
-                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Earn placement and vote credits</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Each accepted edit earns <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Climb the leaderboard, and each <strong class="text-amber-900">completed $2 contribution</strong> adds <strong class="text-amber-900">one vote credit</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong>.</p>
-                            </li>
-                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
-                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
-                                <p class="text-lg font-black text-amber-900 mb-2">Vote on Peter Trull Solitary Detective</p>
-                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Compare Version A vs B and cast your vote to shape the detective storyline.</p>
-                            </li>
-                        </ol>
-                    </div>
-
                     <div class="grid md:grid-cols-2 gap-12">
                         {{-- Part 1 --}}
                         <div class="landing-motion-card group bg-[#fff9f0] p-12 rounded-[3rem] border border-amber-100 shadow-sm hover:shadow-2xl hover:shadow-amber-900/5 transition-all duration-500 transform hover:-translate-y-2">
@@ -505,7 +448,7 @@
                             </div>
                             <h3 class="text-3xl font-black text-amber-900 mb-6">The Book With No Name</h3>
                             <p class="text-lg text-amber-900/70 font-bold mb-8 leading-relaxed">
-                                Six lives. Six powers. A collision none of them can escape. Each one wields a different ability they don’t fully understand — but as instinct turns to control and control to consequence, a hidden structure pulls them toward an inevitable convergence. Suggest edits for $2 each, and your contribution could become a permanent part of the novel.
+                                Six lives. Six powers. A collision none of them can escape. Each one wields a different ability they do not fully understand — but as instinct turns to control and control to consequence, a hidden structure pulls them toward an inevitable convergence. Challenge the text for $2 per submission, and your accepted replacement can become a permanent part of the novel.
                             </p>
                             <ul class="space-y-4 mb-10">
                                 <li class="flex items-center gap-3 text-amber-900 font-bold">
@@ -530,10 +473,10 @@
                             <h3 class="text-3xl font-black mb-6 leading-tight">Peter Trull Solitary Detective</h3>
                             <div class="mb-6 inline-flex items-center gap-3 rounded-2xl border border-amber-400/40 bg-black/30 px-4 py-3">
                                 <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400 text-black font-black">PT</span>
-                                <span class="text-xs font-black uppercase tracking-widest text-amber-200">Interactive mystery track</span>
+                                <span class="text-xs font-black uppercase tracking-widest text-amber-200">Companion decision track</span>
                             </div>
                             <p class="text-lg text-amber-100/75 font-bold mb-6 leading-relaxed">
-                                A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. Compare two versions of each chapter and vote for the one that shapes his story.
+                                A damaged officer. An unseen threat. A mystery shaped by ghosts that haunt the traumatized. A Navy intelligence officer with CPTSD spots a stranger watching him — and is pulled into a covert investigation that tests his trust, control, and survival. At each split, you decide which path survives.
                             </p>
                             <p class="text-sm text-amber-100/90 font-bold mb-8 leading-relaxed rounded-2xl border border-amber-400/35 bg-black/25 px-4 py-3">
                                 <span class="text-amber-300">Voting is gated:</span> you need <strong class="text-white">unused vote credits</strong> from <strong class="text-white">completed $2 contributions</strong> in <em>The Book With No Name</em> — one vote per contribution.
@@ -546,11 +489,11 @@
                                 </li>
                                 <li class="flex items-center gap-3 font-bold">
                                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                    Shape the final mystery
+                                    Hold the detective's fate in your hands
                                 </li>
                             </ul>
                             <a href="{{ route('vote.index') }}" data-track-event="landing_cta_vote_card_click" data-track-label="book2_card" class="landing-ui-transition inline-flex items-center gap-2 text-amber-400 font-black hover:gap-4 transition-all">
-                                Open voting hub <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                Decide which path survives <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </a>
                         </div>
                     </div>
@@ -559,20 +502,44 @@
                     <div class="h-24 md:h-32 lg:h-40 max-w-7xl mx-auto" aria-hidden="true"></div>
 
                     <div id="landing-prizes-progression" class="max-w-3xl mx-auto rounded-[2rem] border-2 border-amber-200 bg-gradient-to-br from-[#fff9f0] to-amber-50/80 px-8 py-10 md:px-12 md:py-12 shadow-lg shadow-amber-900/5">
-                        <h3 class="text-2xl md:text-3xl font-black text-amber-950 text-center mb-2">What You Could Win</h3>
-                        <p class="text-center text-amber-800/90 font-bold mb-8">Every contribution brings you closer to something lasting.</p>
+                        <h3 class="text-2xl md:text-3xl font-black text-amber-950 text-center mb-2">Recognition ladder</h3>
+                        <p class="text-center text-amber-800/90 font-bold mb-8">Move up by accepted replacements and leaderboard position.</p>
                         <ul class="space-y-4 text-left font-bold text-amber-900 leading-relaxed">
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">🏅</span><span><strong class="font-black">Name a character</strong> — Your name appears in the novel as a character</span></li>
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">📖</span><span><strong class="font-black">Name the book</strong> — Help choose the final title</span></li>
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">✨</span><span><strong class="font-black">Your name on the cover</strong> — Credited as a contributor on the published book</span></li>
-                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">♾️</span><span><strong class="font-black">Live forever in the story</strong> — Become a permanent part of the narrative</span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">🏅</span><span><strong class="font-black">Tier 1 — Name a character</strong><br><span class="text-amber-800/80 text-sm">Start with accepted replacements and establish your rank.</span></span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">📖</span><span><strong class="font-black">Tier 2 — Name the book</strong><br><span class="text-amber-800/80 text-sm">Sustain high placements to influence the final title.</span></span></li>
+                            <li class="flex gap-3"><span class="text-xl shrink-0" aria-hidden="true">✨</span><span><strong class="font-black">Tier 3 — Your name on the cover (top reward)</strong><br><span class="text-amber-800/80 text-sm">Top contributors compete for cover credit on the final release.</span></span></li>
                         </ul>
+                        <p class="mt-5 rounded-xl border border-amber-200 bg-white/60 px-4 py-3 text-sm font-bold text-amber-900/90">
+                            Bonus once achieved: <strong>Live forever in the story</strong> as ongoing recognition after top-tier milestones are secured.
+                        </p>
                         <p class="mt-8 text-center text-sm md:text-base font-black text-amber-900/85 leading-snug">
-                            The higher you climb on the leaderboard, the bigger the reward.
+                            Precision compounds. The higher your accepted-replacement rate, the higher you climb.
                         </p>
                         <p class="mt-4 text-center">
                             <a href="{{ route('prizes') }}" data-track-event="landing_prizes_bottom_click" data-track-label="what_you_could_win_rules" class="text-amber-700 font-black hover:text-amber-900 underline decoration-amber-400/80 underline-offset-4">Full prizes &amp; rules →</a>
                         </p>
+                    </div>
+
+                    {{-- How it works — 3 steps for scannability (UX #17) --}}
+                    <div id="landing-how-steps" class="mt-20 max-w-5xl mx-auto" aria-labelledby="landing-how-heading">
+                        <h3 id="landing-how-heading" class="text-center text-xs font-black uppercase tracking-[0.2em] text-amber-800/70 mb-8">How it works</h3>
+                        <ol class="grid md:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0">
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">1</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Read and challenge the text</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Enter <span class="text-amber-900">The Book With No Name</span>, read live chapters, and submit your version through a $2 contribution.</p>
+                            </li>
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">2</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Earn rank and voting rights</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Accepted replacements earn <strong class="text-amber-900">1 or 2 points</strong> (0 if rejected). Each <strong class="text-amber-900">completed $2 contribution</strong> adds <strong class="text-amber-900">one vote credit</strong> for <strong class="text-amber-900">Peter Trull Solitary Detective</strong>.</p>
+                            </li>
+                            <li class="flex flex-col items-center text-center md:items-start md:text-left rounded-3xl border border-amber-100 bg-[#fff9f0] p-6 shadow-sm">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-black text-sm font-black mb-4" aria-hidden="true">3</span>
+                                <p class="text-lg font-black text-amber-900 mb-2">Choose which version survives</p>
+                                <p class="text-sm font-bold text-amber-800/75 leading-relaxed">Compare Version A vs B and decide which branch remains canon in the companion mystery.</p>
+                            </li>
+                        </ol>
                     </div>
                 </div>
             </section>
@@ -609,28 +576,23 @@
                         <p class="mt-3 text-center text-sm font-bold text-amber-800/70 max-w-xl mx-auto">
                             Contributor counts, accepted edits, and live chapters will appear here as the community grows. The fund goal below is already set for the campaign.
                         </p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-14">
-                            <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Contributors</div>
-                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">With an accepted edit</div>
+                        <div class="grid md:grid-cols-3 gap-6 mt-12">
+                            <div class="rounded-2xl border border-amber-200 bg-white px-6 py-5 text-left">
+                                <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-2">Launch state</p>
+                                <p class="text-base font-black text-amber-900">No accepted replacements yet.</p>
+                                <p class="text-sm font-bold text-amber-800/75 mt-2">The earliest contributors will define manuscript tone and standards.</p>
                             </div>
-                            <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Edits Accepted</div>
-                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Story and inline</div>
+                            <div class="rounded-2xl border border-amber-200 bg-white px-6 py-5 text-left">
+                                <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-2">Early influence</p>
+                                <p class="text-base font-black text-amber-900">First accepted lines carry outsized impact.</p>
+                                <p class="text-sm font-bold text-amber-800/75 mt-2">Early rounds establish voice, rhythm, and authority.</p>
                             </div>
-                            <div class="text-center">
-                                <div class="text-5xl font-black text-amber-900 mb-2">0</div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Chapters Live</div>
-                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">On the chapter list</div>
-                            </div>
-                            <div class="text-center opacity-100">
-                                <div class="text-5xl font-black text-amber-900 mb-2">
+                            <div class="rounded-2xl border border-amber-200 bg-white px-6 py-5 text-left">
+                                <p class="text-xs font-black uppercase tracking-widest text-amber-700/70 mb-2">Campaign target</p>
+                                <p class="text-3xl font-black text-amber-900">
                                     <a href="{{ route('prizes') }}" class="rounded-xl outline-none hover:text-amber-700 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#fff9f0]">{{ $landingStats['prize_pool'] }}</a>
-                                </div>
-                                <div class="text-sm font-black uppercase tracking-widest text-amber-800/70">Fund goal</div>
-                                <div class="text-xs font-bold text-amber-800/55 mt-2 leading-snug">Announced target · not a live balance</div>
+                                </p>
+                                <p class="text-sm font-bold text-amber-800/75 mt-2">Contributor rewards campaign target, not a live balance meter.</p>
                             </div>
                         </div>
                         <p class="mt-8 text-center">

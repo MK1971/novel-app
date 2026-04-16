@@ -9,6 +9,56 @@ define('LARAVEL_START', microtime(true));
 // Register the Composer autoloader...
 require __DIR__.'/vendor/autoload.php';
 
+$command = $argv[1] ?? null;
+
+if ($command === 'serve') {
+    $envPath = __DIR__.'/.env';
+    $envExamplePath = __DIR__.'/.env.example';
+    $restoreCandidates = [
+        __DIR__.'/.env.backup',
+        __DIR__.'/.env.bak',
+        __DIR__.'/.env.local',
+        __DIR__.'/.env.save',
+    ];
+
+    if (! file_exists($envPath)) {
+        foreach ($restoreCandidates as $candidate) {
+            if (is_file($candidate) && filesize($candidate) > 0) {
+                copy($candidate, $envPath);
+                fwrite(STDERR, "[artisan serve] Restored .env from ".basename($candidate).PHP_EOL);
+                break;
+            }
+        }
+
+        if (! file_exists($envPath) && file_exists($envExamplePath)) {
+            copy($envExamplePath, $envPath);
+            fwrite(STDERR, "[artisan serve] Created .env from .env.example (review secrets before production use).".PHP_EOL);
+        }
+    }
+
+    if (file_exists($envPath)) {
+        $contents = file_get_contents($envPath);
+        $hasKey = is_string($contents) && preg_match('/^APP_KEY=.+$/m', $contents) === 1;
+
+        if (! $hasKey) {
+            $stamp = date('Ymd-His');
+            $envBackupPath = __DIR__."/.env.autobackup-{$stamp}";
+            @copy($envPath, $envBackupPath);
+
+            $generatedKey = 'base64:'.base64_encode(random_bytes(32));
+
+            if (is_string($contents) && preg_match('/^APP_KEY=.*$/m', $contents) === 1) {
+                $contents = preg_replace('/^APP_KEY=.*$/m', "APP_KEY={$generatedKey}", $contents);
+            } else {
+                $contents = rtrim((string) $contents).PHP_EOL."APP_KEY={$generatedKey}".PHP_EOL;
+            }
+
+            file_put_contents($envPath, $contents);
+            fwrite(STDERR, "[artisan serve] APP_KEY was missing; generated one and saved backup ".basename($envBackupPath).PHP_EOL);
+        }
+    }
+}
+
 // Bootstrap Laravel and handle the command...
 /** @var Application $app */
 $app = require_once __DIR__.'/bootstrap/app.php';

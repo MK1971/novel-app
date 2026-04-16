@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\LeaderboardScoring;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class LeaderboardController extends Controller
@@ -84,6 +85,57 @@ class LeaderboardController extends Controller
             $totalRanked = $rankedIds->count();
         }
 
-        return view('leaderboard', compact('users', 'yourRank', 'yourPoints', 'totalRanked', 'period'));
+        $acceptedCountsByUser = $this->acceptedCountsForUserIds($users->pluck('id')->all());
+        $yourAcceptedCount = null;
+        if (auth()->check()) {
+            $yourId = (int) auth()->id();
+            $yourAcceptedCount = (int) ($acceptedCountsByUser[$yourId] ?? $this->acceptedCountsForUserIds([$yourId])[$yourId] ?? 0);
+        }
+
+        return view('leaderboard', compact(
+            'users',
+            'yourRank',
+            'yourPoints',
+            'totalRanked',
+            'period',
+            'acceptedCountsByUser',
+            'yourAcceptedCount'
+        ));
+    }
+
+    /**
+     * @param  list<int>  $userIds
+     * @return array<int, int>
+     */
+    private function acceptedCountsForUserIds(array $userIds): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $userIds)));
+        if ($ids === []) {
+            return [];
+        }
+
+        $chapterAccepted = DB::table('edits')
+            ->select('user_id', DB::raw('COUNT(*) as c'))
+            ->whereIn('user_id', $ids)
+            ->where('type', '!=', 'inline_edit')
+            ->whereIn('status', ['accepted', 'accepted_full', 'accepted_partial'])
+            ->groupBy('user_id')
+            ->pluck('c', 'user_id')
+            ->all();
+
+        $inlineAccepted = DB::table('inline_edits')
+            ->select('user_id', DB::raw('COUNT(*) as c'))
+            ->whereIn('user_id', $ids)
+            ->where('status', 'approved')
+            ->groupBy('user_id')
+            ->pluck('c', 'user_id')
+            ->all();
+
+        $out = [];
+        foreach ($ids as $id) {
+            $out[$id] = (int) ($chapterAccepted[$id] ?? 0) + (int) ($inlineAccepted[$id] ?? 0);
+        }
+
+        return $out;
     }
 }

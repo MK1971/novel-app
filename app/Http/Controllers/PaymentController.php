@@ -24,7 +24,7 @@ use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaymentController extends Controller
 {
-    private const USER_PAYPAL_CONFIG_MESSAGE = 'Edit checkout is temporarily unavailable. Please try again later. If this keeps happening, contact the site administrator.';
+    private const USER_PAYPAL_CONFIG_MESSAGE = 'Edit checkout is unavailable because PayPal credentials are missing for the active PAYPAL_MODE. Set PAYPAL_SANDBOX_CLIENT_ID/SECRET (or PAYPAL_LIVE_CLIENT_ID/SECRET, or PAYPAL_CLIENT_ID/SECRET fallback) and run php artisan optimize:clear, then try again.';
 
     private const DONATION_MIN_CENTS = 200;
 
@@ -844,15 +844,24 @@ class PaymentController extends Controller
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
 
+        $mode = strtolower((string) config('paypal.mode', 'sandbox'));
+        $apiHost = $mode === 'live' ? 'api-m.paypal.com' : 'api-m.sandbox.paypal.com';
+        $forceApiIp = trim((string) config('paypal.force_api_ip', ''));
+        $disableProxyEnv = (bool) config('paypal.disable_proxy_env', false);
         $curlOptions = [];
-        if (\defined('CURLOPT_PROXY')) {
-            $curlOptions[\constant('CURLOPT_PROXY')] = '';
+        if ($disableProxyEnv) {
+            if (\defined('CURLOPT_PROXY')) {
+                $curlOptions[\constant('CURLOPT_PROXY')] = '';
+            }
+            if (\defined('CURLOPT_NOPROXY')) {
+                $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
+            }
+            if (\defined('CURLOPT_PROXYTYPE')) {
+                $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+            }
         }
-        if (\defined('CURLOPT_NOPROXY')) {
-            $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
-        }
-        if (\defined('CURLOPT_PROXYTYPE')) {
-            $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+        if ($forceApiIp !== '' && \defined('CURLOPT_RESOLVE')) {
+            $curlOptions[\constant('CURLOPT_RESOLVE')] = ["{$apiHost}:443:{$forceApiIp}"];
         }
 
         if ($curlOptions !== []) {
@@ -865,10 +874,14 @@ class PaymentController extends Controller
     }
 
     /**
-     * Run PayPal SDK calls with proxy env disabled for this process.
+     * Optionally run PayPal SDK calls with proxy env disabled.
      */
     private static function withoutProxyEnvironment(callable $callback): mixed
     {
+        if (! (bool) config('paypal.disable_proxy_env', false)) {
+            return $callback();
+        }
+
         $keys = ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy'];
         $original = [];
         $canPutenv = \function_exists('putenv');
@@ -943,6 +956,7 @@ class PaymentController extends Controller
 
         $mode = strtolower((string) config('paypal.mode', 'sandbox'));
         $baseUri = $mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+        $apiHost = $mode === 'live' ? 'api-m.paypal.com' : 'api-m.sandbox.paypal.com';
         $group = $mode === 'live' ? 'live' : 'sandbox';
         $clientId = trim((string) config("paypal.{$group}.client_id", ''));
         $clientSecret = trim((string) config("paypal.{$group}.client_secret", ''));
@@ -950,15 +964,22 @@ class PaymentController extends Controller
             return false;
         }
 
+        $forceApiIp = trim((string) config('paypal.force_api_ip', ''));
+        $disableProxyEnv = (bool) config('paypal.disable_proxy_env', false);
         $curlOptions = [];
-        if (\defined('CURLOPT_PROXY')) {
-            $curlOptions[\constant('CURLOPT_PROXY')] = '';
+        if ($disableProxyEnv) {
+            if (\defined('CURLOPT_PROXY')) {
+                $curlOptions[\constant('CURLOPT_PROXY')] = '';
+            }
+            if (\defined('CURLOPT_NOPROXY')) {
+                $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
+            }
+            if (\defined('CURLOPT_PROXYTYPE')) {
+                $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+            }
         }
-        if (\defined('CURLOPT_NOPROXY')) {
-            $curlOptions[\constant('CURLOPT_NOPROXY')] = '*';
-        }
-        if (\defined('CURLOPT_PROXYTYPE')) {
-            $curlOptions[\constant('CURLOPT_PROXYTYPE')] = 0;
+        if ($forceApiIp !== '' && \defined('CURLOPT_RESOLVE')) {
+            $curlOptions[\constant('CURLOPT_RESOLVE')] = ["{$apiHost}:443:{$forceApiIp}"];
         }
 
         try {

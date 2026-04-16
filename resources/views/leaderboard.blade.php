@@ -1,6 +1,21 @@
 @php
     $layout = auth()->check() ? 'app-layout' : 'guest-layout';
     $pointsExplainer = 'Accepted edits earn up to 2 points: 2 for a full accept, 1 for partial, 0 if rejected. Peter Trull Solitary Detective votes use contribution credits: each completed $2 contribution gives one vote.';
+    $tierLadder = [
+        ['label' => 'Observer', 'min' => 0, 'next' => 1],
+        ['label' => 'Contributor', 'min' => 1, 'next' => 5],
+        ['label' => 'Editor', 'min' => 5, 'next' => 15],
+        ['label' => 'Authority', 'min' => 15, 'next' => null],
+    ];
+    $tierForAccepted = function (int $acceptedCount) use ($tierLadder): array {
+        $resolved = $tierLadder[0];
+        foreach ($tierLadder as $tier) {
+            if ($acceptedCount >= $tier['min']) {
+                $resolved = $tier;
+            }
+        }
+        return $resolved;
+    };
 @endphp
 
 <x-dynamic-component :component="$layout">
@@ -8,9 +23,9 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h2 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                    Leaderboard
+                    Authority is earned
                 </h2>
-                <p class="text-amber-800/80 font-bold mt-1">The top contributors shaping the narrative.</p>
+                <p class="text-amber-800/80 font-bold mt-1">Position is determined by accepted replacements, not activity alone. This board records precision and narrative judgment.</p>
                 <div class="flex flex-wrap gap-2 mt-4" role="tablist" aria-label="Leaderboard time range">
                     <a
                         href="{{ route('leaderboard', ['period' => 'all']) }}"
@@ -49,7 +64,7 @@
                     </a>
                 @else
                     <h3 class="text-2xl font-extrabold text-amber-900 mb-4">No contributors on the board yet</h3>
-                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">{{ $pointsExplainer }}</p>
+                    <p class="text-amber-800/85 font-bold leading-relaxed mb-8">The first names to appear here will shape the standard for everyone who follows. {{ $pointsExplainer }}</p>
                 @endif
                 @auth
                     @if(($period ?? 'all') !== '30d')
@@ -73,6 +88,12 @@
         @else
             @auth
                 @if($yourRank !== null)
+                    @php
+                        $yourAccepted = (int) ($yourAcceptedCount ?? 0);
+                        $yourTier = $tierForAccepted($yourAccepted);
+                        $yourTierNext = $yourTier['next'];
+                        $tierProgress = $yourTierNext ? min(100, (int) round(($yourAccepted / $yourTierNext) * 100)) : 100;
+                    @endphp
                     <div class="mb-8 rounded-[2rem] border-2 border-amber-400/60 bg-amber-50 px-8 py-6 shadow-sm" role="status">
                         <p class="text-lg font-extrabold text-amber-950">
                             Your rank: <span class="text-amber-700">#{{ $yourRank }}</span>
@@ -86,6 +107,25 @@
                                 <span class="block mt-2 text-amber-800/70">You’re outside the top 20 shown in the table — keep contributing to move up.</span>
                             @endif
                         </p>
+                        <div class="mt-4 rounded-2xl border border-amber-300/60 bg-white/70 px-4 py-4">
+                            <p class="text-xs font-black uppercase tracking-widest text-amber-800/70">Accepted replacements tier</p>
+                            <div class="mt-2 flex items-center justify-between gap-4">
+                                <p class="text-base font-extrabold text-amber-950">{{ $yourTier['label'] }}</p>
+                                <p class="text-xs font-bold text-amber-800/80">{{ $yourAccepted }} accepted</p>
+                            </div>
+                            <div class="mt-3 h-2.5 w-full rounded-full bg-amber-100">
+                                <div class="h-full rounded-full bg-amber-600 transition-all" style="width: {{ $tierProgress }}%"></div>
+                            </div>
+                            @if($yourTierNext)
+                                <p class="mt-2 text-xs font-bold text-amber-800/80">
+                                    {{ max(0, $yourTierNext - $yourAccepted) }} more accepted replacements to reach the next tier.
+                                </p>
+                            @else
+                                <p class="mt-2 text-xs font-bold text-amber-800/80">
+                                    You are in the highest tier.
+                                </p>
+                            @endif
+                        </div>
                     </div>
                 @endif
             @endauth
@@ -124,6 +164,10 @@
                                     </div>
                                 </td>
                                 <td class="px-10 py-8">
+                                    @php
+                                        $acceptedCount = (int) ($acceptedCountsByUser[$leaderboardUser->id] ?? 0);
+                                        $tier = $tierForAccepted($acceptedCount);
+                                    @endphp
                                     <div class="text-xl font-extrabold text-amber-900 group-hover:text-amber-600 transition-colors">
                                         @if ($leaderboardUser->public_profile_enabled && filled($leaderboardUser->public_slug))
                                             <a href="{{ route('profile.public', ['slug' => $leaderboardUser->public_slug]) }}" class="hover:underline focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded">
@@ -136,7 +180,13 @@
                                             <span class="ml-2 align-middle text-xs font-black uppercase tracking-wider text-amber-700">You</span>
                                         @endif
                                     </div>
-                                    <div class="text-sm text-amber-800/75 font-bold mt-1">Member since {{ $leaderboardUser->created_at->format('M Y') }}</div>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-amber-900">
+                                            {{ $tier['label'] }}
+                                        </span>
+                                        <span class="text-xs font-bold text-amber-800/75">{{ $acceptedCount }} accepted replacements</span>
+                                        <span class="text-xs font-bold text-amber-700/70">• Member since {{ $leaderboardUser->created_at->format('M Y') }}</span>
+                                    </div>
                                 </td>
                                 <td class="px-10 py-8 text-right">
                                     <span class="inline-flex items-center px-6 py-2 bg-amber-100 text-amber-900 text-lg font-black rounded-full border border-amber-200/50">
@@ -151,11 +201,21 @@
         @endif
 
         <div class="mt-20 text-center max-w-2xl mx-auto">
+            @php
+                $isRankedUser = auth()->check() && $yourRank !== null;
+            @endphp
             <div class="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
                 <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             </div>
-            <h3 class="text-3xl font-extrabold text-amber-900 mb-4">Want to see your name here?</h3>
-            <p class="text-amber-800/85 text-lg font-bold mb-10 leading-relaxed">{{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.@if(($period ?? 'all') === '30d') <span class="block mt-2 text-base">The <strong>Last 30 days</strong> view only includes points from suggestions approved in that window; the grand prize uses the <strong>all-time</strong> board unless stated otherwise.</span>@endif</p>
+            <h3 class="text-3xl font-extrabold text-amber-900 mb-4">{{ $isRankedUser ? 'Keep climbing the leaderboard' : 'Want to see your name here?' }}</h3>
+            <p class="text-amber-800/85 text-lg font-bold mb-10 leading-relaxed">
+                @if($isRankedUser)
+                    You are already on the board. Keep submitting strong replacements to move up and protect your position.
+                @else
+                    This board tracks precision, judgment, and narrative instinct.
+                @endif
+                {{ $pointsExplainer }} The top contributor will have their name featured on the final book cover.@if(($period ?? 'all') === '30d') <span class="block mt-2 text-base">The <strong>Last 30 days</strong> view only includes points from suggestions approved in that window; the grand prize uses the <strong>all-time</strong> board unless stated otherwise.</span>@endif
+            </p>
             @auth
                 <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
                     Enter the manuscript

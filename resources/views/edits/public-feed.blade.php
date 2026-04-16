@@ -1,8 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-stone-900 dark:text-stone-100 leading-tight">
-            Public edit feed
-        </h2>
+        <div>
+            <h2 class="font-semibold text-xl text-stone-900 dark:text-stone-100 leading-tight">Visible influence</h2>
+            <p class="mt-1 text-sm font-bold text-stone-700 dark:text-stone-300">Every accepted replacement leaves a public trace in the manuscript record.</p>
+        </div>
     </x-slot>
 
     <div class="py-10">
@@ -20,10 +21,10 @@
 
             @if ($items->isEmpty())
                 <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200">
-                    <p class="font-semibold">No accepted public edits yet.</p>
-                    <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">When accepted edits are published, this feed becomes the public record of what changed and why.</p>
+                    <p class="font-semibold">No edits have been accepted yet.</p>
+                    <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">The first accepted changes will define early manuscript tone. This page will record what changed, who submitted it, and why it was selected.</p>
                     <a href="{{ route('chapters.index') }}" class="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400">
-                        Enter the manuscript
+                        Submit the first challenge to the text
                     </a>
                 </div>
             @else

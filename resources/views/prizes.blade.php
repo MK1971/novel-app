@@ -21,9 +21,11 @@
                         <ol class="list-decimal pl-6 space-y-3 mb-6 font-medium">
                             <li><strong>Name a character</strong> — leave a mark inside the story world.</li>
                             <li><strong>Name the book</strong> — help steer the title readers will see.</li>
-                            <li><strong>Live on in the project</strong> — lasting recognition in the book and on the site so your contribution stays visible for the audience that follows the journey.</li>
                             <li><strong>Grand prize: your name on the cover</strong> — top contributors can be credited on the final cover, subject to author and production approval (see below).</li>
                         </ol>
+                        <p class="mb-6">
+                            <strong>Bonus once achieved:</strong> <strong>live forever in the project</strong> — lasting recognition in the book and on the site after top-tier milestones are secured.
+                        </p>
                         <p class="text-sm font-bold text-amber-800/70 mb-6">
                             Tiers and exact wording may vary by campaign; the <a href="{{ route('leaderboard') }}" class="text-amber-700 underline hover:text-amber-900">leaderboard</a> reflects current standings.
                         </p>

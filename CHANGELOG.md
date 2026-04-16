@@ -2,6 +2,20 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.66 - Checkout intent UX hardening, onboarding mission, and funnel tracking
+### Added
+- **Starter mission onboarding (chapters surfaces):** Added early-session mission cards on `/chapters` and chapter reader sidebar to guide first contribution attempts with visible progress (`submitted/3`, accepted count) and direct next-step CTAs.
+- **Checkout intent analytics coverage:** Added frontend event tracking for submit-intent open/confirm/continue-edit/close paths across full chapter submit, inline submit, queued checkout, and chapter-index inline flow.
+
+### Changed
+- **Inline checkout behavior parity:** `/chapters` inline edit now uses the same submit-intent/paywall confirmation flow as `/chapters/{chapter}` (including modal locking and consistent copy).
+- **Intent modal interaction reliability:** Hardened stacking/pointer-event guards to prevent click-through to underlying chapter controls while intent modal is open.
+- **Queue visibility before checkout:** Queue list in chapter sidebar now scrolls and shows all queued edits instead of truncating to five.
+- **Leaderboard bottom CTA context:** “Want to see your name here?” now adapts when the logged-in user is already ranked.
+
+### Fixed
+- **Dashboard donation amount validation:** Donation checkout input now requires amount client-side to prevent empty-submit bounce/jump behavior.
+
 ## Version 1.9.65 - Hide internal env keys on legal page
 ### Fixed
 - **Public legal page copy:** Removed internal environment variable key names from `legal` hub so users only see user-facing legal content.

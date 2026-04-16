@@ -21,11 +21,19 @@
             @endif
             @can('admin')
                 {{-- ADMIN DASHBOARD --}}
-                @if(app()->isLocal())
+                @php
+                    $dashboardHost = strtolower((string) request()->getHost());
+                    $showDevResetTools = app()->isLocal()
+                        || $dashboardHost === 'localhost'
+                        || str_starts_with($dashboardHost, '127.0.0.1')
+                        || str_starts_with($dashboardHost, 'dev.')
+                        || str_starts_with($dashboardHost, 'stag.');
+                @endphp
+                @if($showDevResetTools)
                     <div class="mb-8 rounded-[2rem] border-2 border-red-300 bg-red-50 px-6 py-6">
-                        <h3 class="text-xl font-extrabold text-red-900">Local testing tools</h3>
+                        <h3 class="text-xl font-extrabold text-red-900">Dev/Staging testing tools</h3>
                         <p class="mt-2 text-sm font-bold text-red-800/80 max-w-3xl">
-                            These controls are available only in this local environment. Use them to reset data quickly while testing flows.
+                            These controls are available only on localhost, dev, and staging hosts. Use them to reset data quickly while testing flows.
                         </p>
                         <div class="mt-5 flex flex-col sm:flex-row gap-3">
                             <form method="POST" action="{{ route('dev.tools.reset-all') }}" onsubmit="return confirm('Clear all data and reseed admin? This will remove users and sign you out.')">
@@ -506,7 +514,7 @@
                             <form method="POST" action="{{ route('payment.donation.checkout') }}" class="mt-4 space-y-3">
                                 @csrf
                                 <label for="amount_dollars" class="block text-xs font-black uppercase tracking-widest text-amber-800/70">Donation (USD)</label>
-                                <input id="amount_dollars" name="amount_dollars" type="number" min="2" step="1" value="{{ old('amount_dollars', '') }}" placeholder="Enter amount (min $2)" class="w-full rounded-xl border-amber-200 !bg-white !text-stone-900 placeholder:!text-stone-500 focus:border-amber-500 focus:ring-amber-500 font-bold" style="background-color:#ffffff;color:#1c1917;" />
+                                <input id="amount_dollars" name="amount_dollars" type="number" min="2" step="1" required value="{{ old('amount_dollars', '') }}" placeholder="Enter amount (min $2)" class="w-full rounded-xl border-amber-200 !bg-white !text-stone-900 placeholder:!text-stone-500 focus:border-amber-500 focus:ring-amber-500 font-bold" style="background-color:#ffffff;color:#1c1917;" />
                                 @error('amount_dollars')
                                     <p class="text-xs font-bold text-red-700">{{ $message }}</p>
                                 @enderror

@@ -201,6 +201,9 @@
             $queuedCount = (int) (($queuedPendingEdits ?? collect())->count());
             $queuedTotalDisplay = number_format($queuedCount * 2, 2);
             $payNowTotalDisplay = number_format(($queuedCount + 1) * 2, 2);
+            $submittedSuggestions = auth()->check() ? (int) auth()->user()->editSuggestionsSubmittedCount() : 0;
+            $acceptedSuggestions = auth()->check() ? (int) auth()->user()->acceptedChapterAndParagraphEditCount() : 0;
+            $showContributionMission = auth()->check() && ! $isPeterTrullBook && $submittedSuggestions < 3;
         @endphp
         <div class="max-w-7xl mx-auto mb-8 space-y-3">
             @if (session('success'))
@@ -269,7 +272,7 @@
                             @auth
                                 @if(! $chapter->is_locked && $manuscriptEditsAllowed)
                                     <p class="mb-5 md:hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-bold text-amber-900/80">
-                                        Tap the pencil beside a paragraph to suggest a paragraph edit on mobile.
+                                        Tap the pencil beside a paragraph to replace that line with your version.
                                     </p>
                                 @endif
                             @endauth
@@ -286,7 +289,7 @@
                                                     type="button"
                                                     onclick="openInlineEdit({{ $index }}, '{{ addslashes(trim($paragraph)) }}')"
                                                     class="absolute -right-8 top-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity p-2 text-amber-700 hover:text-amber-900 focus-visible:opacity-100 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-500 rounded-lg bg-amber-50/80 md:bg-transparent"
-                                                    title="Paragraph contribution ($2): submit your version for this paragraph only. Whole-chapter rewrites use the sidebar form."
+                                                    title="Replace this line ($2 contribution): submit your version for this paragraph only. Whole-chapter replacement uses the sidebar form."
                                                 >
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                                 </button>
@@ -308,7 +311,7 @@
                                         onclick="event.preventDefault(); window.scrollToSuggestEditSidebar();"
                                     >
                                         <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                        Suggest an edit
+                                        Replace a line
                                     </a>
                                 </div>
                             </div>
@@ -343,7 +346,7 @@
                                     This chapter is now part of the permanent record. Suggestions are closed, but you can still read and enjoy the community-shaped narrative.
                                 </p>
                                 @if($nextChapter ?? null)
-                                    <a href="{{ route('chapters.show', $nextChapter) }}#chapter-suggest-edit-sidebar" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
+                                    <a href="{{ route('chapters.show', $nextChapter) }}" class="w-full inline-block text-center py-5 bg-amber-900 text-white text-lg font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-1">
                                         Read next chapter
                                     </a>
                                 @else
@@ -360,14 +363,24 @@
                         </div>
                     @else
                         @auth
+                            @if($showContributionMission)
+                                <div class="mb-6 rounded-[2rem] border border-amber-300/70 bg-gradient-to-br from-amber-50 to-white px-6 py-5 shadow-sm">
+                                    <p class="text-[11px] font-black uppercase tracking-widest text-amber-800/60">Starter mission</p>
+                                    <h3 class="mt-2 text-lg font-extrabold text-amber-950">Build momentum with 3 submissions</h3>
+                                    <p class="mt-2 text-sm font-bold text-amber-900/75">Progress this session: <strong>{{ $submittedSuggestions }}/3 submitted</strong>, <strong>{{ $acceptedSuggestions }} accepted</strong>. Refine wording before checkout, then submit when ready.</p>
+                                    <div class="mt-4 h-2.5 w-full rounded-full bg-amber-100">
+                                        <div class="h-full rounded-full bg-amber-600 transition-all" style="width: {{ min(100, (int) round(($submittedSuggestions / 3) * 100)) }}%"></div>
+                                    </div>
+                                </div>
+                            @endif
                             @if(($queuedPendingEdits ?? collect())->isNotEmpty())
                                 <div class="mb-6 p-6 rounded-[2rem] border-2 border-amber-400/60 bg-amber-50 text-amber-900 shadow-sm">
                                     <p class="text-sm font-black uppercase tracking-widest text-amber-800/70 mb-2">Queued for checkout</p>
                                     <p class="text-sm font-bold text-amber-900/80 mb-4 leading-relaxed">
                                         You currently have <strong>{{ $queuedPendingEdits->count() }}</strong> queued suggestion(s). Total at checkout: <strong>${{ number_format($queuedPendingEdits->count() * 2, 2) }}</strong>.
                                     </p>
-                                    <ul class="mb-4 text-xs space-y-2 text-amber-900/80">
-                                        @foreach($queuedPendingEdits->take(5) as $queued)
+                                    <ul class="mb-4 max-h-64 overflow-y-auto pr-2 text-xs space-y-2 text-amber-900/80">
+                                        @foreach($queuedPendingEdits as $queued)
                                             <li class="flex items-center justify-between gap-2">
                                                 <span>
                                                     • {{ $queued->chapter?->readerHeadingLine() ?? 'Chapter removed' }} — {{ $queued->type === 'inline_edit' ? 'Paragraph edit' : ucfirst($queued->type).' edit' }}
@@ -381,15 +394,12 @@
                                                 </form>
                                             </li>
                                         @endforeach
-                                        @if($queuedPendingEdits->count() > 5)
-                                            <li>• and {{ $queuedPendingEdits->count() - 5 }} more…</li>
-                                        @endif
                                     </ul>
-                                    <form action="{{ route('payment.checkout') }}" method="POST" class="inline-flex flex-wrap gap-3">
+                                    <form id="queued-checkout-form" action="{{ route('payment.checkout') }}" method="POST" class="inline-flex flex-wrap gap-3">
                                         @csrf
                                         <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                                         <input type="hidden" name="resume_edit_id" value="{{ $queuedPendingEdits->first()->id }}">
-                                        <button type="submit" class="inline-flex items-center px-6 py-3 bg-amber-900 text-white text-sm font-extrabold rounded-2xl hover:bg-black transition-all shadow-lg">
+                                        <button type="submit" data-checkout-intent="1" data-intent-kind="queue" class="inline-flex items-center px-6 py-3 bg-amber-900 text-white text-sm font-extrabold rounded-2xl hover:bg-black transition-all shadow-lg">
                                             Submit queued edits & Pay (${{ $queuedTotalDisplay }})
                                         </button>
                                     </form>
@@ -399,9 +409,9 @@
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Submit your version of the text</h3>
                                     <div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20 text-amber-100/90 text-sm font-bold leading-relaxed">
-                                        <p class="mb-2"><span class="text-white font-extrabold">Two ways to contribute</span> (each uses a <span class="text-white">$2</span> contribution checkout):</p>
+                                        <p class="mb-2"><span class="text-white font-extrabold">Two ways to challenge the text</span> (each uses a <span class="text-white">$2</span> contribution checkout):</p>
                                         <ul class="list-disc list-inside space-y-1.5 text-amber-100/85">
-                                            <li><span class="text-white">Paragraph</span> — Hover a paragraph and tap the pencil to suggest a change to <em>that paragraph only</em>. Moderators use the same scale as full-chapter edits: <span class="text-white">2 pts</span> full accept, <span class="text-white">1 pt</span> partial, <span class="text-white">0</span> if rejected.</li>
+                                            <li><span class="text-white">Paragraph</span> — Hover a paragraph and tap the pencil to replace <em>that line only</em>. Moderators use the same scale as full-chapter edits: <span class="text-white">2 pts</span> full accept, <span class="text-white">1 pt</span> partial, <span class="text-white">0</span> if rejected.</li>
                                             <li><span class="text-white">Writing / Phrase</span> (below) — Replace the <em>entire chapter text</em>. Same <span class="text-white">2 / 1 / 0</span> scale: full accept, partial accept, reject.</li>
                                         </ul>
                                     </div>
@@ -409,12 +419,12 @@
                                         After a successful <strong class="text-white">$2</strong> contribution, your submission is queued for moderation review (acceptance is not guaranteed). Only completed contribution submissions can earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed contribution also adds <strong class="text-white">one vote credit</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
                                     </p>
                                     
-                                    <form action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
+                                    <form id="chapter-full-edit-form" action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
                                         @csrf
                                         <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
                                         
                                         <div>
-                                            <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Edit type (full chapter)</label>
+                                            <label class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Replacement type (full chapter)</label>
                                             <select name="type" class="w-full bg-white/10 border-white/20 rounded-2xl text-white focus:ring-amber-500 focus:border-amber-500 font-bold p-4 outline-none transition-all" required>
                                                 <option value="writing" class="bg-amber-900">Writing Edit — full replacement text</option>
                                                 <option value="phrase" class="bg-amber-900">Phrase Edit — full replacement text</option>
@@ -423,7 +433,7 @@
                                         </div>
 
                                         <div>
-                                            <label for="edited_text" class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Your Edited Text</label>
+                                            <label for="edited_text" class="block text-xs font-black uppercase tracking-widest text-amber-400 mb-3">Write your version</label>
                                             <textarea 
                                                 name="edited_text" 
                                                 id="edited_text" 
@@ -432,6 +442,7 @@
                                                 placeholder="Enter your suggested edit..."
                                                 required
                                             >{{ old('edited_text', '') }}</textarea>
+                                            <p id="full-edit-ownership-note" class="hidden mt-3 text-xs font-black text-amber-100">Your draft is ready. Submit when you want this version reviewed.</p>
                                             @error('edited_text')
                                                 <p class="text-red-400 text-xs mt-2 font-bold">{{ $message }}</p>
                                             @enderror
@@ -464,8 +475,8 @@
                                         </div>
                                         
                                         <div class="grid gap-3 sm:grid-cols-2">
-                                            <button type="submit" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                                Submit your version + checkout (${{ $payNowTotalDisplay }})
+                                            <button type="submit" data-checkout-intent="1" data-intent-kind="full" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                                                Submit your version
                                             </button>
                                             <button type="submit" name="queue_only" value="1" class="w-full py-5 bg-white/15 border border-white/30 text-white text-lg font-extrabold rounded-2xl hover:bg-white/20 transition-all">
                                                 Add another edit
@@ -482,12 +493,12 @@
                                     <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-8">
                                         <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                     </div>
-                                    <h3 class="text-2xl font-extrabold mb-6">Want to suggest an edit?</h3>
+                                    <h3 class="text-2xl font-extrabold mb-6">Want to challenge the manuscript?</h3>
                                     <p class="text-black/60 text-lg font-bold mb-10 leading-relaxed">
-                                        Join our community of contributors to shape the story and earn your place on the leaderboard.
+                                        Read first, then submit your version when you are ready. Accepted replacements improve your rank.
                                     </p>
                                     <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" class="w-full py-5 bg-black text-white text-lg font-extrabold rounded-2xl hover:bg-amber-900 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
-                                        Create Account
+                                        Become a Contributor
                                     </button>
                                     <button onclick="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'login' }))" class="w-full mt-4 py-4 bg-transparent border-2 border-black/10 text-black text-lg font-extrabold rounded-2xl hover:bg-black/5 transition-all">
                                         Sign In
@@ -569,7 +580,7 @@
                 onclick="event.preventDefault(); window.scrollToSuggestEditSidebar();"
             >
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                <span>Suggest edit</span>
+                <span>Replace a line</span>
             </a>
         @endif
 
@@ -582,8 +593,8 @@
 
     {{-- Inline Edit Modal --}}
     @auth
-    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-4 overflow-y-auto">
-        <div class="relative my-4 bg-white rounded-[3rem] w-full max-w-2xl p-12 shadow-2xl max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
+    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="relative my-2 sm:my-4 bg-white rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl p-6 sm:p-12 shadow-2xl max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
             <button
                 type="button"
                 onclick="closeInlineEdit()"
@@ -592,8 +603,8 @@
             >
                 ×
             </button>
-            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Submit your paragraph version</h3>
-            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are editing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for the whole chapter). Same <strong class="text-amber-900">$2</strong> contribution checkout. Moderators review every submission (acceptance is not guaranteed). Points match chapter suggestions: up to <strong class="text-amber-900">2</strong> for a full accept, <strong class="text-amber-900">1</strong> for partial, <strong class="text-amber-900">0</strong> if rejected.</p>
+            <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Replace this line</h3>
+            <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are replacing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for full chapter replacement). Free to read; payment applies only when you submit. Moderators review every submission (acceptance is not guaranteed).</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
                 @csrf
                 <input type="hidden" name="chapter_id" value="{{ $chapter->id }}">
@@ -603,13 +614,14 @@
                 <input type="hidden" id="original-text-input" name="original_text">
                 
                 <div>
-                    <label class="block text-xs font-black text-amber-900/30 uppercase tracking-widest mb-4">Original Paragraph</label>
+                    <label class="block text-xs font-black text-amber-900/30 uppercase tracking-widest mb-4">Original line</label>
                     <div id="original-text-display" class="p-6 bg-amber-50 rounded-2xl text-amber-900/60 italic text-sm border border-amber-100"></div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-black text-amber-900/30 uppercase tracking-widest mb-4">Your Suggestion</label>
+                    <label class="block text-xs font-black text-amber-900/30 uppercase tracking-widest mb-4">Write your version</label>
                     <textarea id="suggested-text" name="suggested_text" rows="4" class="w-full bg-amber-50/50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all" required></textarea>
+                    <p id="inline-ownership-note" class="hidden mt-3 text-xs font-black text-amber-900">Your version is ready to replace the original line.</p>
                 </div>
 
                 <div>
@@ -631,10 +643,10 @@
                     </span>
                 </label>
 
-                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Paragraph submissions use the same <strong class="text-amber-900">$2</strong> contribution checkout. Points apply only after contribution succeeds and a moderator accepts your edit.</p>
+                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Only accepted replacements are integrated into the manuscript. Each completed contribution also grants one vote credit in Peter Trull Solitary Detective.</p>
                 <div class="flex flex-wrap items-center gap-4 pt-4">
-                    <button type="submit" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Submit your version + checkout (${{ $payNowTotalDisplay }})
+                    <button type="submit" data-checkout-intent="1" data-intent-kind="inline" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
+                        Submit your version
                     </button>
                     <button type="submit" name="queue_only" value="1" class="px-10 py-4 bg-amber-100 border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all">
                         Add another edit
@@ -650,11 +662,116 @@
         </div>
     </div>
 
+    <div id="checkout-intent-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] hidden items-center justify-center p-4 pointer-events-auto">
+        <div id="checkout-intent-panel" class="relative z-[10000] w-full max-w-2xl max-h-[calc(100vh-2rem)] overflow-y-auto rounded-[2rem] border border-amber-200 bg-white p-6 sm:p-8 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700/70">Finalize contribution</p>
+                    <h4 id="checkout-intent-title" class="mt-1 text-2xl font-extrabold text-amber-900">Submit your version</h4>
+                </div>
+                <button type="button" id="checkout-intent-close" class="rounded-xl bg-amber-100 px-3 py-2 text-sm font-black text-amber-900 hover:bg-amber-200">Close</button>
+            </div>
+            <p class="mt-4 text-sm font-bold leading-relaxed text-amber-900/80">
+                You are about to start a <strong class="text-amber-950">$2 contribution checkout</strong>. Submissions stay pending until moderation review.
+            </p>
+            <ul class="mt-4 space-y-2 rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-sm font-bold text-amber-900/85">
+                <li>• Acceptance is not guaranteed, but only accepted replacements earn leaderboard points.</li>
+                <li>• Approved submissions permanently reshape this manuscript.</li>
+                <li>• Every completed contribution adds one Peter Trull vote credit.</li>
+            </ul>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-amber-100 bg-amber-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/70">Published text</p>
+                    <p id="checkout-intent-original" class="mt-2 text-sm font-bold text-amber-900/80"></p>
+                </div>
+                <div class="rounded-2xl border border-amber-300 bg-amber-100/60 p-4">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/70">Your version</p>
+                    <p id="checkout-intent-suggested" class="mt-2 text-sm font-bold text-amber-900"></p>
+                </div>
+            </div>
+            <p id="checkout-intent-hesitation" class="mt-4 text-xs font-bold text-amber-800/80"></p>
+            <div class="mt-6 flex flex-wrap gap-3">
+                <button type="button" id="checkout-intent-confirm" class="inline-flex items-center rounded-2xl bg-amber-900 px-6 py-3 text-sm font-extrabold text-white hover:bg-black">
+                    Continue to ${{ $payNowTotalDisplay }} checkout
+                </button>
+                <button type="button" id="checkout-intent-cancel" class="inline-flex items-center rounded-2xl border border-amber-200 bg-white px-6 py-3 text-sm font-extrabold text-amber-900 hover:bg-amber-50">
+                    Continue with this edit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const modal = document.getElementById('inline-edit-modal');
         const form = document.getElementById('inline-edit-form');
         const chapterIdForInline = {{ $chapter->id }};
+        const chapterOriginalForCheckout = @json((string) $chapter->content);
+        const fullEditForm = document.getElementById('chapter-full-edit-form');
+        const queueCheckoutForm = document.getElementById('queued-checkout-form');
+        const fullEditTextarea = document.getElementById('edited_text');
+        const fullEditOwnership = document.getElementById('full-edit-ownership-note');
+        const checkoutIntentModal = document.getElementById('checkout-intent-modal');
+        const checkoutIntentTitle = document.getElementById('checkout-intent-title');
+        const checkoutIntentOriginal = document.getElementById('checkout-intent-original');
+        const checkoutIntentSuggested = document.getElementById('checkout-intent-suggested');
+        const checkoutIntentHesitation = document.getElementById('checkout-intent-hesitation');
+        const checkoutIntentPanel = document.getElementById('checkout-intent-panel');
+        const checkoutIntentConfirm = document.getElementById('checkout-intent-confirm');
+        const checkoutIntentCancel = document.getElementById('checkout-intent-cancel');
+        const checkoutIntentClose = document.getElementById('checkout-intent-close');
+        const queueCountForCheckout = {{ (int) $queuedCount }};
+        const queueTotalForCheckout = @json($queuedTotalDisplay);
+        let pendingCheckoutSubmit = null;
+        let pendingCheckoutKind = 'unknown';
+        let inlineHiddenByIntent = false;
+        let lastIntentSubmitter = null;
         let inlineDraftTimer;
+        let intentInteractionGuardEnabled = false;
+
+        if (checkoutIntentModal && checkoutIntentModal.parentElement !== document.body) {
+            document.body.appendChild(checkoutIntentModal);
+        }
+
+        function isCheckoutIntentOpen() {
+            return !!(checkoutIntentModal && ! checkoutIntentModal.classList.contains('hidden'));
+        }
+
+        function trackChapterEvent(eventName, context) {
+            if (! eventName || typeof window.trackLandingEvent !== 'function') {
+                return;
+            }
+            window.trackLandingEvent(eventName, Object.assign({
+                path: window.location.pathname,
+                chapter_id: chapterIdForInline,
+            }, context || {}));
+        }
+
+        function interactionGuard(event) {
+            if (! isCheckoutIntentOpen()) return;
+            if (! checkoutIntentPanel) return;
+            if (checkoutIntentPanel.contains(event.target)) return;
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation?.();
+        }
+
+        function enableIntentInteractionGuard() {
+            if (intentInteractionGuardEnabled) return;
+            intentInteractionGuardEnabled = true;
+            document.addEventListener('pointerdown', interactionGuard, true);
+            document.addEventListener('click', interactionGuard, true);
+            document.addEventListener('mousedown', interactionGuard, true);
+            document.addEventListener('touchstart', interactionGuard, true);
+        }
+
+        function disableIntentInteractionGuard() {
+            if (! intentInteractionGuardEnabled) return;
+            intentInteractionGuardEnabled = false;
+            document.removeEventListener('pointerdown', interactionGuard, true);
+            document.removeEventListener('click', interactionGuard, true);
+            document.removeEventListener('mousedown', interactionGuard, true);
+            document.removeEventListener('touchstart', interactionGuard, true);
+        }
 
         function openInlineEdit(number, text) {
             document.getElementById('paragraph-number').value = number;
@@ -665,14 +782,140 @@
             let saved = null;
             try { saved = localStorage.getItem(ikey); } catch (e) {}
             st.value = (saved !== null && saved.length > 0) ? saved : text;
+            const ownership = document.getElementById('inline-ownership-note');
+            if (ownership) {
+                if ((st.value || '').trim().length > 0) {
+                    ownership.classList.remove('hidden');
+                } else {
+                    ownership.classList.add('hidden');
+                }
+            }
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            trackChapterEvent('inline_edit_modal_open', { source: 'chapter_show' });
         }
 
         function closeInlineEdit() {
             modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            if (! checkoutIntentModal || checkoutIntentModal.classList.contains('hidden')) {
+                document.body.style.overflow = 'auto';
+            }
         }
+
+        function summarizeForPreview(text) {
+            const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+            if (normalized.length <= 160) {
+                return normalized || '(empty)';
+            }
+            return normalized.slice(0, 160) + '...';
+        }
+
+        function openCheckoutIntent(payload) {
+            if (! checkoutIntentModal) return;
+            if (payload.hideInlineModal && modal && ! modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                modal.style.pointerEvents = 'none';
+                inlineHiddenByIntent = true;
+            }
+            checkoutIntentModal.style.position = 'fixed';
+            checkoutIntentModal.style.inset = '0';
+            checkoutIntentModal.style.zIndex = '2147483646';
+            checkoutIntentModal.style.pointerEvents = 'auto';
+            if (checkoutIntentPanel) {
+                checkoutIntentPanel.style.position = 'relative';
+                checkoutIntentPanel.style.zIndex = '2147483647';
+                checkoutIntentPanel.style.pointerEvents = 'auto';
+            }
+            checkoutIntentTitle.textContent = payload.title;
+            checkoutIntentOriginal.textContent = summarizeForPreview(payload.originalText);
+            checkoutIntentSuggested.textContent = summarizeForPreview(payload.suggestedText);
+            checkoutIntentHesitation.textContent = payload.hesitationCopy;
+            pendingCheckoutSubmit = payload.onConfirm;
+            pendingCheckoutKind = payload.analyticsKind || 'unknown';
+            checkoutIntentModal.classList.remove('hidden');
+            checkoutIntentModal.classList.add('flex');
+            enableIntentInteractionGuard();
+            document.body.style.overflow = 'hidden';
+            trackChapterEvent('checkout_intent_open', { kind: pendingCheckoutKind });
+        }
+
+        function closeCheckoutIntent(reopenInlineModal) {
+            if (! checkoutIntentModal) return;
+            const shouldReopenInline = reopenInlineModal !== false;
+            checkoutIntentModal.classList.add('hidden');
+            checkoutIntentModal.classList.remove('flex');
+            pendingCheckoutSubmit = null;
+            pendingCheckoutKind = 'unknown';
+            disableIntentInteractionGuard();
+            if (inlineHiddenByIntent && modal) {
+                if (shouldReopenInline) {
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+                modal.style.pointerEvents = '';
+                inlineHiddenByIntent = false;
+            }
+            if (modal && ! modal.classList.contains('hidden')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function submitterFromEvent(event, ownerForm) {
+            const nativeSubmitter = event ? event.submitter : null;
+            if (nativeSubmitter && nativeSubmitter.form === ownerForm) {
+                return nativeSubmitter;
+            }
+            const active = document.activeElement;
+            if (active && active.form === ownerForm) {
+                return active;
+            }
+            if (lastIntentSubmitter && lastIntentSubmitter.form === ownerForm) {
+                return lastIntentSubmitter;
+            }
+            return null;
+        }
+
+        document.querySelectorAll('button[data-checkout-intent="1"]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                lastIntentSubmitter = btn;
+            });
+        });
+
+        checkoutIntentConfirm?.addEventListener('click', function () {
+            if (typeof pendingCheckoutSubmit === 'function') {
+                const submitAction = pendingCheckoutSubmit;
+                trackChapterEvent('checkout_intent_confirm', { kind: pendingCheckoutKind });
+                closeCheckoutIntent(false);
+                submitAction();
+            }
+        });
+        checkoutIntentCancel?.addEventListener('click', function () {
+            trackChapterEvent('checkout_intent_continue_edit', { kind: pendingCheckoutKind });
+            closeCheckoutIntent();
+        });
+        checkoutIntentClose?.addEventListener('click', function () {
+            trackChapterEvent('checkout_intent_close', { kind: pendingCheckoutKind, source: 'close_button' });
+            closeCheckoutIntent();
+        });
+        checkoutIntentModal?.addEventListener('click', function (event) {
+            if (event.target === checkoutIntentModal) {
+                trackChapterEvent('checkout_intent_close', { kind: pendingCheckoutKind, source: 'backdrop' });
+                closeCheckoutIntent();
+            }
+        });
+        checkoutIntentPanel?.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && isCheckoutIntentOpen()) {
+                event.preventDefault();
+                trackChapterEvent('checkout_intent_close', { kind: pendingCheckoutKind, source: 'escape_key' });
+                closeCheckoutIntent();
+            }
+        });
 
         function discardInlineParagraphDraft() {
             const num = document.getElementById('paragraph-number')?.value;
@@ -692,12 +935,104 @@
         document.getElementById('suggested-text')?.addEventListener('input', function () {
             const num = document.getElementById('paragraph-number')?.value;
             if (num === undefined || num === '') return;
+            const ownership = document.getElementById('inline-ownership-note');
+            if (ownership) {
+                if ((this.value || '').trim().length > 0) {
+                    ownership.classList.remove('hidden');
+                } else {
+                    ownership.classList.add('hidden');
+                }
+            }
             clearTimeout(inlineDraftTimer);
             inlineDraftTimer = setTimeout(function () {
                 try {
                     localStorage.setItem('novel-inline-draft-' + chapterIdForInline + '-' + num, document.getElementById('suggested-text').value);
                 } catch (e) {}
             }, 800);
+        });
+
+        fullEditTextarea?.addEventListener('input', function () {
+            if (! fullEditOwnership) return;
+            if ((this.value || '').trim().length > 0) {
+                fullEditOwnership.classList.remove('hidden');
+            } else {
+                fullEditOwnership.classList.add('hidden');
+            }
+        });
+        if (fullEditTextarea && fullEditOwnership && (fullEditTextarea.value || '').trim().length > 0) {
+            fullEditOwnership.classList.remove('hidden');
+        }
+
+        fullEditForm?.addEventListener('submit', function (event) {
+            if (fullEditForm.dataset.intentConfirmed === '1') {
+                delete fullEditForm.dataset.intentConfirmed;
+                return;
+            }
+            const submitter = submitterFromEvent(event, fullEditForm);
+            if (! submitter || submitter.dataset.checkoutIntent !== '1') return;
+            event.preventDefault();
+            openCheckoutIntent({
+                title: 'Submit full chapter version',
+                originalText: chapterOriginalForCheckout,
+                suggestedText: fullEditTextarea ? fullEditTextarea.value : '',
+                hesitationCopy: 'This chapter remains open now. If you are still shaping your language, keep editing first.',
+                analyticsKind: 'full_chapter',
+                onConfirm: function () {
+                    fullEditForm.dataset.intentConfirmed = '1';
+                    fullEditForm.submit();
+                },
+            });
+        });
+
+        form?.addEventListener('submit', function (event) {
+            if (form.dataset.intentConfirmed === '1') {
+                delete form.dataset.intentConfirmed;
+                return;
+            }
+            const submitter = submitterFromEvent(event, form);
+            if (! submitter || submitter.dataset.checkoutIntent !== '1') {
+                return;
+            }
+            event.preventDefault();
+            const suggested = document.getElementById('suggested-text');
+            const original = document.getElementById('original-text-input');
+            openCheckoutIntent({
+                title: 'Submit single-line replacement',
+                originalText: original ? original.value : '',
+                suggestedText: suggested ? suggested.value : '',
+                hesitationCopy: 'This line is still challengeable. Continue only if this wording is the one you want judged.',
+                hideInlineModal: true,
+                analyticsKind: 'inline_edit',
+                onConfirm: function () {
+                    const num = document.getElementById('paragraph-number')?.value;
+                    if (num !== undefined && num !== '') {
+                        try { localStorage.removeItem('novel-inline-draft-' + chapterIdForInline + '-' + num); } catch (e) {}
+                    }
+                    form.dataset.intentConfirmed = '1';
+                    form.submit();
+                },
+            });
+        });
+
+        queueCheckoutForm?.addEventListener('submit', function (event) {
+            if (queueCheckoutForm.dataset.intentConfirmed === '1') {
+                delete queueCheckoutForm.dataset.intentConfirmed;
+                return;
+            }
+            const submitter = submitterFromEvent(event, queueCheckoutForm);
+            if (! submitter || submitter.dataset.checkoutIntent !== '1') return;
+            event.preventDefault();
+            openCheckoutIntent({
+                title: 'Submit queued suggestions',
+                originalText: queueCountForCheckout + ' queued suggestion(s)',
+                suggestedText: 'Checkout total: $' + queueTotalForCheckout,
+                hesitationCopy: 'You can still remove queued edits before paying.',
+                analyticsKind: 'queued_checkout',
+                onConfirm: function () {
+                    queueCheckoutForm.dataset.intentConfirmed = '1';
+                    queueCheckoutForm.submit();
+                },
+            });
         });
 
         form?.addEventListener('submit', function () {

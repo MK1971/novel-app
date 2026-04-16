@@ -6,16 +6,14 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white/80 backdrop-blur-sm overflow-hidden shadow-xl sm:rounded-2xl border border-amber-100">
                 <div class="p-8 md:p-12">
-                    <h1 class="text-4xl font-bold text-amber-900 mb-8">The Story Behind "What's My Book Name"</h1>
+                    <h1 class="text-4xl font-bold text-amber-900 mb-4">This is not a finished book.</h1>
+                    <p class="text-lg md:text-xl text-amber-800/85 font-bold mb-8">It is a controlled narrative system where readers can intervene in the text before it becomes final.</p>
 
                     <div class="prose prose-amber max-w-none">
-                        <p class="text-lg text-amber-800 leading-relaxed mb-6">
-                            "What's My Book Name" is a collaborative storytelling platform where the community doesn't just read the story—they shape it.
-                        </p>
-
-                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Our Vision</h2>
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-2 mb-4">What happens here</h2>
                         <p class="text-amber-800 mb-6">
-                            We believe the strongest stories are built with readers, not only delivered to them. Readers become contributors: suggest edits on the live manuscript, earn points when suggestions are accepted, use vote credits to decide alternate chapter outcomes, and help name the work everyone built together.
+                            Chapters are released in controlled stages. Readers submit replacements line by line. Each submission is reviewed individually. Accepted replacements become part of the evolving manuscript.
+                            Alongside the manuscript, a second story lets contributors vote on alternate narrative paths. Together, these systems turn reading into selective authorship.
                         </p>
 
                         <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">How It Works</h2>
@@ -35,15 +33,15 @@
                                     Compare <strong class="text-amber-900">Version A</strong> and <strong class="text-amber-900">Version B</strong> of the same chapter and vote for the direction the detective story should take. <strong class="text-amber-900">Casting a vote uses one unused vote credit</strong> from a completed $2 contribution; you can vote once per chapter pair.
                                 </p>
                                 <p class="text-amber-800 text-sm font-bold leading-relaxed">
-                                    <a href="{{ route('vote.index') }}" class="text-amber-700 underline decoration-amber-300 hover:text-amber-900">Open the Peter Trull Solitary Detective voting hub</a>
+                                    <a href="{{ route('vote.index') }}" class="text-amber-700 underline decoration-amber-300 hover:text-amber-900">Open the Peter Trull Solitary Detective decision page</a>
                                     — you can browse without credits, but ballots require an available credit.
                                 </p>
                             </div>
                         </div>
 
-                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Join as a contributor</h2>
+                        <h2 class="text-2xl font-semibold text-amber-900 mt-10 mb-4">Enter as a contributor</h2>
                         <p class="text-amber-800 mb-6">
-                            Whether you are a seasoned writer or a focused reader, there is a place for you here. Enter the manuscript, submit edits when ready, and help decide where the mystery goes next.
+                            Read first. Challenge specific lines when ready. If your replacement survives review, it becomes part of the manuscript and strengthens your standing on the board.
                         </p>
 
                         <div class="not-prose rounded-2xl border border-amber-100 bg-[#fff9f0] px-6 py-5 mb-10">
@@ -56,12 +54,15 @@
                             </nav>
                         </div>
 
-                        <div class="flex justify-center mt-4">
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
                             <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-8 py-4 bg-amber-600 border border-transparent rounded-full font-bold text-lg text-white hover:bg-amber-700 focus:bg-amber-700 active:bg-amber-900 transition ease-in-out duration-150 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                                 Enter the manuscript
                                 <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
+                            </a>
+                            <a href="{{ route('home') }}#landing-how-steps" class="inline-flex items-center px-8 py-4 bg-white border-2 border-amber-200 rounded-full font-bold text-lg text-amber-900 hover:bg-amber-50 transition ease-in-out duration-150">
+                                See how contribution works
                             </a>
                         </div>
                     </div>

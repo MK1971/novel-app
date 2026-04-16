@@ -8,11 +8,11 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="font-extrabold text-3xl text-amber-900 leading-tight">
-                    Peter Trull Solitary Detective
+                    Choose which version survives
                 </h1>
-                <p class="text-amber-800/60 font-bold mt-1">Part 2: Vote on the final versions of each chapter.</p>
+                <p class="text-amber-800/60 font-bold mt-1">At key moments, the story divides. Contributors decide which branch remains canon.</p>
                 <p class="text-amber-800/50 text-sm font-bold mt-2 max-w-2xl leading-relaxed">
-                    Each pair has a voting deadline (same 30-day calendar as contribution-backed edits on The Book With No Name). Vote credits come from completed $2 contributions there. The author can still lock a version early.
+                    Voting is earned through manuscript participation. Each completed $2 contribution in The Book With No Name grants one vote credit here.
                 </p>
             </div>
             <div class="flex items-center gap-4">
@@ -70,10 +70,10 @@
                     <div class="w-20 h-20 bg-amber-500 rounded-3xl flex items-center justify-center mx-auto mb-8">
                         <svg class="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </div>
-                    <h2 class="text-3xl font-extrabold mb-4">Voting is restricted</h2>
-                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed"><span class="text-white font-black">Peter Trull Solitary Detective</span> uses <strong>contribution credits</strong> only: each completed <strong>$2</strong> contribution in <strong>The Book With No Name</strong> gives <strong>one vote</strong> here. There are no free votes based on accepted edits alone.</p>
-                    <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                        Enter the manuscript
+                    <h2 class="text-3xl font-extrabold mb-4">Voting rights are earned</h2>
+                    <p class="text-amber-100/70 text-xl font-bold mb-10 max-w-2xl mx-auto leading-relaxed"><span class="text-white font-black">Peter Trull Solitary Detective</span> opens ballots only to contributors with available vote credits. Each completed <strong>$2</strong> contribution in <strong>The Book With No Name</strong> grants <strong>one vote</strong>.</p>
+                    <a href="{{ $firstOpenTbwChapter ? route('chapters.show', $firstOpenTbwChapter) : route('chapters.index') }}" class="inline-flex items-center px-12 py-5 bg-amber-500 text-black text-xl font-extrabold rounded-full hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
+                        Open the live TBWNN chapter
                         <svg class="w-6 h-6 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                     </a>
                 </div>
@@ -246,8 +246,8 @@
                     <div class="w-20 h-20 bg-amber-100 rounded-3xl flex items-center justify-center mx-auto mb-8">
                         <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <h3 class="text-2xl font-extrabold text-amber-900 mb-2">The voting booth is closed...</h3>
-                    <p class="text-amber-800/50 text-lg font-bold">No chapter pairs have been uploaded for voting yet. Check back soon!</p>
+                    <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Voting opens with the first chapter pair.</h3>
+                    <p class="text-amber-800/50 text-lg font-bold">Contributors who submit manuscript replacements gain the right to decide which path remains canon.</p>
                 </div>
             @endforelse
 
