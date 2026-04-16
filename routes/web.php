@@ -120,14 +120,14 @@ Route::get('/', function () {
         ->whereIn('status', $acceptedEditStatuses)
         ->where('type', '!=', 'inline_edit')
         ->where('show_in_public_feed', true)
-        ->with(['user:id,name', 'chapter:id,book_id,number,list_section,custom_title,title,version,is_archived,published_at,created_at'])
+        ->with(['user:id,name', 'chapter'])
         ->orderByDesc('updated_at')
         ->first();
 
     $latestInlineEdit = InlineEdit::query()
         ->where('status', 'approved')
         ->where('show_in_public_feed', true)
-        ->with(['user:id,name', 'chapter:id,book_id,number,list_section,custom_title,title,version,is_archived,published_at,created_at'])
+        ->with(['user:id,name', 'chapter'])
         ->orderByDesc('updated_at')
         ->first();
 

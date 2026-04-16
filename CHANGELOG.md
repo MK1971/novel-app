@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.68 - Landing accepted-replacement query is schema-safe
+### Fixed
+- **Cross-environment chapter relation loading:** Home-route social-proof queries no longer hard-select `chapters.custom_title`; they now eager-load `chapter` without schema-specific column lists so dev/staging/prod with slight column drift do not throw SQL 1054 on landing.
+
 ## Version 1.9.67 - Landing conversion polish, preview urgency, and deterministic guest nav
 ### Added
 - **Hero-adjacent chapter preview context:** Added live urgency labeling to the chapter preview card (`window closes ...` or pilot acceptance progress) so visitors see timing pressure immediately.
