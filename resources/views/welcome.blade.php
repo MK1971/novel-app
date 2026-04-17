@@ -394,7 +394,7 @@
                                 </div>
                                 @guest
                                     <button @click="window.dispatchEvent(new CustomEvent('open-modal', { detail: 'register' }))" data-track-event="landing_cta_signup_click" data-track-label="hero_signup" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-stone-900 text-amber-100 text-lg font-black rounded-2xl border-2 border-amber-500/70 hover:bg-black hover:border-amber-400 transition-all shadow-xl shadow-black/35 transform hover:-translate-y-1">
-                                        Make your mark
+                                        Change the text
                                     </button>
                                 @else
                                     <a href="{{ route('dashboard') }}" class="landing-ui-transition w-full sm:w-auto px-10 py-5 bg-white/10 backdrop-blur-md border-2 border-white/20 text-white text-lg font-black rounded-2xl hover:bg-white/20 transition-all shadow-xl shadow-black/20 transform hover:-translate-y-1">
@@ -428,9 +428,13 @@
                                         <p>“{{ $line }}”</p>
                                     @endforeach
                                 </div>
+                                <p class="mt-4 text-xs font-black uppercase tracking-wide text-amber-200/90">
+                                    This line feels off?
+                                    <a href="{{ $previewChapter ? route('chapters.show', $previewChapter).'#chapter-suggest-edit-sidebar' : route('chapters.index') }}" class="underline decoration-amber-300/80 underline-offset-2 hover:text-white">Submit your version.</a>
+                                </p>
                                 <div class="mt-5 flex flex-wrap gap-3">
                                     <a href="{{ $previewChapter ? route('chapters.show', $previewChapter) : route('chapters.index') }}" data-track-event="landing_preview_read_click" data-track-label="hero_preview_read" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-black hover:bg-amber-600">
-                                        Continue reading
+                                        Read this chapter
                                     </a>
                                     <a href="{{ route('chapters.index') }}" data-track-event="landing_preview_all_chapters_click" data-track-label="hero_preview_all" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/15">
                                         Read chapters
@@ -611,6 +615,33 @@
                             'suggested' => 'He didn’t notice the door had already been open.',
                         ];
                         $hasLiveReplacement = is_array($latestReplacement ?? null) && filled($latestReplacement['original'] ?? null) && filled($latestReplacement['suggested'] ?? null);
+                        $recentReplacementRows = collect($recentAcceptedReplacements ?? [])->filter(function ($item) {
+                            return is_array($item)
+                                && filled($item['suggested'] ?? null)
+                                && filled($item['chapter_heading'] ?? null);
+                        })->values();
+                        if ($recentReplacementRows->isEmpty()) {
+                            $recentReplacementRows = collect([
+                                [
+                                    'chapter_heading' => 'Chapter 1 (preview)',
+                                    'suggested' => 'He didn’t notice the door had already been open.',
+                                    'user_name' => 'Contributor',
+                                    'chapter_url' => null,
+                                ],
+                                [
+                                    'chapter_heading' => 'Chapter 1 (preview)',
+                                    'suggested' => 'The room was quiet, but the silence felt staged.',
+                                    'user_name' => 'Contributor',
+                                    'chapter_url' => null,
+                                ],
+                                [
+                                    'chapter_heading' => 'Chapter 1 (preview)',
+                                    'suggested' => 'By the time he stepped inside, the trap had already closed.',
+                                    'user_name' => 'Contributor',
+                                    'chapter_url' => null,
+                                ],
+                            ]);
+                        }
                     @endphp
 
                     <div class="rounded-[2rem] border border-amber-200 bg-white shadow-sm overflow-hidden">
@@ -643,10 +674,28 @@
                             <div class="px-6 py-4 border-t border-amber-100 bg-white flex flex-wrap items-center justify-between gap-3">
                                 <p class="text-xs font-bold text-amber-900/70">Want context? Read the chapter where this landed.</p>
                                 <a href="{{ $latestReplacement['chapter_url'] }}" class="landing-ui-transition inline-flex items-center rounded-2xl bg-amber-900 px-5 py-3 text-sm font-black text-white hover:bg-black">
-                                    Continue reading
+                                    Read that chapter
                                 </a>
                             </div>
                         @endif
+                    </div>
+                    <div class="mt-4 rounded-[1.5rem] border border-amber-200 bg-white px-5 py-4">
+                        <p class="text-[11px] font-black uppercase tracking-[0.16em] text-amber-800/70">Recent accepted replacements</p>
+                        <ul class="mt-3 space-y-2">
+                            @foreach($recentReplacementRows->take(3) as $recentItem)
+                                <li class="rounded-xl border border-amber-100 bg-amber-50/45 px-3 py-2">
+                                    <p class="text-xs font-black text-amber-900">{{ $recentItem['chapter_heading'] ?? 'Chapter' }}</p>
+                                    <p class="text-sm font-bold text-amber-900/85">“{{ $recentItem['suggested'] ?? '' }}”</p>
+                                    <p class="text-[11px] font-bold text-amber-800/70">
+                                        accepted from {{ $recentItem['user_name'] ?? 'Contributor' }}
+                                        @if(filled($recentItem['chapter_url'] ?? null))
+                                            ·
+                                            <a href="{{ $recentItem['chapter_url'] }}" class="underline decoration-amber-300/90 underline-offset-2 hover:text-amber-950">Read</a>
+                                        @endif
+                                    </p>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             </section>

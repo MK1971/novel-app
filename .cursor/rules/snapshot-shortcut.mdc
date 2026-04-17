@@ -1,0 +1,28 @@
+---
+description: One-word snapshot shortcut for commit and all-env sync
+alwaysApply: true
+---
+
+# Snapshot shortcut
+
+When the user message is exactly one of these words:
+
+- `snapshot`
+- `syncall`
+- `shipit`
+
+treat it as this intent:
+
+1. Create a snapshot commit from current relevant project changes.
+2. Update `CHANGELOG.md` in the same commit (unless user explicitly says skip).
+3. Push the same commit SHA to:
+   - `Development`
+   - `staging`
+   - `Production`
+4. Confirm branch SHAs are aligned across all three environment branches.
+
+Guardrails:
+
+- Never include obvious secrets or local-only backup folders in commit.
+- Do not include unrelated docs/storage noise unless user explicitly requests it.
+- If no commit-worthy changes exist, state that clearly and skip commit/push.

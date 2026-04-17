@@ -2,6 +2,19 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.70 - Conversion polish, demo social-proof seeding, and inline modal stability
+### Added
+- **Demo social-proof seeding command:** Added `demo:seed-social-proof` to generate realistic contributor accounts plus accepted/rejected chapter and inline edits for faster local trust-proof testing on landing, leaderboard, and public edits pages.
+- **One-word snapshot shortcut rule:** Added a Cursor rule (`.cursor/rules/snapshot-shortcut.mdc`) so short keywords like `snapshot` map to changelog+commit+all-env sync workflow.
+
+### Changed
+- **CTA consistency and commitment framing:** Tightened copy on landing/dashboard/chapter submission surfaces (`Change the text`, `Submit for review - $2`, and competition-first checkout language) to reinforce `Read / Submit / Vote` action model.
+- **Public edits empty-state trust framing:** Replaced bare empty-state copy with a concrete example accepted edit card to make early-stage pages feel less hypothetical.
+
+### Fixed
+- **Inline modal close control overlap:** Reworked close-button placement so `Close` no longer overlays modal heading text.
+- **Inline modal top visibility + scroll access:** Adjusted chapter and chapter-list inline modal layout/height behavior so the top of the modal is reachable and internal scrolling remains usable.
+
 ## Version 1.9.69 - Automatic prize standings, hall of fame, and dashboard recognition
 ### Added
 - **Hall of Fame route and page:** Added a live `Top 50` Editor Hall of Fame (`/hall-of-fame`) ranked by accepted replacements (full chapter + paragraph), with public-profile linking where enabled.

@@ -26,9 +26,9 @@
         </nav>
     </div>
 
-    {{-- Explore Section --}}
+    {{-- More Section --}}
     <div>
-        <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">Explore</h3>
+        <h3 class="text-xs font-extrabold text-amber-900/30 dark:text-stone-500 uppercase tracking-[0.2em] mb-6 px-4">More</h3>
         <nav class="space-y-2">
             <x-sidebar-link :href="route('archive.chapters')" :active="request()->routeIs('archive.*')" icon="archive">
                 Archives

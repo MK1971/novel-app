@@ -331,7 +331,7 @@
                         <div class="grid gap-4">
                             <a href="{{ route('chapters.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">📖 Read Chapters</p>
-                                <p class="text-sm text-amber-800/60 font-bold">Explore and edit the story</p>
+                                <p class="text-sm text-amber-800/60 font-bold">Read and submit your version</p>
                             </a>
                             <a href="{{ route('vote.index') }}" class="p-6 bg-amber-50 border border-amber-200 rounded-xl hover:shadow-lg transition-all">
                                 <p class="font-extrabold text-amber-900 mb-1">🗳️ Peter Trull Solitary Detective · Vote</p>

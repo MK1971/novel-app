@@ -305,16 +305,18 @@
 
     {{-- Inline Edit Modal --}}
     @auth
-    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="relative my-2 sm:my-4 bg-white rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl p-6 sm:p-12 shadow-2xl max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
-            <button
-                type="button"
-                onclick="closeInlineEdit()"
-                class="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
-                aria-label="Close paragraph edit dialog"
-            >
-                Close
-            </button>
+    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start justify-center p-3 sm:p-6 overflow-y-auto overscroll-contain">
+        <div class="relative my-2 sm:my-4 bg-white rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl p-6 sm:p-12 shadow-2xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-3rem)] overflow-y-auto overscroll-contain">
+            <div class="mb-3 flex justify-end">
+                <button
+                    type="button"
+                    onclick="closeInlineEdit()"
+                    class="rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
+                    aria-label="Close paragraph edit dialog"
+                >
+                    Close
+                </button>
+            </div>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Replace this line</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">Challenge <strong class="text-amber-900">one paragraph</strong> with your own version. For full-chapter replacement, use the chapter page sidebar. Submission enters moderation review (acceptance is not guaranteed).</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
@@ -340,10 +342,10 @@
                     <input type="text" id="edit-reason" name="reason" class="w-full bg-amber-50/50 border-2 border-amber-100 rounded-2xl px-6 py-4 text-amber-900 font-bold focus:border-amber-500 focus:ring-0 transition-all">
                 </div>
 
-                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Free to read. Payment applies only when you submit. Only accepted replacements are integrated into the manuscript.</p>
+                <p class="text-xs font-bold text-amber-800/70 leading-relaxed">Free to read. Payment applies only when you submit. Every submission is reviewed; only selected replacements become part of the manuscript. Most submissions are not accepted.</p>
                 <div class="flex items-center gap-4 pt-4">
                     <button type="submit" data-checkout-intent="1" data-intent-kind="inline" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
-                        Submit your version
+                        Submit for review - $2
                     </button>
                     <button type="button" onclick="closeInlineEdit()" class="px-10 py-4 bg-amber-50 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-100 transition-all">
                         Cancel
@@ -363,11 +365,11 @@
                 <button type="button" id="checkout-intent-close" class="rounded-xl bg-amber-100 px-3 py-2 text-sm font-black text-amber-900 hover:bg-amber-200">Close</button>
             </div>
             <p class="mt-4 text-sm font-bold leading-relaxed text-amber-900/80">
-                You are about to start a <strong class="text-amber-950">$2 contribution checkout</strong>. Submissions stay pending until moderation review.
+                You are about to start a <strong class="text-amber-950">$2 contribution checkout</strong>. Your version will compete with other submissions, and only selected versions become part of the manuscript.
             </p>
             <ul class="mt-4 space-y-2 rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-sm font-bold text-amber-900/85">
-                <li>• Acceptance is not guaranteed, but accepted replacements can earn leaderboard points.</li>
-                <li>• Approved submissions permanently reshape this manuscript.</li>
+                <li>• Every submission is reviewed individually; acceptance is not guaranteed.</li>
+                <li>• Only accepted replacements earn leaderboard points and become canon text.</li>
                 <li>• Every completed contribution adds one Peter Trull vote credit.</li>
             </ul>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -380,10 +382,10 @@
                     <p id="checkout-intent-suggested" class="mt-2 text-sm font-bold text-amber-900"></p>
                 </div>
             </div>
-            <p id="checkout-intent-hesitation" class="mt-4 text-xs font-bold text-amber-800/80">This line is still challengeable. Continue only if this wording is the one you want judged.</p>
+            <p id="checkout-intent-hesitation" class="mt-4 text-xs font-bold text-amber-800/80">Your version will compete against other submissions. Continue only if this is the wording you want judged.</p>
             <div class="mt-6 flex flex-wrap gap-3">
                 <button type="button" id="checkout-intent-confirm" class="inline-flex items-center rounded-2xl bg-amber-900 px-6 py-3 text-sm font-extrabold text-white hover:bg-black">
-                    Continue to checkout
+                    Submit for review - $2
                 </button>
                 <button type="button" id="checkout-intent-cancel" class="inline-flex items-center rounded-2xl border border-amber-200 bg-white px-6 py-3 text-sm font-extrabold text-amber-900 hover:bg-amber-50">
                     Continue with this edit
@@ -479,6 +481,7 @@
 
         @auth
         const modal = document.getElementById('inline-edit-modal');
+        const inlineEditPanel = modal ? modal.querySelector(':scope > div') : null;
         const form = document.getElementById('inline-edit-form');
         const checkoutIntentModal = document.getElementById('checkout-intent-modal');
         const checkoutIntentPanel = document.getElementById('checkout-intent-panel');
@@ -557,6 +560,10 @@
                 ownership.classList.remove('hidden');
             }
             modal.classList.remove('hidden');
+            modal.scrollTop = 0;
+            if (inlineEditPanel) {
+                inlineEditPanel.scrollTop = 0;
+            }
             document.body.style.overflow = 'hidden';
             trackChapterIndexEvent('inline_edit_modal_open', { source: 'chapters_index' });
         }

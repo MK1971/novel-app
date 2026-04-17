@@ -168,6 +168,66 @@ Route::get('/', function () {
         ];
     }
 
+    $recentChapterReplacements = Edit::query()
+        ->whereIn('status', $acceptedEditStatuses)
+        ->where('type', '!=', 'inline_edit')
+        ->where('show_in_public_feed', true)
+        ->with(['user:id,name', 'chapter'])
+        ->orderByDesc('updated_at')
+        ->limit(4)
+        ->get()
+        ->map(function (Edit $edit): array {
+            return [
+                'kind' => 'chapter',
+                'user_name' => $edit->user?->name,
+                'chapter_heading' => $edit->chapter?->readerHeadingLine(),
+                'chapter_url' => $edit->chapter ? route('chapters.show', $edit->chapter) : null,
+                'original' => (string) ($edit->original_text ?? ''),
+                'suggested' => (string) ($edit->edited_text ?? ''),
+                'at' => $edit->updated_at,
+            ];
+        });
+
+    $recentInlineReplacements = InlineEdit::query()
+        ->where('status', 'approved')
+        ->where('show_in_public_feed', true)
+        ->with(['user:id,name', 'chapter'])
+        ->orderByDesc('updated_at')
+        ->limit(4)
+        ->get()
+        ->map(function (InlineEdit $edit): array {
+            return [
+                'kind' => 'inline',
+                'user_name' => $edit->user?->name,
+                'chapter_heading' => $edit->chapter?->readerHeadingLine(),
+                'chapter_url' => $edit->chapter ? route('chapters.show', $edit->chapter) : null,
+                'original' => (string) ($edit->original_text ?? ''),
+                'suggested' => (string) ($edit->suggested_text ?? ''),
+                'at' => $edit->updated_at,
+            ];
+        });
+
+    $recentAcceptedReplacements = $recentChapterReplacements
+        ->concat($recentInlineReplacements)
+        ->sortByDesc('at')
+        ->take(3)
+        ->values()
+        ->map(function (array $item): array {
+            $trim = static function (string $value): string {
+                $value = trim($value);
+                if ($value === '') {
+                    return '';
+                }
+
+                return mb_strlen($value) > 120 ? mb_substr($value, 0, 120).'...' : $value;
+            };
+
+            $item['original'] = $trim((string) ($item['original'] ?? ''));
+            $item['suggested'] = $trim((string) ($item['suggested'] ?? ''));
+
+            return $item;
+        });
+
     return view('welcome', [
         'landingStats' => $landingStats,
         'landingStatsQuiet' => $landingStatsQuiet,
@@ -176,6 +236,7 @@ Route::get('/', function () {
         'previewExcerptLines' => $previewExcerptLines,
         'previewUrgencyLabel' => $previewUrgencyLabel,
         'latestReplacement' => $latestReplacement,
+        'recentAcceptedReplacements' => $recentAcceptedReplacements,
         'guestFirstVisitNav' => $guestFirstVisitNav,
     ]);
 })->name('home');

@@ -435,7 +435,7 @@
                                         </ul>
                                     </div>
                                     <p class="text-amber-100/70 text-sm font-bold mb-8 leading-relaxed">
-                                        After a successful <strong class="text-white">$2</strong> contribution, your submission is queued for moderation review (acceptance is not guaranteed). Only completed contribution submissions can earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed contribution also adds <strong class="text-white">one vote credit</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
+                                        After a successful <strong class="text-white">$2</strong> contribution, your submission is queued for moderation review (acceptance is not guaranteed). Most submissions are not accepted. Only completed contribution submissions can earn leaderboard points. Rejected suggestions earn <strong class="text-white">0</strong>. Each completed contribution also adds <strong class="text-white">one vote credit</strong> for <strong class="text-white">Peter Trull Solitary Detective</strong>.
                                     </p>
                                     
                                     <form id="chapter-full-edit-form" action="{{ route('payment.checkout') }}" method="POST" class="space-y-6">
@@ -495,7 +495,7 @@
                                         
                                         <div class="grid gap-3 sm:grid-cols-2">
                                             <button type="submit" data-checkout-intent="1" data-intent-kind="full" class="w-full py-5 bg-amber-500 text-black text-lg font-extrabold rounded-2xl hover:bg-amber-600 transition-all shadow-xl shadow-amber-500/30 transform hover:-translate-y-1">
-                                                Submit your version
+                                                Submit for review - $2
                                             </button>
                                             <button type="submit" name="queue_only" value="1" class="w-full py-5 bg-white/15 border border-white/30 text-white text-lg font-extrabold rounded-2xl hover:bg-white/20 transition-all">
                                                 Add another edit
@@ -612,16 +612,18 @@
 
     {{-- Inline Edit Modal --}}
     @auth
-    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="relative my-2 sm:my-4 bg-white rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl p-6 sm:p-12 shadow-2xl max-h-[calc(100vh-1rem)] sm:max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
-            <button
-                type="button"
-                onclick="closeInlineEdit()"
-                class="absolute top-4 right-4 rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
-                aria-label="Close paragraph edit dialog"
-            >
-                Close
-            </button>
+    <div id="inline-edit-modal" class="fixed inset-0 bg-amber-900/80 backdrop-blur-sm z-[100] hidden flex items-start justify-center p-3 sm:p-6 overflow-y-auto overscroll-contain">
+        <div class="relative my-2 sm:my-4 bg-white rounded-[2rem] sm:rounded-[3rem] w-full max-w-2xl p-6 sm:p-12 shadow-2xl max-h-[calc(100vh-1.5rem)] sm:max-h-[calc(100vh-3rem)] overflow-y-auto overscroll-contain">
+            <div class="mb-3 flex justify-end">
+                <button
+                    type="button"
+                    onclick="closeInlineEdit()"
+                    class="rounded-xl bg-amber-100 px-3 py-2 text-xs font-black uppercase tracking-wider text-amber-900 hover:bg-amber-200 transition-colors"
+                    aria-label="Close paragraph edit dialog"
+                >
+                    Close
+                </button>
+            </div>
             <h3 class="text-2xl font-extrabold text-amber-900 mb-2">Replace this line</h3>
             <p class="text-sm font-bold text-amber-800/70 mb-8 leading-relaxed">You are replacing <strong class="text-amber-900">one paragraph</strong> only (sidebar &ldquo;Writing / Phrase&rdquo; is for full chapter replacement). Free to read; payment applies only when you submit. Moderators review every submission (acceptance is not guaranteed).</p>
             <form id="inline-edit-form" method="POST" action="{{ route('payment.checkout') }}" class="space-y-8">
@@ -691,11 +693,11 @@
                 <button type="button" id="checkout-intent-close" class="rounded-xl bg-amber-100 px-3 py-2 text-sm font-black text-amber-900 hover:bg-amber-200">Close</button>
             </div>
             <p class="mt-4 text-sm font-bold leading-relaxed text-amber-900/80">
-                You are about to start a <strong class="text-amber-950">$2 contribution checkout</strong>. Submissions stay pending until moderation review.
+                You are about to start a <strong class="text-amber-950">$2 contribution checkout</strong>. Your version will compete with other submissions, and only selected versions become part of the manuscript.
             </p>
             <ul class="mt-4 space-y-2 rounded-2xl border border-amber-100 bg-amber-50/70 p-4 text-sm font-bold text-amber-900/85">
-                <li>• Acceptance is not guaranteed, but only accepted replacements earn leaderboard points.</li>
-                <li>• Approved submissions permanently reshape this manuscript.</li>
+                <li>• Every submission is reviewed individually; acceptance is not guaranteed.</li>
+                <li>• Only accepted replacements earn leaderboard points and become canon text.</li>
                 <li>• Every completed contribution adds one Peter Trull vote credit.</li>
             </ul>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -711,7 +713,7 @@
             <p id="checkout-intent-hesitation" class="mt-4 text-xs font-bold text-amber-800/80"></p>
             <div class="mt-6 flex flex-wrap gap-3">
                 <button type="button" id="checkout-intent-confirm" class="inline-flex items-center rounded-2xl bg-amber-900 px-6 py-3 text-sm font-extrabold text-white hover:bg-black">
-                    Continue to ${{ $payNowTotalDisplay }} checkout
+                    Submit for review - ${{ $payNowTotalDisplay }}
                 </button>
                 <button type="button" id="checkout-intent-cancel" class="inline-flex items-center rounded-2xl border border-amber-200 bg-white px-6 py-3 text-sm font-extrabold text-amber-900 hover:bg-amber-50">
                     Continue with this edit
@@ -722,6 +724,7 @@
 
     <script>
         const modal = document.getElementById('inline-edit-modal');
+        const inlineEditPanel = modal ? modal.querySelector(':scope > div') : null;
         const form = document.getElementById('inline-edit-form');
         const chapterIdForInline = {{ $chapter->id }};
         const chapterOriginalForCheckout = @json((string) $chapter->content);
@@ -810,6 +813,10 @@
                 }
             }
             modal.classList.remove('hidden');
+            modal.scrollTop = 0;
+            if (inlineEditPanel) {
+                inlineEditPanel.scrollTop = 0;
+            }
             document.body.style.overflow = 'hidden';
             trackChapterEvent('inline_edit_modal_open', { source: 'chapter_show' });
         }
@@ -994,7 +1001,7 @@
                 title: 'Submit full chapter version',
                 originalText: chapterOriginalForCheckout,
                 suggestedText: fullEditTextarea ? fullEditTextarea.value : '',
-                hesitationCopy: 'This chapter remains open now. If you are still shaping your language, keep editing first.',
+                hesitationCopy: 'Your version will compete against other submissions. Continue only if this is the wording you want judged.',
                 analyticsKind: 'full_chapter',
                 onConfirm: function () {
                     fullEditForm.dataset.intentConfirmed = '1';
@@ -1019,7 +1026,7 @@
                 title: 'Submit single-line replacement',
                 originalText: original ? original.value : '',
                 suggestedText: suggested ? suggested.value : '',
-                hesitationCopy: 'This line is still challengeable. Continue only if this wording is the one you want judged.',
+                hesitationCopy: 'Your version will compete against other submissions. Continue only if this is the wording you want judged.',
                 hideInlineModal: true,
                 analyticsKind: 'inline_edit',
                 onConfirm: function () {
@@ -1045,7 +1052,7 @@
                 title: 'Submit queued suggestions',
                 originalText: queueCountForCheckout + ' queued suggestion(s)',
                 suggestedText: 'Checkout total: $' + queueTotalForCheckout,
-                hesitationCopy: 'You can still remove queued edits before paying.',
+                hesitationCopy: 'These versions will compete against other submissions. Remove any you do not want judged yet.',
                 analyticsKind: 'queued_checkout',
                 onConfirm: function () {
                     queueCheckoutForm.dataset.intentConfirmed = '1';

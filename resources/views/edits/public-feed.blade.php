@@ -21,8 +21,14 @@
 
             @if ($items->isEmpty())
                 <div class="p-6 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200">
-                    <p class="font-semibold">No edits have been accepted yet.</p>
-                    <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">The first accepted changes will define early manuscript tone. This page will record what changed, who submitted it, and why it was selected.</p>
+                    <p class="font-semibold">Example accepted edit</p>
+                    <div class="mt-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4 text-sm">
+                        <p><span class="font-black">Original:</span> He walked into the room and sat down.</p>
+                        <p class="mt-2"><span class="font-black">Accepted version:</span> He stepped inside and did not bother closing the door.</p>
+                        <p class="mt-2"><span class="font-black">Contributor:</span> User_01</p>
+                        <p class="mt-2 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">Example submission</p>
+                    </div>
+                    <p class="mt-3 text-sm text-stone-600 dark:text-stone-300">The first accepted changes will define early manuscript tone. This page will record what changed, who submitted it, and why it was selected.</p>
                     <a href="{{ route('chapters.index') }}" class="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400">
                         Submit the first challenge to the text
                     </a>
