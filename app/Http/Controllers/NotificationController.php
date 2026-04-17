@@ -32,6 +32,19 @@ class NotificationController extends Controller
         return back()->with('success', 'Notification marked as read');
     }
 
+    public function markAllAsRead()
+    {
+        $updated = Auth::user()->notifications()
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        if ($updated > 0) {
+            return back()->with('success', "Marked {$updated} notification(s) as read.");
+        }
+
+        return back()->with('success', 'No unread notifications to mark.');
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

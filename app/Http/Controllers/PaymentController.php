@@ -142,9 +142,16 @@ class PaymentController extends Controller
         return $this->startPayPalCheckout($request->user()->id, $chapter->id, $edit->id);
     }
 
-    public function removeQueuedEdit(Request $request, Edit $edit): RedirectResponse
+    public function removeQueuedEdit(Request $request, int $editId): RedirectResponse
     {
-        abort_unless($edit->user_id === $request->user()->id, 403);
+        $edit = Edit::query()
+            ->whereKey($editId)
+            ->where('user_id', $request->user()->id)
+            ->first();
+
+        if (! $edit) {
+            return back()->with('warning', 'That queued edit could not be found. It may have already been removed.');
+        }
 
         if ($edit->status !== 'pending_payment') {
             return back()->with('warning', 'Only queued (unpaid) edits can be removed.');

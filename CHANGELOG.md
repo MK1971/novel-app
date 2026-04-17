@@ -2,6 +2,19 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.71 - Conversion flow hardening, notification bulk-read, and queue removal stability
+### Added
+- **Notifications bulk action:** Added a `Mark all as read` action on `/notifications` with a dedicated `notifications.read-all` route and controller handler, plus feature-test coverage.
+- **Demo outcome helper flow:** Added clearly labeled demo-outcome modals to chapter edit entry points so contributors can preview an accepted-result example before paid submit.
+
+### Changed
+- **Conversion framing and urgency copy:** Updated landing and chapter edit surfaces with stronger accepted-outcome value messaging, manuscript authority language, and urgency-oriented CTA wording.
+- **Demo modal button clarity:** Renamed demo modal actions to `Close demo` and `Back to your edit` so users understand both actions return to the active edit context.
+
+### Fixed
+- **Inline/demo modal layering + clickability:** Hardened demo modal mounting/z-index/pointer behavior to prevent it rendering behind edit overlays and blocking button interactions.
+- **Queued edit remove 404 handling:** Switched queue-remove routing to ID-based lookup with user scoping and graceful stale-item messaging instead of route-model 404 failures.
+
 ## Version 1.9.70 - Conversion polish, demo social-proof seeding, and inline modal stability
 ### Added
 - **Demo social-proof seeding command:** Added `demo:seed-social-proof` to generate realistic contributor accounts plus accepted/rejected chapter and inline edits for faster local trust-proof testing on landing, leaderboard, and public edits pages.

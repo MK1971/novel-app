@@ -300,7 +300,10 @@
                             @endphp
                             @foreach($paragraphs as $index => $paragraph)
                                 @if(trim($paragraph))
-                                    <p class="mb-7 last:mb-0 relative group">
+                                    <p
+                                        class="mb-7 last:mb-0 relative group {{ $index === 0 && ! $chapter->is_locked && $manuscriptEditsAllowed ? 'underline decoration-dashed decoration-amber-400/60 underline-offset-4 hover:decoration-amber-700 transition-colors' : '' }}"
+                                        @if($index === 0 && ! $chapter->is_locked && $manuscriptEditsAllowed) title="Replace this line" @endif
+                                    >
                                         {{ $paragraph }}
                                         @auth
                                             @if(! $chapter->is_locked && $manuscriptEditsAllowed)
@@ -404,7 +407,7 @@
                                                 <span>
                                                     • {{ $queued->chapter?->readerHeadingLine() ?? 'Chapter removed' }} — {{ $queued->type === 'inline_edit' ? 'Paragraph edit' : ucfirst($queued->type).' edit' }}
                                                 </span>
-                                                <form method="POST" action="{{ route('payment.queue.remove', $queued) }}">
+                                                <form method="POST" action="{{ route('payment.queue.remove', ['editId' => $queued->id]) }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="px-2 py-1 rounded-lg border border-amber-300 bg-white text-[10px] font-black uppercase text-amber-900 hover:bg-amber-100">
@@ -427,6 +430,15 @@
                             <div id="edit-submission-box" class="bg-amber-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-amber-900/20 relative overflow-hidden">
                                 <div class="relative z-10">
                                     <h3 class="text-2xl font-extrabold mb-6">Submit your version of the text</h3>
+                                    <div class="mb-6 rounded-2xl border border-amber-300/35 bg-white/10 px-4 py-4 text-sm font-bold text-amber-50/95">
+                                        <p class="text-[11px] font-black uppercase tracking-widest text-amber-200/90 mb-2">If your version is accepted</p>
+                                        <ul class="space-y-1.5">
+                                            <li>• It replaces the original line in the manuscript.</li>
+                                            <li>• Your contribution is recorded publicly.</li>
+                                            <li>• Your leaderboard position improves.</li>
+                                            <li>• You gain influence over future outcomes.</li>
+                                        </ul>
+                                    </div>
                                     <div class="mb-6 p-4 rounded-2xl bg-white/10 border border-white/20 text-amber-100/90 text-sm font-bold leading-relaxed">
                                         <p class="mb-2"><span class="text-white font-extrabold">Two ways to challenge the text</span> (each uses a <span class="text-white">$2</span> contribution checkout):</p>
                                         <ul class="list-disc list-inside space-y-1.5 text-amber-100/85">
@@ -501,6 +513,9 @@
                                                 Add another edit
                                             </button>
                                         </div>
+                                        <button type="button" onclick="openDemoOutcome()" class="mt-3 w-full py-4 bg-transparent border border-white/30 text-amber-100 text-sm font-extrabold rounded-2xl hover:bg-white/10 transition-all">
+                                            Try a demo outcome (free)
+                                        </button>
                                     </form>
                                 </div>
                                 {{-- Decorative circles --}}
@@ -669,6 +684,9 @@
                     <button type="submit" data-checkout-intent="1" data-intent-kind="inline" class="px-10 py-4 bg-amber-900 text-white font-extrabold rounded-2xl hover:bg-black transition-all shadow-xl shadow-amber-900/20 transform hover:-translate-y-0.5">
                         Submit your version
                     </button>
+                    <button type="button" onclick="openDemoOutcome()" class="px-10 py-4 bg-white border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-50 transition-all">
+                        Try demo outcome (free)
+                    </button>
                     <button type="submit" name="queue_only" value="1" class="px-10 py-4 bg-amber-100 border-2 border-amber-200 text-amber-900 font-extrabold rounded-2xl hover:bg-amber-200 transition-all">
                         Add another edit
                     </button>
@@ -722,6 +740,32 @@
         </div>
     </div>
 
+    <div id="demo-outcome-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10001] hidden items-center justify-center p-4 pointer-events-auto">
+        <div id="demo-outcome-panel" class="w-full max-w-xl rounded-[2rem] border border-amber-200 bg-white p-6 sm:p-8 shadow-2xl">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700/70">Example outcome (demonstration)</p>
+                    <h4 class="mt-1 text-2xl font-extrabold text-amber-900">This version was accepted</h4>
+                </div>
+                <button type="button" onclick="closeDemoOutcome()" class="rounded-xl bg-amber-100 px-3 py-2 text-sm font-black text-amber-900 hover:bg-amber-200">Close demo</button>
+            </div>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-2xl border border-amber-100 bg-amber-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/70">Original</p>
+                    <p class="mt-2 text-sm font-bold text-amber-900/80">He knew it should not have been.</p>
+                </div>
+                <div class="rounded-2xl border border-amber-300 bg-amber-100/60 p-4">
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-800/70">Accepted version</p>
+                    <p class="mt-2 text-sm font-bold text-amber-900">He knew something was wrong.</p>
+                </div>
+            </div>
+            <p class="mt-4 text-xs font-bold text-amber-800/80">Use this as a quick walkthrough of the review loop before submitting a paid version.</p>
+            <button type="button" onclick="closeDemoOutcome()" class="mt-5 w-full rounded-2xl bg-amber-900 px-5 py-3 text-sm font-extrabold text-white hover:bg-black">
+                Back to your edit
+            </button>
+        </div>
+    </div>
+
     <script>
         const modal = document.getElementById('inline-edit-modal');
         const inlineEditPanel = modal ? modal.querySelector(':scope > div') : null;
@@ -741,6 +785,8 @@
         const checkoutIntentConfirm = document.getElementById('checkout-intent-confirm');
         const checkoutIntentCancel = document.getElementById('checkout-intent-cancel');
         const checkoutIntentClose = document.getElementById('checkout-intent-close');
+        const demoOutcomeModal = document.getElementById('demo-outcome-modal');
+        const demoOutcomePanel = document.getElementById('demo-outcome-panel');
         const queueCountForCheckout = {{ (int) $queuedCount }};
         const queueTotalForCheckout = @json($queuedTotalDisplay);
         let pendingCheckoutSubmit = null;
@@ -750,12 +796,45 @@
         let inlineDraftTimer;
         let intentInteractionGuardEnabled = false;
 
+        function openDemoOutcome() {
+            if (! demoOutcomeModal) return;
+            demoOutcomeModal.style.position = 'fixed';
+            demoOutcomeModal.style.inset = '0';
+            demoOutcomeModal.style.zIndex = '2147483646';
+            demoOutcomeModal.style.pointerEvents = 'auto';
+            if (demoOutcomePanel) {
+                demoOutcomePanel.style.position = 'relative';
+                demoOutcomePanel.style.zIndex = '2147483647';
+                demoOutcomePanel.style.pointerEvents = 'auto';
+            }
+            demoOutcomeModal.classList.remove('hidden');
+            demoOutcomeModal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDemoOutcome() {
+            if (! demoOutcomeModal) return;
+            demoOutcomeModal.classList.add('hidden');
+            demoOutcomeModal.classList.remove('flex');
+            if ((modal && ! modal.classList.contains('hidden')) || (checkoutIntentModal && ! checkoutIntentModal.classList.contains('hidden'))) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        }
+
         if (checkoutIntentModal && checkoutIntentModal.parentElement !== document.body) {
             document.body.appendChild(checkoutIntentModal);
+        }
+        if (demoOutcomeModal && demoOutcomeModal.parentElement !== document.body) {
+            document.body.appendChild(demoOutcomeModal);
         }
 
         function isCheckoutIntentOpen() {
             return !!(checkoutIntentModal && ! checkoutIntentModal.classList.contains('hidden'));
+        }
+        function isDemoOutcomeOpen() {
+            return !!(demoOutcomeModal && ! demoOutcomeModal.classList.contains('hidden'));
         }
 
         function trackChapterEvent(eventName, context) {
@@ -935,7 +1014,20 @@
         checkoutIntentPanel?.addEventListener('click', function (event) {
             event.stopPropagation();
         });
+        demoOutcomeModal?.addEventListener('click', function (event) {
+            if (event.target === demoOutcomeModal) {
+                closeDemoOutcome();
+            }
+        });
+        demoOutcomePanel?.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
         window.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && isDemoOutcomeOpen()) {
+                event.preventDefault();
+                closeDemoOutcome();
+                return;
+            }
             if (event.key === 'Escape' && isCheckoutIntentOpen()) {
                 event.preventDefault();
                 trackChapterEvent('checkout_intent_close', { kind: pendingCheckoutKind, source: 'escape_key' });

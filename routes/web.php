@@ -551,7 +551,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/edits/public/feedback', [PublicEditsController::class, 'storeFeedback'])->name('edits.public.feedback');
 
     Route::post('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
-    Route::delete('/payment/queue/{edit}', [PaymentController::class, 'removeQueuedEdit'])->name('payment.queue.remove');
+    Route::delete('/payment/queue/{editId}', [PaymentController::class, 'removeQueuedEdit'])->name('payment.queue.remove');
     Route::get('/payment/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
     Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::post('/payment/donation/checkout', [PaymentController::class, 'donationCheckout'])->name('payment.donation.checkout');
@@ -566,6 +566,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/edits', [ModerationController::class, 'index'])->name('edits.index');

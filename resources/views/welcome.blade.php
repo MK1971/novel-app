@@ -380,7 +380,7 @@
                             
                             <p class="hero-lead text-xl md:text-2xl text-white/95 font-bold mb-12 leading-relaxed max-w-2xl">
                                 <span class="block text-white font-black text-2xl md:text-3xl tracking-tight mb-3">Each chapter is released before it is decided.</span>
-                                <span class="block font-bold text-white/95">Read live chapters, submit your version, and vote on what survives. What you change here may become permanent.</span>
+                                <span class="block font-bold text-white/95">This manuscript is being developed as a published work. Read live chapters, submit your version, and vote on what survives. What you change here may become permanent.</span>
                             </p>
 
                             <div class="flex flex-col sm:flex-row items-center gap-6">
@@ -430,15 +430,24 @@
                                 </div>
                                 <p class="mt-4 text-xs font-black uppercase tracking-wide text-amber-200/90">
                                     This line feels off?
-                                    <a href="{{ $previewChapter ? route('chapters.show', $previewChapter).'#chapter-suggest-edit-sidebar' : route('chapters.index') }}" class="underline decoration-amber-300/80 underline-offset-2 hover:text-white">Submit your version.</a>
+                                    <a href="{{ $previewChapter ? route('chapters.show', $previewChapter).'#chapter-suggest-edit-sidebar' : route('chapters.index') }}" class="underline decoration-amber-300/80 underline-offset-2 hover:text-white">Submit before it is decided.</a>
                                 </p>
                                 <div class="mt-5 flex flex-wrap gap-3">
                                     <a href="{{ $previewChapter ? route('chapters.show', $previewChapter) : route('chapters.index') }}" data-track-event="landing_preview_read_click" data-track-label="hero_preview_read" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl bg-amber-500 px-6 py-3 text-sm font-black text-black hover:bg-amber-600">
-                                        Read this chapter
+                                        Read before it changes
                                     </a>
                                     <a href="{{ route('chapters.index') }}" data-track-event="landing_preview_all_chapters_click" data-track-label="hero_preview_all" class="landing-ui-transition inline-flex items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white hover:bg-white/15">
                                         Read chapters
                                     </a>
+                                </div>
+                                <div class="mt-5 rounded-2xl border border-amber-300/35 bg-amber-500/10 px-4 py-4">
+                                    <p class="text-[11px] font-black uppercase tracking-[0.16em] text-amber-200">If your version is accepted</p>
+                                    <ul class="mt-2 space-y-1 text-sm font-bold text-white/90">
+                                        <li>It replaces the original line in the manuscript.</li>
+                                        <li>Your contribution is recorded publicly.</li>
+                                        <li>Your leaderboard position improves.</li>
+                                        <li>You gain influence over future outcomes.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -469,8 +478,14 @@
                     <div class="text-center mb-12 max-w-3xl mx-auto">
                         <h2 class="text-4xl md:text-5xl font-black text-amber-900 mb-6">The Journey</h2>
                         <p class="text-2xl md:text-3xl font-black text-amber-900 mb-5">Two connected books. One contribution system.</p>
+                        <p class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-amber-800 mb-6">
+                            Founding contributors
+                        </p>
                         <p class="text-lg md:text-xl text-amber-900/80 font-bold leading-relaxed mb-6">
                             In <span class="text-amber-950">The Book With No Name (Collaborative Novel)</span>, you read live chapters and submit edits that can be accepted into the manuscript. In <span class="text-amber-950">Peter Trull Solitary Detective (Interactive Mystery)</span>, you use vote credits to decide which version survives. Completed contributions in Book 1 grant vote credits in Book 2.
+                        </p>
+                        <p class="text-sm md:text-base font-bold text-amber-900/75 leading-relaxed">
+                            The first accepted edits define the manuscript voice. Early contributors shape what this book becomes.
                         </p>
                     </div>
 
