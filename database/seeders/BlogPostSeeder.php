@@ -34,6 +34,7 @@ class BlogPostSeeder extends Seeder
                     'excerpt' => (string) ($post['excerpt'] ?? ''),
                     'content' => array_values(array_filter((array) ($post['content'] ?? []), fn ($p) => is_string($p) && trim($p) !== '')),
                     'cover_emoji' => isset($post['cover_emoji']) ? (string) $post['cover_emoji'] : null,
+                    'cover_image_path' => isset($post['cover_image_path']) ? trim((string) $post['cover_image_path']) ?: null : null,
                     'is_featured' => $isFeatured,
                     'is_published' => true,
                     'published_at' => Carbon::parse((string) ($post['published_at'] ?? now()->toDateString())),

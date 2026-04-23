@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.74 - Blog seeding now persists cover image paths
+### Fixed
+- **Seeded blog cover consistency:** `BlogPostSeeder` now writes `cover_image_path` from `config/blog.php`, so seeded posts consistently render PNG covers instead of falling back to emoji placeholders.
+
 ## Version 1.9.73 - Blog visual polish, asset-backed covers, and conversion-focused article UX
 ### Added
 - **Blog sidebar structure:** Added blog-page right-rail sections for `Main menu`, `More`, and a `Join now` CTA block to better mirror app navigation and improve conversion flow.
