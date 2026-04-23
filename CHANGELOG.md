@@ -2,6 +2,12 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.75 - Blog layout simplification and compact post-list actions
+### Changed
+- **Blog page structure:** Removed the large left sidebar treatment from `/blog` and kept the focus on the article feed to reduce visual crowding.
+- **Secondary navigation placement:** Moved `More` links and contributor CTAs into a compact block below the post grid instead of a dominant side rail.
+- **Action density and sizing:** Reduced `More` link and CTA button sizing (`Start reading`, `Create contributor`) to a smaller, less intrusive format while preserving access.
+
 ## Version 1.9.74 - Blog seeding now persists cover image paths
 ### Fixed
 - **Seeded blog cover consistency:** `BlogPostSeeder` now writes `cover_image_path` from `config/blog.php`, so seeded posts consistently render PNG covers instead of falling back to emoji placeholders.
