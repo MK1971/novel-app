@@ -103,6 +103,12 @@ run_deploy() {
   esac
 }
 
-run_deploy
+if ! run_deploy; then
+  log "ERROR: post-deploy steps failed; attempting emergency cache clear to keep app responsive"
+  (
+    cd "$NOVEL_APP_ROOT" && php artisan optimize:clear
+  ) || log "WARN: emergency optimize:clear failed"
+  exit 1
+fi
 
 log "done $NOVEL_GIT_BRANCH=$(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD)"

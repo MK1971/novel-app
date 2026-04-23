@@ -39,6 +39,9 @@
             <x-sidebar-link :href="route('about')" :active="request()->routeIs('about')" icon="info">
                 About The Story
             </x-sidebar-link>
+            <x-sidebar-link :href="route('blog.index')" :active="request()->routeIs('blog.*')" icon="archive">
+                Blog
+            </x-sidebar-link>
             <x-sidebar-link :href="route('feedback.index')" :active="request()->routeIs('feedback.index')" icon="feedback">
                 Feedback
             </x-sidebar-link>
@@ -58,6 +61,9 @@
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" icon="upload">
                     Upload Chapters
+                </x-sidebar-link>
+                <x-sidebar-link :href="route('admin.blog.index')" :active="request()->routeIs('admin.blog.*')" icon="archive">
+                    Blog publishing
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('admin.settings.edit')" :active="request()->routeIs('admin.settings.*')" icon="feedback">
                     Site settings

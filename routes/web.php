@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\ChapterController as AdminChapterController;
 use App\Http\Controllers\Admin\DonationReportController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\EditController;
 use App\Http\Controllers\EditDiffPreviewController;
@@ -252,6 +254,9 @@ Route::get('/dev/landing-ux-suggestions', function () {
 Route::get('/about', function () {
     return view('about');
 })->name('about');
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('/privacy', function () {
     return view('privacy');
@@ -569,6 +574,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/blog', [AdminBlogPostController::class, 'index'])->name('blog.index');
+        Route::get('/blog/create', [AdminBlogPostController::class, 'create'])->name('blog.create');
+        Route::post('/blog', [AdminBlogPostController::class, 'store'])->name('blog.store');
+        Route::get('/blog/{blogPost}/edit', [AdminBlogPostController::class, 'edit'])->name('blog.edit');
+        Route::get('/blog/{blogPost}/preview', [AdminBlogPostController::class, 'preview'])->name('blog.preview');
+        Route::post('/blog/{blogPost}/publish-now', [AdminBlogPostController::class, 'publishNow'])->name('blog.publish-now');
+        Route::put('/blog/{blogPost}', [AdminBlogPostController::class, 'update'])->name('blog.update');
+        Route::delete('/blog/{blogPost}', [AdminBlogPostController::class, 'destroy'])->name('blog.destroy');
+
         Route::get('/edits', [ModerationController::class, 'index'])->name('edits.index');
         Route::post('/edits/{edit}/approve', [ModerationController::class, 'approve'])->name('edits.approve');
         Route::post('/edits/{edit}/reject', [ModerationController::class, 'reject'])->name('edits.reject');

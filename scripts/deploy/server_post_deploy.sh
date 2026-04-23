@@ -1,11 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+resolve_composer() {
+  if command -v composer >/dev/null 2>&1; then
+    command -v composer
+    return 0
+  fi
+  for c in /usr/local/bin/composer /usr/bin/composer "$HOME/bin/composer" "$HOME/.composer/vendor/bin/composer"; do
+    if [[ -x "$c" ]]; then
+      echo "$c"
+      return 0
+    fi
+  done
+  return 1
+}
+
 echo "==> Composer install"
-composer install --no-dev --optimize-autoloader
+COMPOSER_BIN="$(resolve_composer || true)"
+if [[ -z "${COMPOSER_BIN:-}" ]]; then
+  echo "ERROR: composer not found in PATH or common locations."
+  exit 1
+fi
+"$COMPOSER_BIN" install --no-dev --optimize-autoloader
 
 echo "==> Run migrations"
 php artisan migrate --force
+
+echo "==> Seed blog stories (shared across environments)"
+php artisan db:seed --class=BlogPostSeeder --force
 
 echo "==> Clear caches"
 php artisan optimize:clear

@@ -2,6 +2,22 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.72 - Blog publishing system, timezone clarity, and deploy resiliency
+### Added
+- **Blog platform surfaces:** Added public blog routes (`/blog`, `/blog/{slug}`), blog model/config/migrations/seed data, and reader-facing blog index/show pages.
+- **Admin blog publishing console:** Added full admin CRUD for blog posts with featured-state handling, preview, and one-click `Publish now` / `Republish now` actions.
+- **Upload-size visibility and control:** Added configurable blog cover image size cap (`config/blog.php`) and server-facing upload limit helper feedback in the admin blog form.
+
+### Changed
+- **Timezone clarity for publishing:** Blog admin timestamps now clearly display Israel time and UTC, and published-at input parsing uses Israel local time before UTC storage.
+- **Primary navigation discoverability:** Added `Blog` links to the top nav, sidebar nav, and landing navigation entry points.
+- **Deploy seeding consistency:** Deploy scripts now seed blog content (`BlogPostSeeder`) during post-pull/post-deploy flows so content is consistent across environments.
+
+### Fixed
+- **Deploy fallback safety:** `cron_git_pull_deploy.sh` now runs an emergency `php artisan optimize:clear` on post-deploy failure to reduce broken-app risk.
+- **Composer resolution robustness:** Deploy scripts now resolve composer from common paths instead of assuming shell PATH includes it.
+- **Blog upload failure diagnostics:** Admin upload flow now returns explicit failure reasons (including payload-size limit violations) instead of silent failures.
+
 ## Version 1.9.71 - Conversion flow hardening, notification bulk-read, and queue removal stability
 ### Added
 - **Notifications bulk action:** Added a `Mark all as read` action on `/notifications` with a dedicated `notifications.read-all` route and controller handler, plus feature-test coverage.

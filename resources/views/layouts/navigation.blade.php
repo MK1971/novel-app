@@ -28,6 +28,9 @@
                     <x-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                         Leaderboard
                     </x-nav-link>
+                    <x-nav-link :href="route('blog.index')" :active="request()->routeIs('blog.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                        Blog
+                    </x-nav-link>
                     <x-nav-link :href="route('hall-of-fame')" :active="request()->routeIs('hall-of-fame')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                         Hall of Fame
                     </x-nav-link>
@@ -43,6 +46,9 @@
                         </x-nav-link>
                         <x-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                             Upload Chapters
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.blog.index')" :active="request()->routeIs('admin.blog.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
+                            Blog publishing
                         </x-nav-link>
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold hover:text-amber-600 transition-colors">
                             Users
@@ -119,6 +125,9 @@
             <x-responsive-nav-link :href="route('leaderboard')" :active="request()->routeIs('leaderboard')" class="text-amber-900 font-semibold">
                 Leaderboard
             </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('blog.index')" :active="request()->routeIs('blog.*')" class="text-amber-900 font-semibold">
+                Blog
+            </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('hall-of-fame')" :active="request()->routeIs('hall-of-fame')" class="text-amber-900 font-semibold">
                 Hall of Fame
             </x-responsive-nav-link>
@@ -134,6 +143,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.chapters.index')" :active="request()->routeIs('admin.chapters.*')" class="text-amber-900 font-semibold">
                     Upload Chapters
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.blog.index')" :active="request()->routeIs('admin.blog.*')" class="text-amber-900 font-semibold">
+                    Blog publishing
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-amber-900 font-semibold">
                     Users

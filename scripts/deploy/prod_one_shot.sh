@@ -330,6 +330,9 @@ if [[ $MIGRATE_EXIT -ne 0 ]]; then
   fi
 fi
 
+echo "==> Seed blog stories (shared across environments)"
+php artisan db:seed --class=BlogPostSeeder --force
+
 echo "==> Build frontend assets (Node/npm — loads NVM when ~/.nvm exists, e.g. Cloudways)"
 load_nvm_for_build
 if command -v npm >/dev/null 2>&1; then

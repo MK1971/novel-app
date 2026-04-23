@@ -263,6 +263,7 @@
                     <div class="hidden md:flex items-center gap-8">
                         <a href="{{ route('chapters.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Read</a>
                         <a href="{{ route('about') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">How it works</a>
+                        <a href="{{ route('blog.index') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Blog</a>
                         @guest
                             @if(!($guestFirstVisitNav ?? false))
                                 <a href="{{ route('leaderboard') }}" class="landing-ui-transition inline-flex items-center min-h-11 text-sm font-bold text-amber-900 hover:text-amber-600 transition-colors px-1 -mx-1 rounded-lg">Leaderboard</a>
@@ -320,6 +321,7 @@
                                 <nav class="flex flex-col gap-0.5 p-1.5 overflow-y-auto shrink" aria-label="Mobile navigation">
                                     <a href="{{ route('chapters.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Read</a>
                                     <a href="{{ route('about') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">How it works</a>
+                                    <a href="{{ route('blog.index') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Blog</a>
                                     @guest
                                         @if(!($guestFirstVisitNav ?? false))
                                             <a href="{{ route('leaderboard') }}" @click="mobileNavOpen = false" class="landing-ui-transition flex items-center min-h-11 rounded-xl px-3 text-sm font-bold text-white hover:bg-white/10 hover:text-amber-100 transition-colors">Leaderboard</a>

@@ -10,9 +10,6 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * Intentionally minimal: admin login only. Create books and chapters via Admin
-     * (or run a dedicated demo seeder) when you need sample content.
      */
     public function run(): void
     {
@@ -25,5 +22,7 @@ class DatabaseSeeder extends Seeder
                 'points' => 0,
             ]
         );
+
+        $this->call(BlogPostSeeder::class);
     }
 }
