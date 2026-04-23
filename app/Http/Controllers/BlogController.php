@@ -9,6 +9,7 @@ use App\Models\InlineEdit;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
@@ -78,6 +79,8 @@ class BlogController extends Controller
                     'featured' => (bool) $post->is_featured,
                     'cover_emoji' => $post->cover_emoji,
                     'cover_image_path' => $post->cover_image_path,
+                    'cover_image_url' => $this->resolveCoverImageUrl($post->cover_image_path),
+                    'category_icon' => $this->categoryIcon($post->category),
                     'excerpt' => $post->excerpt,
                     'content' => is_array($post->content) ? $post->content : [],
                 ];
@@ -87,6 +90,8 @@ class BlogController extends Controller
             ->map(function (array $post): array {
                 $post['published_at'] = Carbon::parse($post['published_at']);
                 $post['cover_image_path'] = $post['cover_image_path'] ?? null;
+                $post['cover_image_url'] = $this->resolveCoverImageUrl($post['cover_image_path']);
+                $post['category_icon'] = $this->categoryIcon($post['category'] ?? null);
 
                 return $post;
             });
@@ -102,5 +107,39 @@ class BlogController extends Controller
             ->union($configPosts->keyBy('slug'))
             ->sortByDesc(fn (array $post) => $post['published_at']->timestamp)
             ->values();
+    }
+
+    private function categoryIcon(?string $category): string
+    {
+        return match (mb_strtolower(trim((string) $category))) {
+            'launch' => '🚀',
+            'community' => '🏆',
+            'craft' => '✍️',
+            'data' => '📊',
+            'scheduling' => '🗓️',
+            'policy' => '📜',
+            'the story' => '🕵️',
+            'editorial' => '📝',
+            'vision' => '🔮',
+            default => '📘',
+        };
+    }
+
+    private function resolveCoverImageUrl(?string $path): ?string
+    {
+        $normalized = trim((string) $path);
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (Storage::disk('public')->exists($normalized)) {
+            return asset('storage/'.$normalized);
+        }
+
+        if (is_file(public_path($normalized))) {
+            return asset($normalized);
+        }
+
+        return null;
     }
 }

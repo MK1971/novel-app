@@ -9,14 +9,25 @@
             </a>
 
             <article class="rounded-3xl border border-amber-100 bg-white/85 backdrop-blur-sm p-8 md:p-10 shadow-lg">
-                <p class="text-xs font-black uppercase tracking-[0.22em] text-amber-700/85">
+                <p class="text-xs font-black uppercase tracking-[0.22em] text-amber-700/85 flex items-center gap-2">
+                    <span>{{ $post['category_icon'] ?? '📘' }}</span>
                     @if(!empty($post['category']))
-                        {{ $post['category'] }} ·
+                        <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5">{{ $post['category'] }}</span>
                     @endif
                     {{ $post['published_at']->format('F j, Y') }} · By {{ $post['author'] }}
                 </p>
                 <h1 class="mt-3 text-4xl md:text-5xl font-black text-amber-950 leading-tight">{{ $post['title'] }}</h1>
                 <p class="mt-5 text-lg font-bold text-amber-900/80 leading-relaxed">{{ $post['excerpt'] }}</p>
+
+                @if(!empty($post['cover_image_url']))
+                    <div class="mt-6 rounded-2xl overflow-hidden border border-amber-100">
+                        <img
+                            src="{{ $post['cover_image_url'] }}"
+                            alt="{{ $post['title'] }} cover"
+                            class="w-full max-h-[420px] object-cover"
+                        >
+                    </div>
+                @endif
 
                 <div class="mt-8 prose prose-amber max-w-none">
                     @foreach($post['content'] as $paragraph)
@@ -25,11 +36,16 @@
                 </div>
 
                 <div class="mt-8 rounded-2xl border border-amber-200 bg-amber-50/80 px-5 py-4">
-                    <p class="text-xs font-black uppercase tracking-wider text-amber-700/80 mb-2">Join the manuscript</p>
-                    <p class="text-sm font-bold text-amber-900/80 mb-3">Read live chapters, submit precise edits, and climb the recognition ladder.</p>
-                    <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-500 text-black font-black hover:bg-amber-600 transition-colors">
-                        Enter the manuscript
-                    </a>
+                    <p class="text-xs font-black uppercase tracking-wider text-amber-700/80 mb-2">What to do next</p>
+                    <p class="text-sm font-bold text-amber-900/80 mb-3">Read live chapters, submit your first edit, and start earning leaderboard points.</p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-500 text-black font-black hover:bg-amber-600 transition-colors">
+                            Start reading chapter 1
+                        </a>
+                        <a href="{{ route('chapters.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl border border-amber-300 bg-white text-amber-900 font-black hover:bg-amber-50 transition-colors">
+                            Submit your first edit
+                        </a>
+                    </div>
                 </div>
             </article>
 

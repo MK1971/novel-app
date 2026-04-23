@@ -12,85 +12,122 @@
                 </p>
             </section>
 
-            @if($featuredPost)
-                <section class="rounded-3xl border border-amber-100 bg-gradient-to-br from-stone-50 to-amber-50/60 p-6 md:p-8 shadow-lg">
-                    <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">Latest Update</p>
-                    <div class="grid gap-6 lg:grid-cols-2 lg:items-center">
-                        @if(!empty($featuredPost['cover_image_path']))
-                            <div class="h-44 rounded-2xl overflow-hidden border-b border-stone-200">
-                                <img
-                                    src="{{ asset('storage/'.$featuredPost['cover_image_path']) }}"
-                                    alt="{{ $featuredPost['title'] }} cover"
-                                    class="h-full w-full object-cover"
-                                >
-                            </div>
-                        @else
-                            <div class="h-44 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 border-b border-stone-200 flex items-center justify-center">
-                                <span class="text-5xl md:text-[3.25rem] leading-tight">{{ $featuredPost['cover_emoji'] ?? '📘' }}</span>
-                            </div>
-                        @endif
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-wider text-amber-700/80">
-                                @if(!empty($featuredPost['category']))
-                                    {{ $featuredPost['category'] }} ·
+            <section class="grid gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
+                <div class="space-y-8">
+                    @if($featuredPost)
+                        <article class="rounded-3xl border border-amber-100 bg-gradient-to-br from-stone-50 to-amber-50/60 p-6 md:p-8 shadow-lg">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">Latest Update</p>
+                            <div class="grid gap-6 lg:grid-cols-2 lg:items-center">
+                                @if(!empty($featuredPost['cover_image_url']))
+                                    <div class="h-44 rounded-2xl overflow-hidden border-b border-stone-200">
+                                        <img
+                                            src="{{ $featuredPost['cover_image_url'] }}"
+                                            alt="{{ $featuredPost['title'] }} cover"
+                                            class="h-full w-full object-cover"
+                                        >
+                                    </div>
+                                @else
+                                    <div class="h-44 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-700 border-b border-stone-200 flex items-center justify-center">
+                                        <span class="text-5xl md:text-[3.25rem] leading-tight">{{ $featuredPost['cover_emoji'] ?? '📘' }}</span>
+                                    </div>
                                 @endif
-                                {{ $featuredPost['published_at']->format('M j, Y') }}
-                            </p>
-                            <h2 class="mt-2 text-3xl md:text-4xl font-black text-stone-900 leading-tight">{{ $featuredPost['title'] }}</h2>
-                            <p class="mt-4 text-stone-700 font-bold leading-relaxed">{{ $featuredPost['excerpt'] }}</p>
-                            <a href="{{ route('blog.show', ['slug' => $featuredPost['slug']]) }}" class="mt-6 inline-flex items-center px-6 py-3 rounded-xl bg-amber-500 text-stone-900 font-black hover:bg-amber-600 transition-colors">
-                                Read the full story
-                            </a>
-                        </div>
-                    </div>
-                </section>
-            @endif
-
-            <section>
-                <div class="mb-6">
-                    <h2 class="text-3xl font-black text-stone-900">Behind the Scenes & Story Evolution</h2>
-                    <p class="mt-1 text-stone-600 font-semibold">Explore how the manuscript evolves and how contributors shape each chapter.</p>
-                </div>
-
-                <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    @forelse($latestPosts as $post)
-                        <article class="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
-                            @if(!empty($post['cover_image_path']))
-                                <div class="h-44 border-b border-stone-200 overflow-hidden">
-                                    <img
-                                        src="{{ asset('storage/'.$post['cover_image_path']) }}"
-                                        alt="{{ $post['title'] }} cover"
-                                        class="h-full w-full object-cover"
-                                    >
-                                </div>
-                            @else
-                                <div class="h-44 bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-b border-stone-200">
-                                    <span class="text-5xl md:text-[3.25rem] leading-tight">{{ $post['cover_emoji'] ?? '✨' }}</span>
-                                </div>
-                            @endif
-                            <div class="p-5">
-                                <p class="text-xs font-black uppercase tracking-wider text-amber-700/80">
-                                    @if(!empty($post['category']))
-                                        {{ $post['category'] }} ·
-                                    @endif
-                                    {{ $post['published_at']->format('M j, Y') }}
-                                </p>
-                                <h3 class="mt-2 text-xl font-black text-stone-900 leading-snug">{{ $post['title'] }}</h3>
-                                <p class="mt-3 text-sm font-semibold text-stone-600 leading-relaxed">{{ $post['excerpt'] }}</p>
-                                <div class="mt-5 flex items-center justify-between border-t border-stone-200 pt-4">
-                                    <span class="text-xs font-bold text-stone-500">By {{ $post['author'] }}</span>
-                                    <a href="{{ route('blog.show', ['slug' => $post['slug']]) }}" class="text-sm font-black text-amber-700 hover:text-amber-900">
-                                        Read →
+                                <div>
+                                    <p class="text-xs font-black uppercase tracking-wider text-amber-700/80">
+                                        <span>{{ $featuredPost['category_icon'] ?? '📘' }}</span>
+                                        @if(!empty($featuredPost['category']))
+                                            {{ $featuredPost['category'] }} ·
+                                        @endif
+                                        {{ $featuredPost['published_at']->format('M j, Y') }}
+                                    </p>
+                                    <h2 class="mt-2 text-3xl md:text-4xl font-black text-stone-900 leading-tight">{{ $featuredPost['title'] }}</h2>
+                                    <p class="mt-4 text-stone-700 font-bold leading-relaxed">{{ $featuredPost['excerpt'] }}</p>
+                                    <a href="{{ route('blog.show', ['slug' => $featuredPost['slug']]) }}" class="mt-6 inline-flex items-center px-6 py-3 rounded-xl bg-amber-500 text-stone-900 font-black hover:bg-amber-600 transition-colors">
+                                        Read the full story →
                                     </a>
                                 </div>
                             </div>
                         </article>
-                    @empty
-                        <div class="md:col-span-2 xl:col-span-3 rounded-2xl border border-stone-200 bg-white p-8 text-center">
-                            <p class="text-stone-700 font-bold">No blog posts yet. Check back soon.</p>
+                    @endif
+
+                    <div>
+                        <div class="mb-6">
+                            <h2 class="text-3xl font-black text-stone-900">Behind the Scenes & Story Evolution</h2>
+                            <p class="mt-1 text-stone-600 font-semibold">Explore how the manuscript evolves and how contributors shape each chapter.</p>
                         </div>
-                    @endforelse
+
+                        <div class="grid gap-6 md:grid-cols-2">
+                            @forelse($latestPosts as $post)
+                                <article class="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
+                                    @if(!empty($post['cover_image_url']))
+                                        <div class="h-44 border-b border-stone-200 overflow-hidden">
+                                            <img
+                                                src="{{ $post['cover_image_url'] }}"
+                                                alt="{{ $post['title'] }} cover"
+                                                class="h-full w-full object-cover"
+                                            >
+                                        </div>
+                                    @else
+                                        <div class="h-44 bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center border-b border-stone-200">
+                                            <span class="text-5xl md:text-[3.25rem] leading-tight">{{ $post['cover_emoji'] ?? '✨' }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="p-5">
+                                        <p class="text-xs font-black uppercase tracking-wider text-amber-700/80 flex items-center gap-2">
+                                            <span>{{ $post['category_icon'] ?? '📘' }}</span>
+                                            @if(!empty($post['category']))
+                                                <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5">{{ $post['category'] }}</span>
+                                            @endif
+                                            <span>{{ $post['published_at']->format('M j, Y') }}</span>
+                                        </p>
+                                        <h3 class="mt-2 text-xl font-black text-stone-900 leading-snug">{{ $post['title'] }}</h3>
+                                        <p class="mt-3 text-sm font-semibold text-stone-600 leading-relaxed">{{ $post['excerpt'] }}</p>
+                                        <div class="mt-5 flex items-center justify-between border-t border-stone-200 pt-4">
+                                            <span class="text-xs font-bold text-stone-500">By {{ $post['author'] }}</span>
+                                            <a href="{{ route('blog.show', ['slug' => $post['slug']]) }}" class="text-sm font-black text-amber-700 hover:text-amber-900">
+                                                Read →
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @empty
+                                <div class="md:col-span-2 rounded-2xl border border-stone-200 bg-white p-8 text-center">
+                                    <p class="text-stone-700 font-bold">No blog posts yet. Check back soon.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
                 </div>
+
+                <aside class="space-y-6">
+                    <section class="rounded-2xl border border-stone-200 bg-white p-5">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700">Main menu</p>
+                        <div class="mt-4 flex flex-col gap-2 text-sm font-bold text-stone-800">
+                            <a href="{{ route('chapters.index') }}" class="rounded-lg px-3 py-2 hover:bg-stone-100 transition-colors">Read chapters</a>
+                            <a href="{{ route('leaderboard') }}" class="rounded-lg px-3 py-2 hover:bg-stone-100 transition-colors">Leaderboard</a>
+                            <a href="{{ route('blog.index') }}" class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-amber-900">Blog</a>
+                        </div>
+                    </section>
+
+                    <section class="rounded-2xl border border-stone-200 bg-white p-5">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-700">More</p>
+                        <div class="mt-4 flex flex-col gap-2 text-sm font-bold text-stone-800">
+                            <a href="{{ route('about') }}" class="rounded-lg px-3 py-2 hover:bg-stone-100 transition-colors">How it works</a>
+                            <a href="{{ route('prizes') }}" class="rounded-lg px-3 py-2 hover:bg-stone-100 transition-colors">Prizes</a>
+                            <a href="{{ route('feedback.index') }}" class="rounded-lg px-3 py-2 hover:bg-stone-100 transition-colors">Feedback</a>
+                        </div>
+                    </section>
+
+                    <section class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100 p-5">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-800">Join now</p>
+                        <p class="mt-3 text-sm font-bold text-amber-900/90">Read live chapters, submit edits, and start climbing the ladder.</p>
+                        <div class="mt-4 flex flex-col gap-2">
+                            <a href="{{ route('chapters.index') }}" class="inline-flex justify-center items-center rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-black text-black hover:bg-amber-600 transition-colors">Start reading chapter 1</a>
+                            @if(Route::has('register'))
+                                <a href="{{ route('register') }}" class="inline-flex justify-center items-center rounded-xl border border-amber-300 bg-white/80 px-4 py-2.5 text-sm font-black text-amber-900 hover:bg-white transition-colors">Create contributor account</a>
+                            @endif
+                        </div>
+                    </section>
+                </aside>
             </section>
 
             <section class="rounded-3xl border border-stone-200 bg-white p-6 md:p-8">

@@ -2,6 +2,21 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.73 - Blog visual polish, asset-backed covers, and conversion-focused article UX
+### Added
+- **Blog sidebar structure:** Added blog-page right-rail sections for `Main menu`, `More`, and a `Join now` CTA block to better mirror app navigation and improve conversion flow.
+- **Category visual system:** Added category icon mapping and badge treatment for blog index/show metadata so post types are easier to scan.
+- **Asset handoff contract:** Added `public/blog-assets/README.txt` documenting expected production asset filenames for seeded blog covers.
+
+### Changed
+- **Author attribution:** Updated seeded blog posts to show `Moshe Kagan, Founder` instead of generic editorial attribution.
+- **Professional cover targeting:** Configured key blog posts to use production assets (`hero_banner.png`, `twitter_post_2.png`, `twitter_post_4.png`) while preserving emoji fallback behavior.
+- **Article CTA clarity:** Upgraded in-article CTA block to explicit next actions (`Start reading chapter 1`, `Submit your first edit`) and stronger post-read guidance.
+- **Blog page layout parity:** Tightened blog index/show styling and hierarchy to align more closely with the core site’s color and typography feel.
+
+### Fixed
+- **Cover rendering robustness:** Blog cover resolution now safely handles both storage-backed uploads and direct `public/blog-assets` paths without broken image output when files are missing.
+
 ## Version 1.9.72 - Blog publishing system, timezone clarity, and deploy resiliency
 ### Added
 - **Blog platform surfaces:** Added public blog routes (`/blog`, `/blog/{slug}`), blog model/config/migrations/seed data, and reader-facing blog index/show pages.
