@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.85 - Remove blog letterboxing and reduce card image dominance
+### Changed
+- **Main blog cover rendering:** Switched featured and single-post cover images back to `object-cover` to remove visible white bars above/below the artwork.
+- **Card image footprint:** Reduced post-card image block height by changing card image ratio to `aspect-[2/1]` and lowering featured minimum heights for better text-image balance.
+
 ## Version 1.9.84 - Restore no-crop blog image behavior with stable featured layout
 ### Fixed
 - **Production image cropping regression:** Reverted blog index and single-post cover rendering to `object-contain` so covers remain fully visible without edge cropping.
