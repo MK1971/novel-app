@@ -20,11 +20,11 @@
                 <p class="mt-5 text-lg font-bold text-amber-900/80 leading-relaxed">{{ $post['excerpt'] }}</p>
 
                 @if(!empty($post['cover_image_url']))
-                    <div class="mt-6 rounded-2xl overflow-hidden border border-amber-100">
+                    <div class="mt-6 rounded-2xl overflow-hidden border border-amber-100 aspect-[16/9] bg-[#F3EEE7]">
                         <img
                             src="{{ $post['cover_image_url'] }}"
                             alt="{{ $post['title'] }} cover"
-                            class="w-full max-h-[420px] object-contain bg-[#F3EEE7]"
+                            class="h-full w-full object-contain"
                         >
                     </div>
                 @endif

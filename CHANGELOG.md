@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.81 - Match single-post cover sizing with blog cards
+### Changed
+- **Blog post cover consistency:** Updated `resources/views/blog/show.blade.php` so single-post hero images render inside a fixed 16:9 container with `object-contain`, matching card behavior and reducing cross-environment visual mismatch.
+
 ## Version 1.9.80 - Aspect-safe blog image variants for stable no-crop rendering
 ### Added
 - **Blog card image variants:** Added preprocessed 16:9 blog cover assets under `public/blog-assets/blog-cards/` for the featured launch and key grid posts.
