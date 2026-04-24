@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.89 - Add blurred backplate image treatment on blog cards
+### Changed
+- **Featured hero image treatment:** Replaced the featured image block in `resources/views/blog/index.blade.php` with a dual-layer render (blurred `object-cover` backdrop + sharp `object-contain` foreground) to preserve full artwork text while filling the card frame.
+- **Grid card image treatment:** Applied the same dual-layer blurred-backplate pattern to post grid cards (`aspect-[21/10]`) for consistent visual depth without hard cropping foreground artwork.
+
 ## Version 1.9.88 - Featured card typography and cover-fit tuning
 ### Changed
 - **Featured cover fit:** Switched the featured image in `resources/views/blog/index.blade.php` from `object-contain` back to `object-cover`.

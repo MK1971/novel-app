@@ -20,11 +20,14 @@
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-[#B8860B] mb-4">Latest update</p>
                             <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
                                 @if(!empty($featuredPost['cover_image_url']))
-                                    <div class="relative h-full min-h-[220px] lg:min-h-[240px] rounded-xl overflow-hidden bg-[#F3EEE7]">
+                                    <div class="relative h-full min-h-[220px] lg:min-h-[240px] rounded-xl overflow-hidden bg-stone-900">
+                                        <!-- Blurred Background Layer -->
+                                        <img src="{{ $featuredPost['cover_image_url'] }}" class="absolute inset-0 h-full w-full object-cover blur-2xl opacity-40 scale-110">
+                                        <!-- Sharp Foreground Image -->
                                         <img
                                             src="{{ $featuredPost['cover_image_url'] }}"
                                             alt="{{ $featuredPost['title'] }} cover"
-                                            class="h-full w-full object-cover"
+                                            class="relative h-full w-full object-contain z-10"
                                             onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                         >
                                         <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
@@ -59,11 +62,14 @@
                             @forelse($latestPosts as $post)
                                 <article class="rounded-xl border border-[#E8E8E8] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5">
                                     @if(!empty($post['cover_image_url']))
-                                        <div class="relative aspect-[21/10] overflow-hidden border-b border-[#E8E8E8] bg-[#F3EEE7]">
+                                        <div class="relative aspect-[21/10] overflow-hidden border-b border-[#E8E8E8] bg-stone-900">
+                                            <!-- Blurred Background Layer -->
+                                            <img src="{{ $post['cover_image_url'] }}" class="absolute inset-0 h-full w-full object-cover blur-xl opacity-30 scale-110">
+                                            <!-- Sharp Foreground Image -->
                                             <img
                                                 src="{{ $post['cover_image_url'] }}"
                                                 alt="{{ $post['title'] }} cover"
-                                                class="h-full w-full object-cover"
+                                                class="relative h-full w-full object-contain z-10"
                                                 onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                             >
                                             <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
