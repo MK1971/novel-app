@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.77 - Blog cover delivery fallback and admin category default safety
+### Added
+- **Storage-independent blog cover route:** Added `blog.cover` (`/blog-cover/{path}`) to serve blog cover files directly from Laravel storage, reducing dependency on environment-specific `public/storage` symlink behavior.
+
+### Fixed
+- **Route-cache mismatch resilience:** Blog cover URL resolution now checks `Route::has('blog.cover')` before generating that URL and falls back safely, preventing runtime `RouteNotFoundException` when route caches lag behind deploy code.
+- **Admin blog create constraint safety:** Empty blog category submissions now default to `Update` instead of `null`, preventing `NOT NULL` insert failures on `blog_posts.category`.
+
 ## Version 1.9.76 - Blog image-fit hardening and post-deploy release verification
 ### Added
 - **Deploy verification step:** Added `scripts/deploy/verify_release.sh` and wired it into dev/prod post-deploy flows so each release run validates key runtime outcomes immediately after deploy.

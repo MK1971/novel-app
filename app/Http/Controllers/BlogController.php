@@ -8,11 +8,24 @@ use App\Models\Edit;
 use App\Models\InlineEdit;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
+    public function cover(string $path)
+    {
+        $normalized = ltrim($path, '/');
+        abort_if($normalized === '', Response::HTTP_NOT_FOUND);
+        abort_if(! Storage::disk('public')->exists($normalized), Response::HTTP_NOT_FOUND);
+
+        return response()->file(Storage::disk('public')->path($normalized), [
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
+    }
+
     public function index()
     {
         $posts = $this->posts();
@@ -133,6 +146,10 @@ class BlogController extends Controller
         }
 
         if (Storage::disk('public')->exists($normalized)) {
+            if (Route::has('blog.cover')) {
+                return route('blog.cover', ['path' => $normalized]);
+            }
+
             return asset('storage/'.$normalized);
         }
 

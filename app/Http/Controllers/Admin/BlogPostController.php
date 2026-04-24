@@ -163,7 +163,7 @@ class BlogPostController extends Controller
         $post->fill([
             'slug' => $validated['slug'],
             'title' => $validated['title'],
-            'category' => trim((string) ($validated['category'] ?? '')) ?: null,
+            'category' => trim((string) ($validated['category'] ?? '')) ?: 'Update',
             'author' => $validated['author'],
             'excerpt' => $validated['excerpt'],
             'content' => $this->paragraphsFromText($validated['content_text']),
