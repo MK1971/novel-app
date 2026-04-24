@@ -20,9 +20,17 @@
                 <p class="mt-5 text-lg font-bold text-amber-900/80 leading-relaxed">{{ $post['excerpt'] }}</p>
 
                 @if(!empty($post['cover_image_url']))
+                    @php
+                        // Story page should prefer original source when seeded URL points at cropped 16:9 variants.
+                        $storyImageUrl = $post['cover_image_url'];
+                        if (str_contains($storyImageUrl, '/blog-assets/blog-cards/')) {
+                            $storyImageUrl = str_replace('/blog-assets/blog-cards/', '/blog-assets/', $storyImageUrl);
+                            $storyImageUrl = str_replace('_16x9', '', $storyImageUrl);
+                        }
+                    @endphp
                     <div class="mt-6 rounded-2xl overflow-hidden border border-amber-100 aspect-[16/9] bg-[#F3EEE7]">
                         <img
-                            src="{{ $post['cover_image_url'] }}"
+                            src="{{ $storyImageUrl }}"
                             alt="{{ $post['title'] }} cover"
                             class="h-full w-full object-contain p-1"
                         >

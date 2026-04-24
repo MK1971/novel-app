@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.95 - Story page uncropped source fallback
+### Fixed
+- **Single-post image still cropped:** Updated `resources/views/blog/show.blade.php` to rewrite seeded `blog-cards/*_16x9` URLs to original `blog-assets/*` paths on story pages, ensuring full-image display with no crop.
+
 ## Version 1.9.94 - Prevent cropping on blog story-page hero image
 ### Fixed
 - **Single post cover crop:** Updated `resources/views/blog/show.blade.php` to render story-page cover images with `object-contain` (plus subtle `p-1` inset) so full artwork remains visible after opening a card.
