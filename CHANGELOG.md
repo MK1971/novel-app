@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.92 - Align production grid cards to dark smart-fit variant
+### Changed
+- **Grid card container style:** Updated blog index grid cards to `aspect-video` with dark background `#1A1A1A` and centered contain-fit rendering.
+- **Grid card image inset:** Increased foreground image inset from `p-1` to `p-2` for cleaner spacing consistency with the requested production variant.
+
 ## Version 1.9.91 - Simplify blog image blocks to clean contain framing
 ### Changed
 - **Featured hero image block:** Replaced the dual-layer featured image treatment with a single `object-contain` image on a dark neutral background (`#1A1A1A`) and centered alignment.
