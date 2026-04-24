@@ -2,6 +2,15 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.76 - Blog image-fit hardening and post-deploy release verification
+### Added
+- **Deploy verification step:** Added `scripts/deploy/verify_release.sh` and wired it into dev/prod post-deploy flows so each release run validates key runtime outcomes immediately after deploy.
+
+### Changed
+- **Blog image presentation:** Blog list and single-post cover images now use fit behavior (`object-contain`) with neutral backdrop so uploaded assets render fully without crop loss.
+- **Blog image fallback behavior:** Strengthened blog card image fallback to avoid broken-image placeholders by failing over to themed visual fallback when an image cannot load.
+- **Blog CTA consistency + readability:** Unified compact CTA styling and improved live snapshot text contrast in the blog page polish pass.
+
 ## Version 1.9.75 - Blog layout simplification and compact post-list actions
 ### Changed
 - **Blog page structure:** Removed the large left sidebar treatment from `/blog` and kept the focus on the article feed to reduce visual crowding.

@@ -75,5 +75,8 @@ echo "==> Optional: dev often skips heavy caching; uncomment if you use config:c
 echo "==> Queue restart (if workers)"
 php artisan queue:restart || true
 
+echo "==> Verify release"
+bash scripts/deploy/verify_release.sh
+
 echo "==> Done. Hard-refresh the browser (Cmd+Shift+R) or use a private window."
 echo "    If still stale: restart PHP-FPM from Cloudways or purge Cloudflare cache for dev."

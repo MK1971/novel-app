@@ -51,4 +51,7 @@ php artisan view:cache
 echo "==> Restart queue workers"
 php artisan queue:restart || true
 
+echo "==> Verify release"
+bash scripts/deploy/verify_release.sh
+
 echo "Deployment post steps complete."

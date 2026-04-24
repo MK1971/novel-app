@@ -20,12 +20,16 @@
                             <p class="text-xs font-black uppercase tracking-[0.2em] text-[#B8860B] mb-4">Latest update</p>
                             <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
                                 @if(!empty($featuredPost['cover_image_url']))
-                                    <div class="h-full min-h-[260px] rounded-xl overflow-hidden">
+                                    <div class="relative h-full min-h-[260px] rounded-xl overflow-hidden">
                                         <img
                                             src="{{ $featuredPost['cover_image_url'] }}"
                                             alt="{{ $featuredPost['title'] }} cover"
-                                            class="h-full w-full object-cover"
+                                            class="h-full w-full object-contain bg-[#F3EEE7]"
+                                            onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                         >
+                                        <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
+                                            <span class="text-[120px] leading-none">{{ $featuredPost['cover_emoji'] ?? '📘' }}</span>
+                                        </div>
                                     </div>
                                 @else
                                     <div class="h-full min-h-[260px] rounded-xl bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
@@ -55,12 +59,16 @@
                             @forelse($latestPosts as $post)
                                 <article class="rounded-xl border border-[#E8E8E8] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5">
                                     @if(!empty($post['cover_image_url']))
-                                        <div class="aspect-[16/9] overflow-hidden border-b border-[#E8E8E8]">
+                                        <div class="relative aspect-[16/9] overflow-hidden border-b border-[#E8E8E8]">
                                             <img
                                                 src="{{ $post['cover_image_url'] }}"
                                                 alt="{{ $post['title'] }} cover"
-                                                class="h-full w-full object-cover"
+                                                class="h-full w-full object-contain bg-[#F3EEE7]"
+                                                onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                             >
+                                            <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
+                                                <span class="text-7xl leading-none">{{ $post['cover_emoji'] ?? '✨' }}</span>
+                                            </div>
                                         </div>
                                     @else
                                         <div class="aspect-[16/9] bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center border-b border-[#E8E8E8]">
@@ -107,7 +115,7 @@
                                 Start reading
                             </a>
                             @if(Route::has('register'))
-                                <a href="{{ route('register') }}" class="inline-flex items-center rounded-md border border-[#E7D0B2] bg-white px-3 py-1.5 text-xs font-semibold text-[#7A4C1A] hover:bg-[#FFFBF7] transition-colors">
+                                <a href="{{ route('register') }}" class="inline-flex items-center rounded-md bg-[#C4A965] px-3 py-1.5 text-xs font-semibold text-[#1A1A1A] hover:bg-[#A67D4C] transition-colors">
                                     Create contributor
                                 </a>
                             @endif
@@ -128,23 +136,23 @@
                     </section>
 
                     <section class="rounded-xl border border-stone-700 bg-stone-900 px-6 py-8 text-stone-100">
-                        <h2 class="text-2xl font-black mb-5">Live manuscript snapshot</h2>
+                        <h2 class="text-2xl font-black mb-5 text-white">Live manuscript snapshot</h2>
                         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div class="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-5">
                                 <p class="text-3xl font-black text-[#C4A965]">{{ number_format($stats['contributors']) }}</p>
-                                <p class="text-xs font-bold uppercase tracking-wider text-stone-300">Contributors</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-stone-200">Contributors</p>
                             </div>
                             <div class="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-5">
                                 <p class="text-3xl font-black text-[#C4A965]">{{ number_format($stats['accepted_edits']) }}</p>
-                                <p class="text-xs font-bold uppercase tracking-wider text-stone-300">Accepted edits</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-stone-200">Accepted edits</p>
                             </div>
                             <div class="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-5">
                                 <p class="text-3xl font-black text-[#C4A965]">{{ number_format($stats['live_chapters']) }}</p>
-                                <p class="text-xs font-bold uppercase tracking-wider text-stone-300">Live chapters</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-stone-200">Live chapters</p>
                             </div>
                             <div class="rounded-2xl border border-stone-700 bg-stone-800 px-4 py-5">
                                 <p class="text-3xl font-black text-[#C4A965]">{{ number_format($stats['posts_published']) }}</p>
-                                <p class="text-xs font-bold uppercase tracking-wider text-stone-300">Published posts</p>
+                                <p class="text-xs font-bold uppercase tracking-wider text-stone-200">Published posts</p>
                             </div>
                         </div>
                     </section>

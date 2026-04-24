@@ -367,4 +367,7 @@ if [[ -n "$APP_URL_EXPECTED" ]]; then
   curl -I --max-time 20 "${APP_URL_EXPECTED}?cb=$(date +%s)" || true
 fi
 
+echo "==> Verify release"
+bash scripts/deploy/verify_release.sh "$APP_DIR"
+
 echo "==> Done"
