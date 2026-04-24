@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.93 - Card-only uncropped source fallback on blog index
+### Fixed
+- **Grid card cropping persistence:** Updated `resources/views/blog/index.blade.php` to detect seeded `blog-cards/*_16x9` URLs and render original `blog-assets/*` images for cards only, preserving full artwork content without changing story-page image behavior.
+
 ## Version 1.9.92 - Align production grid cards to dark smart-fit variant
 ### Changed
 - **Grid card container style:** Updated blog index grid cards to `aspect-video` with dark background `#1A1A1A` and centered contain-fit rendering.

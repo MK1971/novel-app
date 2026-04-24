@@ -59,9 +59,17 @@
                             @forelse($latestPosts as $post)
                                 <article class="rounded-xl border border-[#E8E8E8] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5">
                                     @if(!empty($post['cover_image_url']))
+                                        @php
+                                            // Cards should prefer original sources when seeded URLs point at cropped 16:9 variants.
+                                            $cardImageUrl = $post['cover_image_url'];
+                                            if (str_contains($cardImageUrl, '/blog-assets/blog-cards/')) {
+                                                $cardImageUrl = str_replace('/blog-assets/blog-cards/', '/blog-assets/', $cardImageUrl);
+                                                $cardImageUrl = str_replace('_16x9', '', $cardImageUrl);
+                                            }
+                                        @endphp
                                         <div class="relative aspect-video overflow-hidden border-b border-[#E8E8E8] bg-[#1A1A1A] flex items-center justify-center">
                                             <img
-                                                src="{{ $post['cover_image_url'] }}"
+                                                src="{{ $cardImageUrl }}"
                                                 alt="{{ $post['title'] }} cover"
                                                 class="h-full w-full object-contain p-2"
                                                 onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
