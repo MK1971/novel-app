@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.78 - Cron deploy self-heal on runtime drift
+### Changed
+- **Cron deploy up-to-date behavior:** `cron_git_pull_deploy.sh` now runs `verify_release.sh` even when the branch head is unchanged; if verification fails, it forces rsync + post-deploy steps instead of exiting early.
+- **Operational resilience:** Added explicit self-heal completion logging for unchanged-commit recoveries so deploy logs clearly distinguish normal deploys from drift repairs.
+
 ## Version 1.9.77 - Blog cover delivery fallback and admin category default safety
 ### Added
 - **Storage-independent blog cover route:** Added `blog.cover` (`/blog-cover/{path}`) to serve blog cover files directly from Laravel storage, reducing dependency on environment-specific `public/storage` symlink behavior.

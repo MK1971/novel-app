@@ -68,15 +68,24 @@ fi
 LOCAL=$(git -C "$NOVEL_GIT_DIR" rev-parse HEAD)
 REMOTE=$(git -C "$NOVEL_GIT_DIR" rev-parse "$UPSTREAM")
 
+UP_TO_DATE=0
 if [[ "$LOCAL" == "$REMOTE" ]]; then
+  UP_TO_DATE=1
   log "up-to-date $(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD) ($NOVEL_GIT_BRANCH)"
-  exit 0
+  if [[ -f "$NOVEL_APP_ROOT/scripts/deploy/verify_release.sh" ]]; then
+    if bash "$NOVEL_APP_ROOT/scripts/deploy/verify_release.sh" "$NOVEL_APP_ROOT"; then
+      log "verify_release passed; skipping deploy work for unchanged commit"
+      exit 0
+    fi
+    log "WARN: verify_release failed on unchanged commit; forcing rsync + deploy self-heal"
+  else
+    exit 0
+  fi
+else
+  log "deploy ${NOVEL_GIT_BRANCH}: $(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD) -> $(git -C "$NOVEL_GIT_DIR" rev-parse --short "$REMOTE")"
+  git -C "$NOVEL_GIT_DIR" checkout "$NOVEL_GIT_BRANCH"
+  git -C "$NOVEL_GIT_DIR" merge --ff-only "$UPSTREAM"
 fi
-
-log "deploy ${NOVEL_GIT_BRANCH}: $(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD) -> $(git -C "$NOVEL_GIT_DIR" rev-parse --short "$REMOTE")"
-
-git -C "$NOVEL_GIT_DIR" checkout "$NOVEL_GIT_BRANCH"
-git -C "$NOVEL_GIT_DIR" merge --ff-only "$UPSTREAM"
 
 log "rsync git_repo -> public_html (preserving .env storage vendor)"
 rsync -rt --no-perms --no-owner --no-group --omit-dir-times \
@@ -111,4 +120,8 @@ if ! run_deploy; then
   exit 1
 fi
 
-log "done $NOVEL_GIT_BRANCH=$(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD)"
+if [[ "$UP_TO_DATE" -eq 1 ]]; then
+  log "done (self-heal) $NOVEL_GIT_BRANCH=$(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD)"
+else
+  log "done $NOVEL_GIT_BRANCH=$(git -C "$NOVEL_GIT_DIR" rev-parse --short HEAD)"
+fi
