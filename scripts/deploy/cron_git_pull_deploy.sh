@@ -100,10 +100,10 @@ rsync -rt --no-perms --no-owner --no-group --omit-dir-times \
 run_deploy() {
   case "$NOVEL_DEPLOY_PROFILE" in
     dev)
-      bash "$NOVEL_APP_ROOT/scripts/deploy/dev_after_pull.sh"
+      (cd "$NOVEL_APP_ROOT" && bash "$NOVEL_APP_ROOT/scripts/deploy/dev_after_pull.sh")
       ;;
     production)
-      bash "$NOVEL_APP_ROOT/scripts/deploy/server_post_deploy.sh"
+      (cd "$NOVEL_APP_ROOT" && bash "$NOVEL_APP_ROOT/scripts/deploy/server_post_deploy.sh")
       ;;
     *)
       log "ERROR: NOVEL_DEPLOY_PROFILE must be 'dev' or 'production', got: $NOVEL_DEPLOY_PROFILE"

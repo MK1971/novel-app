@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_ROOT="${NOVEL_APP_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+cd "$APP_ROOT"
+
 resolve_composer() {
   if command -v composer >/dev/null 2>&1; then
     command -v composer
@@ -52,6 +56,6 @@ echo "==> Restart queue workers"
 php artisan queue:restart || true
 
 echo "==> Verify release"
-bash scripts/deploy/verify_release.sh
+bash scripts/deploy/verify_release.sh "$APP_ROOT"
 
 echo "Deployment post steps complete."

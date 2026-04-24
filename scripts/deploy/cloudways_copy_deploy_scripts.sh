@@ -25,7 +25,7 @@ if [[ ! -d "$GR" ]]; then
 fi
 mkdir -p "$PH"
 
-for f in cron_git_pull_deploy.sh dev_after_pull.sh; do
+for f in cron_git_pull_deploy.sh dev_after_pull.sh server_post_deploy.sh verify_release.sh; do
   if [[ -f "$GR/$f" ]]; then
     cp -a "$GR/$f" "$PH/"
     chmod +x "$PH/$f"

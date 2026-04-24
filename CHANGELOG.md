@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.82 - Fully automatic deploy working-directory hardening
+### Fixed
+- **Post-deploy execution root:** Updated `scripts/deploy/dev_after_pull.sh` and `scripts/deploy/server_post_deploy.sh` to always `cd` into the Laravel app root before running Composer, Artisan, and npm steps.
+- **Cron deploy invocation:** Updated `scripts/deploy/cron_git_pull_deploy.sh` to execute post-deploy scripts from `NOVEL_APP_ROOT`, preventing accidental runs from `/home/master`.
+
+### Changed
+- **Script sync helper coverage:** Expanded `scripts/deploy/cloudways_copy_deploy_scripts.sh` to also copy `server_post_deploy.sh` and `verify_release.sh` into `public_html/scripts/deploy` so cron jobs always use the latest deploy logic.
+
 ## Version 1.9.81 - Match single-post cover sizing with blog cards
 ### Changed
 - **Blog post cover consistency:** Updated `resources/views/blog/show.blade.php` so single-post hero images render inside a fixed 16:9 container with `object-contain`, matching card behavior and reducing cross-environment visual mismatch.
