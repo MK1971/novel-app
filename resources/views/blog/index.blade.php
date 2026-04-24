@@ -24,7 +24,7 @@
                                         <img
                                             src="{{ $featuredPost['cover_image_url'] }}"
                                             alt="{{ $featuredPost['title'] }} cover"
-                                            class="h-full w-full object-cover"
+                                            class="h-full w-full object-cover object-left"
                                             onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                         >
                                         <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
@@ -59,7 +59,7 @@
                             @forelse($latestPosts as $post)
                                 <article class="rounded-xl border border-[#E8E8E8] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5">
                                     @if(!empty($post['cover_image_url']))
-                                        <div class="relative aspect-[2/1] overflow-hidden border-b border-[#E8E8E8] bg-[#F3EEE7]">
+                                        <div class="relative aspect-[21/10] overflow-hidden border-b border-[#E8E8E8] bg-[#F3EEE7]">
                                             <img
                                                 src="{{ $post['cover_image_url'] }}"
                                                 alt="{{ $post['title'] }} cover"

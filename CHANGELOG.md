@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.86 - Align production featured crop with sandbox framing
+### Changed
+- **Featured image focal point:** Updated the blog featured image to `object-left` so the left-side headline text in the artwork remains visible instead of being center-cropped in production.
+- **Card media proportion:** Tuned blog card image ratio from `2/1` to `21/10` to better match sandbox visual balance.
+
 ## Version 1.9.85 - Remove blog letterboxing and reduce card image dominance
 ### Changed
 - **Main blog cover rendering:** Switched featured and single-post cover images back to `object-cover` to remove visible white bars above/below the artwork.
