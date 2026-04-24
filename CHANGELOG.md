@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.83 - Fill-frame blog image rendering parity
+### Changed
+- **Blog image fit mode:** Updated `resources/views/blog/index.blade.php` and `resources/views/blog/show.blade.php` to use fixed 16:9 containers with `object-cover` so production cards and single-post covers consistently fill their image frames.
+- **Featured card framing:** Standardized featured post image framing to 16:9 to match post cards and reduce environment-to-environment visual drift.
+
 ## Version 1.9.82 - Fully automatic deploy working-directory hardening
 ### Fixed
 - **Post-deploy execution root:** Updated `scripts/deploy/dev_after_pull.sh` and `scripts/deploy/server_post_deploy.sh` to always `cd` into the Laravel app root before running Composer, Artisan, and npm steps.
