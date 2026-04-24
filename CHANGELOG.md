@@ -2,6 +2,12 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.88 - Featured card typography and cover-fit tuning
+### Changed
+- **Featured cover fit:** Switched the featured image in `resources/views/blog/index.blade.php` from `object-contain` back to `object-cover`.
+- **Featured headline scale:** Increased featured title size from `md:text-[2.6rem]` to `md:text-[2.8rem]`.
+- **Card title weight:** Upgraded post card titles from `font-bold` to `font-black` for stronger emphasis.
+
 ## Version 1.9.87 - Preserve full featured artwork text on blog index
 ### Fixed
 - **Featured hero crop regression:** Switched only the blog featured image back to `object-contain` so artwork text is fully visible and no longer clipped in production.

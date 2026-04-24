@@ -24,7 +24,7 @@
                                         <img
                                             src="{{ $featuredPost['cover_image_url'] }}"
                                             alt="{{ $featuredPost['title'] }} cover"
-                                            class="h-full w-full object-contain"
+                                            class="h-full w-full object-cover"
                                             onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                         >
                                         <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">
@@ -43,7 +43,7 @@
                                         @endif
                                         {{ $featuredPost['published_at']->format('M j, Y') }}
                                     </p>
-                                    <h2 class="mt-2 text-4xl md:text-[2.6rem] font-black text-[#2C2C2C] leading-tight">{{ $featuredPost['title'] }}</h2>
+                                    <h2 class="mt-2 text-4xl md:text-[2.8rem] font-black text-[#2C2C2C] leading-tight">{{ $featuredPost['title'] }}</h2>
                                     <p class="mt-4 text-[#554433] font-semibold leading-relaxed">{{ $featuredPost['excerpt'] }}</p>
                                     <a href="{{ route('blog.show', ['slug' => $featuredPost['slug']]) }}" class="mt-auto inline-flex w-fit items-center rounded-lg bg-[#C4A965] px-7 py-3 text-[#1A1A1A] font-bold hover:bg-[#A67D4C] transition-colors">
                                         Read the full story
@@ -83,7 +83,7 @@
                                             @endif
                                             <span>{{ $post['published_at']->format('M j, Y') }}</span>
                                         </p>
-                                        <h3 class="mt-3 text-[1.75rem] font-bold text-[#2C2C2C] leading-snug">{{ $post['title'] }}</h3>
+                                        <h3 class="mt-3 text-[1.75rem] font-black text-[#2C2C2C] leading-snug">{{ $post['title'] }}</h3>
                                         <p class="mt-3 text-sm font-semibold text-[#554433] leading-relaxed" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
                                             {{ $post['excerpt'] }}
                                         </p>
