@@ -2,6 +2,14 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.80 - Aspect-safe blog image variants for stable no-crop rendering
+### Added
+- **Blog card image variants:** Added preprocessed 16:9 blog cover assets under `public/blog-assets/blog-cards/` for the featured launch and key grid posts.
+
+### Changed
+- **Config-backed cover paths:** Updated seeded blog cover paths to use the new 16:9 variants so production cards fill consistently without stretch while preserving no-crop behavior.
+- **Asset documentation:** Updated `public/blog-assets/README.txt` with source-vs-generated image mapping for repeatable asset prep.
+
 ## Version 1.9.79 - Restore no-crop blog image fitting
 ### Changed
 - **Blog cover rendering mode:** Switched blog index and single-post cover images back to `object-contain` with neutral backdrop so full uploaded images are visible without edge cropping.

@@ -11,7 +11,7 @@ return [
             'author' => 'Moshe Kagan, Founder',
             'published_at' => '2026-04-22',
             'featured' => true,
-            'cover_image_path' => 'blog-assets/hero_banner.png',
+            'cover_image_path' => 'blog-assets/blog-cards/hero_banner_16x9.png',
             'cover_emoji' => '📖',
             'excerpt' => 'The manuscript is now live, collaborative, and open to edits. Readers can help shape Peter Trull and earn recognition on the final published book.',
             'content' => [
@@ -29,7 +29,7 @@ return [
             'author' => 'Moshe Kagan, Founder',
             'published_at' => '2026-04-24',
             'featured' => false,
-            'cover_image_path' => 'blog-assets/twitter_post_2.png',
+            'cover_image_path' => 'blog-assets/blog-cards/twitter_post_2_16x9.png',
             'cover_emoji' => '🏆',
             'excerpt' => 'A breakdown of how accepted edits translate into points, leaderboard momentum, and final-book recognition.',
             'content' => [
@@ -47,7 +47,7 @@ return [
             'author' => 'Moshe Kagan, Founder',
             'published_at' => '2026-04-23',
             'featured' => false,
-            'cover_image_path' => 'blog-assets/twitter_post_4.png',
+            'cover_image_path' => 'blog-assets/blog-cards/twitter_post_4_16x9.png',
             'cover_emoji' => '🕵️',
             'excerpt' => 'Meet the Navy intelligence officer at the center of our first interactive mystery, where readers decide which path survives.',
             'content' => [
