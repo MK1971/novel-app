@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.84 - Restore no-crop blog image behavior with stable featured layout
+### Fixed
+- **Production image cropping regression:** Reverted blog index and single-post cover rendering to `object-contain` so covers remain fully visible without edge cropping.
+- **Featured card overlap risk:** Restored featured image container sizing to `h-full min-h-[260px]` (without forced 16:9 on that block) to prevent image area from colliding with adjacent featured text.
+
 ## Version 1.9.83 - Fill-frame blog image rendering parity
 ### Changed
 - **Blog image fit mode:** Updated `resources/views/blog/index.blade.php` and `resources/views/blog/show.blade.php` to use fixed 16:9 containers with `object-cover` so production cards and single-post covers consistently fill their image frames.
