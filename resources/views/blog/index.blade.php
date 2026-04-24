@@ -24,7 +24,7 @@
                                         <img
                                             src="{{ $featuredPost['cover_image_url'] }}"
                                             alt="{{ $featuredPost['title'] }} cover"
-                                            class="h-full w-full object-cover object-left"
+                                            class="h-full w-full object-contain"
                                             onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                         >
                                         <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">

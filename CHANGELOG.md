@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.87 - Preserve full featured artwork text on blog index
+### Fixed
+- **Featured hero crop regression:** Switched only the blog featured image back to `object-contain` so artwork text is fully visible and no longer clipped in production.
+
 ## Version 1.9.86 - Align production featured crop with sandbox framing
 ### Changed
 - **Featured image focal point:** Updated the blog featured image to `object-left` so the left-side headline text in the artwork remains visible instead of being center-cropped in production.
