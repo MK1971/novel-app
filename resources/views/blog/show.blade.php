@@ -24,7 +24,7 @@
                         <img
                             src="{{ $post['cover_image_url'] }}"
                             alt="{{ $post['title'] }} cover"
-                            class="w-full max-h-[420px] object-contain bg-[#F3EEE7]"
+                            class="w-full max-h-[420px] object-cover"
                         >
                     </div>
                 @endif
