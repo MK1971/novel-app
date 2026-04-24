@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.91 - Simplify blog image blocks to clean contain framing
+### Changed
+- **Featured hero image block:** Replaced the dual-layer featured image treatment with a single `object-contain` image on a dark neutral background (`#1A1A1A`) and centered alignment.
+- **Grid card image block:** Replaced the dual-layer grid card treatment with a single `object-contain` image inside a `16/10` frame with subtle `p-1` inset for cleaner card readability.
+
 ## Version 1.9.90 - Final polish for grid card smart-fit framing
 ### Changed
 - **Grid card ratio polish:** Updated blog grid cards in `resources/views/blog/index.blade.php` from `aspect-[21/10]` to `aspect-video` (`16:9`) for cleaner visual rhythm.
