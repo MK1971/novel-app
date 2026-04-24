@@ -62,14 +62,14 @@
                             @forelse($latestPosts as $post)
                                 <article class="rounded-xl border border-[#E8E8E8] bg-white overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-0.5">
                                     @if(!empty($post['cover_image_url']))
-                                        <div class="relative aspect-[21/10] overflow-hidden border-b border-[#E8E8E8] bg-stone-900">
+                                        <div class="relative aspect-video overflow-hidden border-b border-[#E8E8E8] bg-stone-900">
                                             <!-- Blurred Background Layer -->
                                             <img src="{{ $post['cover_image_url'] }}" class="absolute inset-0 h-full w-full object-cover blur-xl opacity-30 scale-110">
                                             <!-- Sharp Foreground Image -->
                                             <img
                                                 src="{{ $post['cover_image_url'] }}"
                                                 alt="{{ $post['title'] }} cover"
-                                                class="relative h-full w-full object-contain z-10"
+                                                class="relative h-full w-full object-contain z-10 p-2"
                                                 onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
                                             >
                                             <div class="hidden absolute inset-0 bg-gradient-to-br from-[#C4A965] to-[#A67D4C] flex items-center justify-center">

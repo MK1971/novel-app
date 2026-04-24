@@ -2,6 +2,11 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.90 - Final polish for grid card smart-fit framing
+### Changed
+- **Grid card ratio polish:** Updated blog grid cards in `resources/views/blog/index.blade.php` from `aspect-[21/10]` to `aspect-video` (`16:9`) for cleaner visual rhythm.
+- **Foreground smart-fit padding:** Added `p-2` to the sharp foreground image layer so card artwork breathes slightly while retaining the blurred full-bleed backplate effect.
+
 ## Version 1.9.89 - Add blurred backplate image treatment on blog cards
 ### Changed
 - **Featured hero image treatment:** Replaced the featured image block in `resources/views/blog/index.blade.php` with a dual-layer render (blurred `object-cover` backdrop + sharp `object-contain` foreground) to preserve full artwork text while filling the card frame.
