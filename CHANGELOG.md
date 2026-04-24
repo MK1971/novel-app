@@ -2,6 +2,10 @@
 
 This document summarizes the key changes and enhancements made to the `novel-app` project during its development.
 
+## Version 1.9.79 - Restore no-crop blog image fitting
+### Changed
+- **Blog cover rendering mode:** Switched blog index and single-post cover images back to `object-contain` with neutral backdrop so full uploaded images are visible without edge cropping.
+
 ## Version 1.9.78 - Cron deploy self-heal on runtime drift
 ### Changed
 - **Cron deploy up-to-date behavior:** `cron_git_pull_deploy.sh` now runs `verify_release.sh` even when the branch head is unchanged; if verification fails, it forces rsync + post-deploy steps instead of exiting early.
